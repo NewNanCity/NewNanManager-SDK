@@ -159,29 +159,14 @@ public abstract class HttpClientBase
             await HandleHttpErrorAsync(response, content);
         }
 
-        // 解析API响应
-        var apiResponse = JsonSerializer.Deserialize<ApiResponse<T>>(content, _jsonOptions);
-        if (apiResponse == null)
+        // 新的响应格式：成功时直接返回数据，不再有统一包装
+        var result = JsonSerializer.Deserialize<T>(content, _jsonOptions);
+        if (result == null)
         {
             throw new NewNanManagerException("Failed to parse API response");
         }
 
-        // 检查API错误代码
-        if (apiResponse.Code != 0)
-        {
-            throw new ApiErrorException(
-                apiResponse.Code,
-                apiResponse.Message,
-                apiResponse.RequestId
-            );
-        }
-
-        if (apiResponse.Data == null)
-        {
-            throw new NewNanManagerException("API response data is null");
-        }
-
-        return apiResponse.Data;
+        return result;
     }
 
     /// <summary>
@@ -206,22 +191,8 @@ public abstract class HttpClientBase
             await HandleHttpErrorAsync(response, content);
         }
 
-        // 对于无返回数据的请求，只需要检查API响应代码
-        if (!string.IsNullOrEmpty(content))
-        {
-            var apiResponse = JsonSerializer.Deserialize<ApiResponse<object>>(
-                content,
-                _jsonOptions
-            );
-            if (apiResponse?.Code != 0)
-            {
-                throw new ApiErrorException(
-                    apiResponse?.Code ?? -1,
-                    apiResponse?.Message ?? "Unknown error",
-                    apiResponse?.RequestId
-                );
-            }
-        }
+        // 新的响应格式：对于无返回数据的请求，成功时通常返回空内容或简单确认
+        // 如果有内容且是错误，会在上面的HTTP错误处理中被捕获
     }
 
     /// <summary>
@@ -233,21 +204,23 @@ public abstract class HttpClientBase
 
         try
         {
-            // 尝试解析错误响应
-            var errorResponse = JsonSerializer.Deserialize<ErrorResponse>(content, _jsonOptions);
-            if (errorResponse != null)
+            // 尝试解析新的错误响应格式 {"detail": "..."}
+            var errorData = JsonSerializer.Deserialize<Dictionary<string, object>>(
+                content,
+                _jsonOptions
+            );
+            if (errorData != null && errorData.ContainsKey("detail"))
             {
                 throw new ApiErrorException(
-                    errorResponse.Code,
-                    errorResponse.Message,
-                    errorResponse.RequestId,
-                    errorResponse.Data?.Details
+                    statusCode,
+                    errorData["detail"].ToString() ?? "Unknown error",
+                    null
                 );
             }
         }
         catch (JsonException)
         {
-            // 如果无法解析为API错误响应，则抛出HTTP异常
+            // 如果无法解析为JSON错误响应，则抛出HTTP异常
         }
 
         var message = response.StatusCode switch

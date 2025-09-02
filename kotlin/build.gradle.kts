@@ -55,3 +55,27 @@ tasks.register<JavaExec>("runIntegrationTest") {
     classpath = sourceSets["main"].runtimeClasspath
     mainClass.set("com.nanmanager.client.MainKt")
 }
+
+// 添加运行更新后SDK测试的任务
+tasks.register<JavaExec>("runTestUpdatedSDK") {
+    group = "verification"
+    description = "Run updated SDK tests"
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("TestUpdatedSDKKt")
+}
+
+// 添加运行模块化SDK测试的任务
+tasks.register<JavaExec>("runTestModularSDK") {
+    group = "verification"
+    description = "Run modular SDK tests"
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("TestModularSDKKt")
+}
+
+// 添加运行综合测试的任务
+tasks.register<JavaExec>("runComprehensiveTest") {
+    group = "verification"
+    description = "Run comprehensive SDK tests"
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("ComprehensiveTestKt")
+}

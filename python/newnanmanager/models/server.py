@@ -1,12 +1,10 @@
 """Server-related data models."""
 
-from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel, Field
 
 from .common import PagedData
-from .enums import ServerType
 
 
 class ServerRegistry(BaseModel):
@@ -15,10 +13,10 @@ class ServerRegistry(BaseModel):
     id: int = Field(description="服务器ID")
     name: str = Field(description="服务器名称")
     address: str = Field(description="服务器地址")
-    server_type: Optional[ServerType] = Field(default=None, description="服务器类型")
     description: Optional[str] = Field(default=None, description="服务器描述")
-    created_at: datetime = Field(description="创建时间")
-    updated_at: datetime = Field(description="更新时间")
+    active: bool = Field(description="是否激活")
+    created_at: str = Field(description="创建时间(ISO8601格式)")
+    updated_at: str = Field(description="更新时间(ISO8601格式)")
 
 
 class ServerStatus(BaseModel):
@@ -32,8 +30,8 @@ class ServerStatus(BaseModel):
     tps: Optional[float] = Field(default=None, description="TPS（每秒tick数）")
     version: Optional[str] = Field(default=None, description="服务器版本")
     motd: Optional[str] = Field(default=None, description="服务器MOTD")
-    expire_at: datetime = Field(description="状态过期时间")
-    last_heartbeat: datetime = Field(description="最后心跳时间")
+    expire_at: str = Field(description="状态失效时间(ISO8601格式)")
+    last_heartbeat: str = Field(description="最后心跳时间(ISO8601格式)")
 
 
 class ServersListData(PagedData[ServerRegistry]):
@@ -71,16 +69,30 @@ class LatencyStatsData(BaseModel):
     min: int = Field(description="最小延迟")
     max: int = Field(description="最大延迟")
     variance: float = Field(description="方差")
-    last_updated: datetime = Field(description="最后更新时间")
+    last_updated: str = Field(description="最后更新时间(ISO8601格式)")
 
 
 class HeartbeatData(BaseModel):
     """心跳响应数据."""
 
-    received_at: int = Field(description="接收时间戳")
-    response_at: int = Field(description="响应时间戳")
-    sequence_id: int = Field(description="序列ID")
-    server_time: int = Field(description="服务器时间")
-    status: str = Field(description="状态")
-    next_heartbeat: int = Field(description="下次心跳时间")
-    expire_at: int = Field(description="过期时间")
+    received_at: int = Field(description="服务端接收时间戳(毫秒)")
+    response_at: int = Field(description="服务端响应时间戳(毫秒)")
+    expire_duration_ms: int = Field(description="状态过期时间(毫秒)")
+
+
+class MonitorStatRecord(BaseModel):
+    """监控统计记录."""
+
+    timestamp: int = Field(description="统计时间戳")
+    current_players: int = Field(description="当前在线人数")
+    tps: Optional[float] = Field(default=None, description="服务器TPS")
+    latency_ms: Optional[int] = Field(default=None, description="延迟毫秒")
+
+
+class MonitorStatsData(BaseModel):
+    """监控统计数据."""
+
+    server_id: int = Field(description="服务器ID")
+    stats: list[MonitorStatRecord] = Field(
+        default_factory=list, description="监控统计信息列表"
+    )

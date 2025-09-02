@@ -9,9 +9,8 @@ namespace NewNanManager.Client.Services;
 /// </summary>
 public class ServerService : HttpClientBase
 {
-    public ServerService(HttpClient httpClient, ILogger? logger = null) : base(httpClient, logger)
-    {
-    }
+    public ServerService(HttpClient httpClient, ILogger? logger = null)
+        : base(httpClient, logger) { }
 
     /// <summary>
     /// 获取服务器列表
@@ -27,14 +26,15 @@ public class ServerService : HttpClientBase
         int? pageSize = null,
         string? search = null,
         bool? onlineOnly = null,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         var queryParams = new Dictionary<string, object?>
         {
             ["page"] = page,
             ["page_size"] = pageSize,
             ["search"] = search,
-            ["online_only"] = onlineOnly
+            ["online_only"] = onlineOnly,
         };
 
         var queryString = BuildQueryString(queryParams);
@@ -42,12 +42,15 @@ public class ServerService : HttpClientBase
     }
 
     /// <summary>
-    /// 注册服务器
+    /// 创建服务器
     /// </summary>
-    /// <param name="request">注册服务器请求</param>
+    /// <param name="request">创建服务器请求</param>
     /// <param name="cancellationToken">取消令牌</param>
     /// <returns>注册的服务器信息</returns>
-    public async Task<ServerRegistry> RegisterServerAsync(RegisterServerRequest request, CancellationToken cancellationToken = default)
+    public async Task<ServerRegistry> CreateServerAsync(
+        CreateServerRequest request,
+        CancellationToken cancellationToken = default
+    )
     {
         return await PostAsync<ServerRegistry>("/api/v1/servers", request, cancellationToken);
     }
@@ -58,7 +61,10 @@ public class ServerService : HttpClientBase
     /// <param name="id">服务器ID</param>
     /// <param name="cancellationToken">取消令牌</param>
     /// <returns>服务器信息</returns>
-    public async Task<ServerRegistry> GetServerAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<ServerRegistry> GetServerAsync(
+        int id,
+        CancellationToken cancellationToken = default
+    )
     {
         return await GetAsync<ServerRegistry>($"/api/v1/servers/{id}", cancellationToken);
     }
@@ -70,7 +76,11 @@ public class ServerService : HttpClientBase
     /// <param name="request">更新请求</param>
     /// <param name="cancellationToken">取消令牌</param>
     /// <returns>更新后的服务器信息</returns>
-    public async Task<ServerRegistry> UpdateServerAsync(int id, UpdateServerRequest request, CancellationToken cancellationToken = default)
+    public async Task<ServerRegistry> UpdateServerAsync(
+        int id,
+        UpdateServerRequest request,
+        CancellationToken cancellationToken = default
+    )
     {
         return await PutAsync<ServerRegistry>($"/api/v1/servers/{id}", request, cancellationToken);
     }
@@ -91,7 +101,10 @@ public class ServerService : HttpClientBase
     /// <param name="id">服务器ID</param>
     /// <param name="cancellationToken">取消令牌</param>
     /// <returns>服务器详细信息</returns>
-    public async Task<ServerDetailData> GetServerDetailAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<ServerDetailData> GetServerDetailAsync(
+        int id,
+        CancellationToken cancellationToken = default
+    )
     {
         return await GetAsync<ServerDetailData>($"/api/v1/servers/{id}/detail", cancellationToken);
     }

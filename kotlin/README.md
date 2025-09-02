@@ -29,6 +29,10 @@
 - ✅ **城镇管理** (6个API): 创建、查询、更新、成员管理、删除
 - ✅ **Token管理** (1个API): 列表查询
 - ✅ **监控功能** (1个API): 错误处理测试
+- ✅ **批量玩家验证** (新功能): 支持1-100个玩家同时验证
+- ✅ **IP管理** (新功能): IP信息查询、封禁、解封
+- ✅ **玩家服务器关系管理** (新功能): 在线状态、服务器列表
+- ✅ **新的响应格式**: 成功时直接返回数据，错误时返回 `{"detail": "错误信息"}`
 
 ### 预期测试结果
 基于其他客户端的测试结果，Kotlin客户端预期应该达到：
@@ -111,6 +115,43 @@ fun main() = runBlocking {
         inQqGroup = true
     ))
     println("创建玩家: ${newPlayer.name}")
+
+    // 批量玩家验证（新功能）
+    val validateResult = client.validate(ValidateRequest(
+        players = listOf(
+            PlayerValidateInfo(
+                playerName = "TestPlayer",
+                ip = "192.168.1.100",
+                clientVersion = "1.20.1"
+            )
+        ),
+        serverId = 1,
+        login = true
+    ))
+    println("验证结果: ${validateResult.results.size}个玩家")
+
+    // IP管理（新功能）
+    val ipInfo = client.getIPInfo("8.8.8.8")
+    println("IP信息: ${ipInfo.ip} - ${ipInfo.country}")
+
+    // 封禁IP
+    client.banIP(BanIPRequest(
+        ip = "192.168.1.200",
+        reason = "测试封禁"
+    ))
+    println("IP封禁成功")
+
+    // 玩家服务器关系管理（新功能）
+    client.setPlayerOnline(SetPlayerOnlineRequest(
+        playerId = newPlayer.id,
+        serverId = 1,
+        online = true
+    ))
+    println("设置玩家在线状态成功")
+
+    // 获取在线玩家
+    val onlinePlayers = client.getOnlinePlayers()
+    println("在线玩家: ${onlinePlayers.players.size}个")
 
     client.close()
 }

@@ -10,8 +10,8 @@ from ..models import (
     Player,
     PlayersListData,
     UpdatePlayerRequest,
-    ValidateLoginData,
-    ValidateLoginRequest,
+    ValidateData,
+    ValidateRequest,
 )
 
 
@@ -33,15 +33,23 @@ class PlayerService:
         search: Optional[str] = None,
         town_id: Optional[int] = None,
         ban_mode: Optional[BanMode] = None,
+        name: Optional[str] = None,
+        qq: Optional[str] = None,
+        qqguild: Optional[str] = None,
+        discord: Optional[str] = None,
     ) -> PlayersListData:
         """获取玩家列表.
 
         Args:
             page: 页码
             page_size: 每页大小
-            search: 搜索关键词
+            search: 搜索关键词（模糊搜索游戏名）
             town_id: 城镇ID
             ban_mode: 封禁模式
+            name: 精确游戏名过滤
+            qq: QQ号过滤
+            qqguild: QQ频道ID过滤
+            discord: Discord ID过滤
 
         Returns:
             玩家列表数据
@@ -52,6 +60,10 @@ class PlayerService:
             "search": search,
             "town_id": town_id,
             "ban_mode": ban_mode.value if ban_mode is not None else None,
+            "name": name,
+            "qq": qq,
+            "qqguild": qqguild,
+            "discord": discord,
         }
 
         return await self._http.get(
@@ -78,22 +90,20 @@ class PlayerService:
             response_model=Player,
         )
 
-    async def validate_login(
+    async def validate(
         self,
-        request: ValidateLoginRequest,
-    ) -> ValidateLoginData:
-        """验证玩家登录.
+        request: ValidateRequest,
+    ) -> ValidateData:
+        """玩家验证（支持批处理）.
 
         Args:
-            request: 登录验证请求
+            request: 验证请求
 
         Returns:
             验证结果
         """
         return await self._http.post(
-            "/api/v1/players/validate-login",
-            json_data=request,
-            response_model=ValidateLoginData,
+            "/api/v1/players/validate", json_data=request, response_model=ValidateData
         )
 
     async def get_player(self, player_id: int) -> Player:

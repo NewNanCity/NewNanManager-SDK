@@ -17,7 +17,8 @@ from .exceptions import (
     NewNanManagerException,
     TimeoutException,
 )
-from .models.common import ApiResponse, ErrorResponse
+# 移除不再使用的统一响应格式导入
+# from .models.common import ApiResponse, ErrorResponse
 
 T = TypeVar("T", bound=BaseModel)
 
@@ -219,22 +220,7 @@ class HttpClient:
         except json.JSONDecodeError as e:
             raise NewNanManagerException(f"Failed to parse JSON response: {e}")
 
-        # 检查API错误代码
-        if isinstance(response_data, dict) and "code" in response_data:
-            api_response = ApiResponse[dict].model_validate(response_data)
-            if api_response.code != 0:
-                raise ApiErrorException(
-                    message=api_response.message,
-                    error_code=api_response.code,
-                    request_id=api_response.request_id,
-                )
-
-            # 返回数据部分
-            data = api_response.data
-            if response_model and data is not None:
-                return response_model.model_validate(data)
-            return data or {}
-
+        # 新的响应格式：成功时直接返回数据，不再有统一包装
         # 直接返回响应数据
         if response_model:
             return response_model.model_validate(response_data)
@@ -257,21 +243,18 @@ class HttpClient:
         """
         status_code = response.status
 
-        # 尝试解析错误响应
+        # 尝试解析新的错误响应格式 {"detail": "..."}
         try:
             error_data = json.loads(response_text) if response_text else {}
-            if isinstance(error_data, dict) and "code" in error_data:
-                error_response = ErrorResponse.model_validate(error_data)
+            if isinstance(error_data, dict) and "detail" in error_data:
+                # 新的错误响应格式
                 raise ApiErrorException(
-                    message=error_response.message,
-                    error_code=error_response.code,
-                    request_id=error_response.request_id,
-                    details=error_response.data.details
-                    if error_response.data
-                    else None,
+                    message=error_data["detail"],
+                    error_code=status_code,
+                    request_id=None,
                 )
         except (json.JSONDecodeError, ValueError):
-            # 无法解析为API错误响应，继续处理为HTTP错误
+            # 无法解析为JSON错误响应，继续处理为HTTP错误
             pass
 
         # 生成HTTP错误消息

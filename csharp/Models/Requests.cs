@@ -165,9 +165,39 @@ public class ValidateLoginRequest
 }
 
 /// <summary>
-/// 注册服务器请求
+/// 玩家验证请求（支持批处理）
 /// </summary>
-public class RegisterServerRequest
+public class ValidateRequest
+{
+    /// <summary>
+    /// 玩家列表（1-100个）
+    /// </summary>
+    [JsonPropertyName("players")]
+    public List<PlayerValidateInfo> Players { get; set; } = new();
+
+    /// <summary>
+    /// 服务器ID：1-999999
+    /// </summary>
+    [JsonPropertyName("server_id")]
+    public int ServerId { get; set; }
+
+    /// <summary>
+    /// 是否为登录验证（true=登录需记录日志，false=定期检查不记录日志）
+    /// </summary>
+    [JsonPropertyName("login")]
+    public bool Login { get; set; }
+
+    /// <summary>
+    /// 请求时间戳：0或Unix时间戳，默认0
+    /// </summary>
+    [JsonPropertyName("timestamp")]
+    public long Timestamp { get; set; } = 0;
+}
+
+/// <summary>
+/// 创建服务器请求
+/// </summary>
+public class CreateServerRequest
 {
     /// <summary>
     /// 服务器名称
@@ -230,58 +260,46 @@ public class UpdateServerRequest
 public class HeartbeatRequest
 {
     /// <summary>
-    /// 时间戳
+    /// 服务器ID
     /// </summary>
-    [JsonPropertyName("timestamp")]
-    public long? Timestamp { get; set; }
+    [JsonPropertyName("server_id")]
+    public int ServerId { get; set; }
 
     /// <summary>
-    /// 序列ID
-    /// </summary>
-    [JsonPropertyName("sequence_id")]
-    public long? SequenceId { get; set; }
-
-    /// <summary>
-    /// 当前玩家数
+    /// 当前在线人数
     /// </summary>
     [JsonPropertyName("current_players")]
-    public int? CurrentPlayers { get; set; }
+    public int CurrentPlayers { get; set; }
 
     /// <summary>
     /// 最大玩家数
     /// </summary>
     [JsonPropertyName("max_players")]
-    public int? MaxPlayers { get; set; }
+    public int MaxPlayers { get; set; }
 
     /// <summary>
-    /// TPS
+    /// 服务器TPS
     /// </summary>
     [JsonPropertyName("tps")]
     public double? TPS { get; set; }
 
     /// <summary>
-    /// 版本
+    /// 服务器版本
     /// </summary>
     [JsonPropertyName("version")]
     public string? Version { get; set; }
 
     /// <summary>
-    /// MOTD
+    /// 服务器描述
     /// </summary>
     [JsonPropertyName("motd")]
     public string? MOTD { get; set; }
 
     /// <summary>
-    /// 最后RTT（毫秒）
+    /// RTT延迟(毫秒)
     /// </summary>
-    [JsonPropertyName("last_rtt_ms")]
-    public long? LastRTTMs { get; set; }
-
-    /// <summary>
-    /// 玩家列表
-    /// </summary>
-    [JsonPropertyName("player_list")]
-    public List<PlayerLoginInfo>? PlayerList { get; set; }
+    [JsonPropertyName("rtt_ms")]
+    public long? RttMs { get; set; }
 }
 
 /// <summary>
@@ -354,24 +372,18 @@ public class UpdateTownRequest
     /// </summary>
     [JsonPropertyName("description")]
     public string? Description { get; set; }
-}
-
-/// <summary>
-/// 管理城镇成员请求
-/// </summary>
-public class ManageTownMemberRequest
-{
-    /// <summary>
-    /// 玩家ID
-    /// </summary>
-    [JsonPropertyName("player_id")]
-    public int? PlayerId { get; set; }
 
     /// <summary>
-    /// 操作类型
+    /// 待添加的玩家ID列表
     /// </summary>
-    [JsonPropertyName("action")]
-    public string? Action { get; set; }
+    [JsonPropertyName("add_players")]
+    public List<int>? AddPlayers { get; set; }
+
+    /// <summary>
+    /// 待移除的玩家ID列表
+    /// </summary>
+    [JsonPropertyName("remove_players")]
+    public List<int>? RemovePlayers { get; set; }
 }
 
 /// <summary>

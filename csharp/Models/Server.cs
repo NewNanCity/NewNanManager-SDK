@@ -210,44 +210,68 @@ public class LatencyStatsData
 public class HeartbeatData
 {
     /// <summary>
-    /// 接收时间戳
+    /// 服务端接收时间戳(毫秒)
     /// </summary>
     [JsonPropertyName("received_at")]
     public long ReceivedAt { get; set; }
 
     /// <summary>
-    /// 响应时间戳
+    /// 服务端响应时间戳(毫秒)
     /// </summary>
     [JsonPropertyName("response_at")]
     public long ResponseAt { get; set; }
 
     /// <summary>
-    /// 序列ID
+    /// 状态过期时间(毫秒)
     /// </summary>
-    [JsonPropertyName("sequence_id")]
-    public long SequenceId { get; set; }
+    [JsonPropertyName("expire_duration_ms")]
+    public long ExpireDurationMs { get; set; }
+}
+
+/// <summary>
+/// 监控统计记录
+/// </summary>
+public class MonitorStatRecord
+{
+    /// <summary>
+    /// 统计时间戳
+    /// </summary>
+    [JsonPropertyName("timestamp")]
+    public long Timestamp { get; set; }
 
     /// <summary>
-    /// 服务器时间
+    /// 当前在线人数
     /// </summary>
-    [JsonPropertyName("server_time")]
-    public long ServerTime { get; set; }
+    [JsonPropertyName("current_players")]
+    public int CurrentPlayers { get; set; }
 
     /// <summary>
-    /// 状态
+    /// 服务器TPS
     /// </summary>
-    [JsonPropertyName("status")]
-    public string Status { get; set; } = string.Empty;
+    [JsonPropertyName("tps")]
+    public double? TPS { get; set; }
 
     /// <summary>
-    /// 下次心跳时间
+    /// 延迟毫秒
     /// </summary>
-    [JsonPropertyName("next_heartbeat")]
-    public long NextHeartbeat { get; set; }
+    [JsonPropertyName("latency_ms")]
+    public long? LatencyMs { get; set; }
+}
+
+/// <summary>
+/// 监控统计数据
+/// </summary>
+public class MonitorStatsData
+{
+    /// <summary>
+    /// 服务器ID
+    /// </summary>
+    [JsonPropertyName("server_id")]
+    public int ServerId { get; set; }
 
     /// <summary>
-    /// 过期时间
+    /// 监控统计信息列表
     /// </summary>
-    [JsonPropertyName("expire_at")]
-    public long ExpireAt { get; set; }
+    [JsonPropertyName("stats")]
+    public List<MonitorStatRecord> Stats { get; set; } = new();
 }

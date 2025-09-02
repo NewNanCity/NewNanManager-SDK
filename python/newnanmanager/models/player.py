@@ -1,6 +1,5 @@
 """Player-related data models."""
 
-from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel, Field
@@ -13,19 +12,21 @@ class Player(BaseModel):
     """玩家实体."""
 
     id: int = Field(description="玩家ID")
-    name: str = Field(description="玩家名称")
+    name: str = Field(description="游戏ID")
     town_id: Optional[int] = Field(default=None, description="所属城镇ID")
     qq: Optional[str] = Field(default=None, description="QQ号")
-    qqguild: Optional[str] = Field(default=None, description="QQ频道")
-    discord: Optional[str] = Field(default=None, description="Discord")
-    in_qq_group: bool = Field(default=False, description="是否在QQ群中")
-    in_qq_guild: bool = Field(default=False, description="是否在QQ频道中")
-    in_discord: bool = Field(default=False, description="是否在Discord中")
-    ban_mode: BanMode = Field(default=BanMode.NORMAL, description="封禁模式")
-    ban_expire: Optional[datetime] = Field(default=None, description="封禁过期时间")
+    qqguild: Optional[str] = Field(default=None, description="QQ频道ID")
+    discord: Optional[str] = Field(default=None, description="Discord ID")
+    in_qq_group: bool = Field(description="是否在QQ群")
+    in_qq_guild: bool = Field(description="是否在QQ频道")
+    in_discord: bool = Field(description="是否在Discord群")
+    ban_mode: BanMode = Field(description="封禁模式")
+    ban_expire: Optional[str] = Field(
+        default=None, description="封禁到期时间(ISO8601格式)"
+    )
     ban_reason: Optional[str] = Field(default=None, description="封禁原因")
-    created_at: datetime = Field(description="创建时间")
-    updated_at: datetime = Field(description="更新时间")
+    created_at: str = Field(description="创建时间(ISO8601格式)")
+    updated_at: str = Field(description="更新时间(ISO8601格式)")
 
 
 class PlayersListData(PagedData[Player]):
@@ -47,14 +48,33 @@ class PlayersListData(PagedData[Player]):
 class PlayerLoginInfo(BaseModel):
     """玩家登录信息."""
 
-    player_id: Optional[int] = Field(default=None, description="玩家ID")
-    name: Optional[str] = Field(default=None, description="玩家名称")
-    ip: Optional[str] = Field(default=None, description="IP地址")
+    player_id: int = Field(description="玩家ID")
+    name: str = Field(description="玩家名")
+    ip: str = Field(description="登录IP")
 
 
-class ValidateLoginData(BaseModel):
-    """登录验证数据."""
+class PlayerValidateInfo(BaseModel):
+    """单个玩家验证信息."""
 
+    player_name: str = Field(description="玩家名")
+    ip: str = Field(description="IP地址")
+    client_version: Optional[str] = Field(default=None, description="客户端版本")
+    protocol_version: Optional[str] = Field(default=None, description="协议版本")
+
+
+class PlayerValidateResult(BaseModel):
+    """单个玩家验证结果."""
+
+    player_name: str = Field(description="玩家名")
     allowed: bool = Field(description="是否允许登录")
     player_id: Optional[int] = Field(default=None, description="玩家ID")
     reason: Optional[str] = Field(default=None, description="拒绝原因")
+    newbie: bool = Field(default=False, description="是否为新玩家")
+    ip_risk: Optional[dict] = Field(default=None, description="IP风险信息")
+
+
+class ValidateData(BaseModel):
+    """玩家验证响应数据."""
+
+    results: list[PlayerValidateResult] = Field(description="验证结果列表")
+    processed_at: int = Field(description="处理时间戳")

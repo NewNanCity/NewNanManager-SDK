@@ -38,17 +38,19 @@ class TownsListData(PagedData[Town]):
         self.towns = value
 
 
-class TownMembersData(PagedData[Player]):
+class TownMembersData(BaseModel):
     """城镇成员数据."""
 
     members: list[Player] = Field(default_factory=list, description="成员列表")
+    total: int = Field(description="总数量")
+    page: int = Field(description="当前页码")
+    page_size: int = Field(description="每页大小")
 
-    @property
-    def items(self) -> list[Player]:
-        """获取数据项列表."""
-        return self.members
 
-    @items.setter
-    def items(self, value: list[Player]) -> None:
-        """设置数据项列表."""
-        self.members = value
+class TownDetailResponse(BaseModel):
+    """城镇详细信息响应."""
+
+    town: Town = Field(description="城镇基本信息")
+    leader: Optional[Player] = Field(default=None, description="镇长信息")
+    members: list[Player] = Field(default_factory=list, description="成员列表")
+    member_count: int = Field(description="成员总数")

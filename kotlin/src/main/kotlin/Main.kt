@@ -73,13 +73,14 @@ class IntegrationTester(
             // 1.4 更新玩家信息
             val newName = "${testPlayerName}_Updated"
             testApi("UpdatePlayer", "更新玩家信息") {
-                client.updatePlayer(createdPlayerId!!, UpdatePlayerRequest(name = newName))
+                client.updatePlayer(createdPlayerId!!, UpdatePlayerRequest(id = createdPlayerId!!, name = newName))
             }
 
             // 1.5 封禁玩家
             testApi("BanPlayer", "封禁玩家") {
                 client.banPlayer(createdPlayerId!!, BanPlayerRequest(
-                    banMode = 1, // TEMPORARY
+                    playerId = createdPlayerId!!,
+                    banMode = BanMode.TEMPORARY,
                     reason = "测试封禁",
                     durationSeconds = 60
                 ))
@@ -126,7 +127,7 @@ class IntegrationTester(
                 client.registerServer(RegisterServerRequest(
                     name = testServerName,
                     address = testServerAddress,
-                    serverType = "MINECRAFT"
+                    description = "Test Minecraft server"
                 ))
             } as ServerRegistry
             createdServerId = server.id
@@ -142,6 +143,7 @@ class IntegrationTester(
             val newAddress = "updated-${System.currentTimeMillis()}.example.com:25565"
             testApi("UpdateServer", "更新服务器信息") {
                 client.updateServer(createdServerId!!, UpdateServerRequest(
+                    id = createdServerId!!,
                     name = newServerName,
                     address = newAddress
                 ))
@@ -193,6 +195,7 @@ class IntegrationTester(
             val newTownName = "${testTownName}_Updated"
             testApi("UpdateTown", "更新城镇信息") {
                 client.updateTown(createdTownId!!, UpdateTownRequest(
+                    id = createdTownId!!,
                     name = newTownName,
                     level = 2
                 ))

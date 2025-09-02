@@ -4,7 +4,7 @@ from typing import Optional
 
 from ..http_client import HttpClient
 from ..models import (
-    RegisterServerRequest,
+    CreateServerRequest,
     ServerDetailData,
     ServerRegistry,
     ServersListData,
@@ -54,14 +54,14 @@ class ServerService:
             response_model=ServersListData,
         )
 
-    async def register_server(
+    async def create_server(
         self,
-        request: RegisterServerRequest,
+        request: CreateServerRequest,
     ) -> ServerRegistry:
-        """注册服务器.
+        """创建服务器.
 
         Args:
-            request: 注册服务器请求
+            request: 创建服务器请求
 
         Returns:
             注册的服务器信息
@@ -72,18 +72,23 @@ class ServerService:
             response_model=ServerRegistry,
         )
 
-    async def get_server(self, server_id: int) -> ServerRegistry:
+    async def get_server(
+        self, server_id: int, detail: bool = False
+    ) -> ServerDetailData:
         """获取服务器信息.
 
         Args:
             server_id: 服务器ID
+            detail: 是否返回详细信息
 
         Returns:
-            服务器信息
+            服务器信息（包含详细信息）
         """
+        params = {"detail": detail} if detail else {}
         return await self._http.get(
             f"/api/v1/servers/{server_id}",
-            response_model=ServerRegistry,
+            params=params,
+            response_model=ServerDetailData,
         )
 
     async def update_server(
@@ -113,17 +118,3 @@ class ServerService:
             server_id: 服务器ID
         """
         await self._http.delete(f"/api/v1/servers/{server_id}")
-
-    async def get_server_detail(self, server_id: int) -> ServerDetailData:
-        """获取服务器详细信息.
-
-        Args:
-            server_id: 服务器ID
-
-        Returns:
-            服务器详细信息
-        """
-        return await self._http.get(
-            f"/api/v1/servers/{server_id}/detail",
-            response_model=ServerDetailData,
-        )

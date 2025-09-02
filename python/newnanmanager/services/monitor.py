@@ -1,10 +1,13 @@
 """Monitoring service."""
 
+from typing import Optional
+
 from ..http_client import HttpClient
 from ..models import (
     HeartbeatData,
     HeartbeatRequest,
     LatencyStatsData,
+    MonitorStatsData,
     ServerStatus,
 )
 
@@ -66,4 +69,32 @@ class MonitorService:
         return await self._http.get(
             f"/api/v1/servers/{server_id}/status",
             response_model=ServerStatus,
+        )
+
+    async def get_monitor_stats(
+        self,
+        server_id: int,
+        since: Optional[int] = None,
+        duration: Optional[int] = None,
+    ) -> MonitorStatsData:
+        """获取监控统计信息.
+
+        Args:
+            server_id: 服务器ID
+            since: 起始时间戳(Unix时间戳，0表示当前时间-duration)
+            duration: 持续时间(秒，默认3600秒)
+
+        Returns:
+            监控统计数据
+        """
+        params = {}
+        if since is not None:
+            params["since"] = since
+        if duration is not None:
+            params["duration"] = duration
+
+        return await self._http.get(
+            f"/api/v1/servers/{server_id}/monitor",
+            params=params,
+            response_model=MonitorStatsData,
         )

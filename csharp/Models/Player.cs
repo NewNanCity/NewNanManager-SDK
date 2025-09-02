@@ -155,3 +155,129 @@ public class ValidateLoginData
     [JsonPropertyName("reason")]
     public string? Reason { get; set; }
 }
+
+/// <summary>
+/// 单个玩家验证信息
+/// </summary>
+public class PlayerValidateInfo
+{
+    /// <summary>
+    /// 玩家名
+    /// </summary>
+    [JsonPropertyName("player_name")]
+    public string PlayerName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// IP地址
+    /// </summary>
+    [JsonPropertyName("ip")]
+    public string IP { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 客户端版本
+    /// </summary>
+    [JsonPropertyName("client_version")]
+    public string? ClientVersion { get; set; }
+
+    /// <summary>
+    /// 协议版本
+    /// </summary>
+    [JsonPropertyName("protocol_version")]
+    public string? ProtocolVersion { get; set; }
+}
+
+/// <summary>
+/// IP风险信息
+/// </summary>
+public class IPRiskInfo
+{
+    /// <summary>
+    /// IP地址
+    /// </summary>
+    [JsonPropertyName("ip")]
+    public string IP { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 风险等级
+    /// </summary>
+    [JsonPropertyName("risk_level")]
+    public string RiskLevel { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 风险评分
+    /// </summary>
+    [JsonPropertyName("risk_score")]
+    public int RiskScore { get; set; }
+
+    /// <summary>
+    /// 是否被封禁
+    /// </summary>
+    [JsonPropertyName("banned")]
+    public bool Banned { get; set; }
+
+    /// <summary>
+    /// 风险描述
+    /// </summary>
+    [JsonPropertyName("description")]
+    public string Description { get; set; } = string.Empty;
+}
+
+/// <summary>
+/// 单个玩家验证结果
+/// </summary>
+public class PlayerValidateResult
+{
+    /// <summary>
+    /// 玩家名
+    /// </summary>
+    [JsonPropertyName("player_name")]
+    public string PlayerName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 是否允许登录
+    /// </summary>
+    [JsonPropertyName("allowed")]
+    public bool Allowed { get; set; }
+
+    /// <summary>
+    /// 玩家ID
+    /// </summary>
+    [JsonPropertyName("player_id")]
+    public int? PlayerId { get; set; }
+
+    /// <summary>
+    /// 拒绝原因
+    /// </summary>
+    [JsonPropertyName("reason")]
+    public string? Reason { get; set; }
+
+    /// <summary>
+    /// 是否为新玩家
+    /// </summary>
+    [JsonPropertyName("newbie")]
+    public bool Newbie { get; set; } = false;
+
+    /// <summary>
+    /// IP风险信息
+    /// </summary>
+    [JsonPropertyName("ip_risk")]
+    public IPRiskInfo? IPRisk { get; set; }
+}
+
+/// <summary>
+/// 玩家验证响应
+/// </summary>
+public class ValidateResponse
+{
+    /// <summary>
+    /// 验证结果列表
+    /// </summary>
+    [JsonPropertyName("results")]
+    public List<PlayerValidateResult> Results { get; set; } = new();
+
+    /// <summary>
+    /// 处理时间戳
+    /// </summary>
+    [JsonPropertyName("processed_at")]
+    public long ProcessedAt { get; set; }
+}

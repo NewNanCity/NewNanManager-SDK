@@ -9,9 +9,8 @@ namespace NewNanManager.Client.Services;
 /// </summary>
 public class PlayerService : HttpClientBase
 {
-    public PlayerService(HttpClient httpClient, ILogger? logger = null) : base(httpClient, logger)
-    {
-    }
+    public PlayerService(HttpClient httpClient, ILogger? logger = null)
+        : base(httpClient, logger) { }
 
     /// <summary>
     /// 获取玩家列表
@@ -21,6 +20,10 @@ public class PlayerService : HttpClientBase
     /// <param name="search">搜索关键词</param>
     /// <param name="townId">城镇ID</param>
     /// <param name="banMode">封禁模式</param>
+    /// <param name="name">精确游戏名过滤</param>
+    /// <param name="qq">QQ号过滤</param>
+    /// <param name="qqguild">QQ频道ID过滤</param>
+    /// <param name="discord">Discord ID过滤</param>
     /// <param name="cancellationToken">取消令牌</param>
     /// <returns>玩家列表数据</returns>
     public async Task<PlayersListData> ListPlayersAsync(
@@ -29,7 +32,12 @@ public class PlayerService : HttpClientBase
         string? search = null,
         int? townId = null,
         BanMode? banMode = null,
-        CancellationToken cancellationToken = default)
+        string? name = null,
+        string? qq = null,
+        string? qqguild = null,
+        string? discord = null,
+        CancellationToken cancellationToken = default
+    )
     {
         var queryParams = new Dictionary<string, object?>
         {
@@ -37,7 +45,11 @@ public class PlayerService : HttpClientBase
             ["page_size"] = pageSize,
             ["search"] = search,
             ["town_id"] = townId,
-            ["ban_mode"] = banMode.HasValue ? (int)banMode.Value : null
+            ["ban_mode"] = banMode.HasValue ? (int)banMode.Value : null,
+            ["name"] = name,
+            ["qq"] = qq,
+            ["qqguild"] = qqguild,
+            ["discord"] = discord,
         };
 
         var queryString = BuildQueryString(queryParams);
@@ -50,20 +62,49 @@ public class PlayerService : HttpClientBase
     /// <param name="request">创建玩家请求</param>
     /// <param name="cancellationToken">取消令牌</param>
     /// <returns>创建的玩家信息</returns>
-    public async Task<Player> CreatePlayerAsync(CreatePlayerRequest request, CancellationToken cancellationToken = default)
+    public async Task<Player> CreatePlayerAsync(
+        CreatePlayerRequest request,
+        CancellationToken cancellationToken = default
+    )
     {
         return await PostAsync<Player>("/api/v1/players", request, cancellationToken);
     }
 
     /// <summary>
-    /// 验证玩家登录
+    /// 玩家验证（支持批处理）
+    /// </summary>
+    /// <param name="request">验证请求</param>
+    /// <param name="cancellationToken">取消令牌</param>
+    /// <returns>验证结果</returns>
+    public async Task<ValidateResponse> ValidateAsync(
+        ValidateRequest request,
+        CancellationToken cancellationToken = default
+    )
+    {
+        return await PostAsync<ValidateResponse>(
+            "/api/v1/players/validate",
+            request,
+            cancellationToken
+        );
+    }
+
+    /// <summary>
+    /// 验证玩家登录（向后兼容）
     /// </summary>
     /// <param name="request">登录验证请求</param>
     /// <param name="cancellationToken">取消令牌</param>
     /// <returns>验证结果</returns>
-    public async Task<ValidateLoginData> ValidateLoginAsync(ValidateLoginRequest request, CancellationToken cancellationToken = default)
+    [Obsolete("Please use ValidateAsync method for batch validation")]
+    public async Task<ValidateLoginData> ValidateLoginAsync(
+        ValidateLoginRequest request,
+        CancellationToken cancellationToken = default
+    )
     {
-        return await PostAsync<ValidateLoginData>("/api/v1/players/validate-login", request, cancellationToken);
+        return await PostAsync<ValidateLoginData>(
+            "/api/v1/players/validate-login",
+            request,
+            cancellationToken
+        );
     }
 
     /// <summary>
@@ -84,7 +125,11 @@ public class PlayerService : HttpClientBase
     /// <param name="request">更新请求</param>
     /// <param name="cancellationToken">取消令牌</param>
     /// <returns>更新后的玩家信息</returns>
-    public async Task<Player> UpdatePlayerAsync(int id, UpdatePlayerRequest request, CancellationToken cancellationToken = default)
+    public async Task<Player> UpdatePlayerAsync(
+        int id,
+        UpdatePlayerRequest request,
+        CancellationToken cancellationToken = default
+    )
     {
         return await PutAsync<Player>($"/api/v1/players/{id}", request, cancellationToken);
     }
@@ -105,7 +150,11 @@ public class PlayerService : HttpClientBase
     /// <param name="playerId">玩家ID</param>
     /// <param name="request">封禁请求</param>
     /// <param name="cancellationToken">取消令牌</param>
-    public async Task BanPlayerAsync(int playerId, BanPlayerRequest request, CancellationToken cancellationToken = default)
+    public async Task BanPlayerAsync(
+        int playerId,
+        BanPlayerRequest request,
+        CancellationToken cancellationToken = default
+    )
     {
         await PostAsync($"/api/v1/players/{playerId}/ban", request, cancellationToken);
     }

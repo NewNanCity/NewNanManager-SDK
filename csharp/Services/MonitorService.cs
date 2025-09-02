@@ -9,9 +9,8 @@ namespace NewNanManager.Client.Services;
 /// </summary>
 public class MonitorService : HttpClientBase
 {
-    public MonitorService(HttpClient httpClient, ILogger? logger = null) : base(httpClient, logger)
-    {
-    }
+    public MonitorService(HttpClient httpClient, ILogger? logger = null)
+        : base(httpClient, logger) { }
 
     /// <summary>
     /// 发送服务器心跳
@@ -20,9 +19,17 @@ public class MonitorService : HttpClientBase
     /// <param name="request">心跳请求</param>
     /// <param name="cancellationToken">取消令牌</param>
     /// <returns>心跳响应数据</returns>
-    public async Task<HeartbeatData> HeartbeatAsync(int serverId, HeartbeatRequest request, CancellationToken cancellationToken = default)
+    public async Task<HeartbeatData> HeartbeatAsync(
+        int serverId,
+        HeartbeatRequest request,
+        CancellationToken cancellationToken = default
+    )
     {
-        return await PostAsync<HeartbeatData>($"/api/v1/servers/{serverId}/heartbeat", request, cancellationToken);
+        return await PostAsync<HeartbeatData>(
+            $"/api/v1/servers/{serverId}/heartbeat",
+            request,
+            cancellationToken
+        );
     }
 
     /// <summary>
@@ -31,9 +38,15 @@ public class MonitorService : HttpClientBase
     /// <param name="serverId">服务器ID</param>
     /// <param name="cancellationToken">取消令牌</param>
     /// <returns>延迟统计数据</returns>
-    public async Task<LatencyStatsData> GetLatencyStatsAsync(int serverId, CancellationToken cancellationToken = default)
+    public async Task<LatencyStatsData> GetLatencyStatsAsync(
+        int serverId,
+        CancellationToken cancellationToken = default
+    )
     {
-        return await GetAsync<LatencyStatsData>($"/api/v1/servers/{serverId}/latency", cancellationToken);
+        return await GetAsync<LatencyStatsData>(
+            $"/api/v1/servers/{serverId}/latency",
+            cancellationToken
+        );
     }
 
     /// <summary>
@@ -42,8 +55,46 @@ public class MonitorService : HttpClientBase
     /// <param name="serverId">服务器ID</param>
     /// <param name="cancellationToken">取消令牌</param>
     /// <returns>服务器状态</returns>
-    public async Task<ServerStatus> GetServerStatusAsync(int serverId, CancellationToken cancellationToken = default)
+    public async Task<ServerStatus> GetServerStatusAsync(
+        int serverId,
+        CancellationToken cancellationToken = default
+    )
     {
-        return await GetAsync<ServerStatus>($"/api/v1/servers/{serverId}/status", cancellationToken);
+        return await GetAsync<ServerStatus>(
+            $"/api/v1/servers/{serverId}/status",
+            cancellationToken
+        );
+    }
+
+    /// <summary>
+    /// 获取监控统计信息
+    /// </summary>
+    /// <param name="serverId">服务器ID</param>
+    /// <param name="since">起始时间戳(Unix时间戳，0表示当前时间-duration)</param>
+    /// <param name="duration">持续时间(秒，默认3600秒)</param>
+    /// <param name="cancellationToken">取消令牌</param>
+    /// <returns>监控统计数据</returns>
+    public async Task<MonitorStatsData> GetMonitorStatsAsync(
+        int serverId,
+        long? since = null,
+        long? duration = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var queryParams = new Dictionary<string, string>();
+        if (since.HasValue)
+            queryParams["since"] = since.Value.ToString();
+        if (duration.HasValue)
+            queryParams["duration"] = duration.Value.ToString();
+
+        var queryString =
+            queryParams.Count > 0
+                ? "?" + string.Join("&", queryParams.Select(kvp => $"{kvp.Key}={kvp.Value}"))
+                : string.Empty;
+
+        return await GetAsync<MonitorStatsData>(
+            $"/api/v1/servers/{serverId}/monitor{queryString}",
+            cancellationToken
+        );
     }
 }

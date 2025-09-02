@@ -5,7 +5,9 @@ from typing import Optional
 from .config import ClientConfig
 from .http_client import HttpClient
 from .services import (
+    IPService,
     MonitorService,
+    PlayerServerService,
     PlayerService,
     ServerService,
     TokenService,
@@ -63,6 +65,8 @@ class NewNanManagerClient:
         self.towns = TownService(self._http_client)
         self.monitor = MonitorService(self._http_client)
         self.tokens = TokenService(self._http_client)
+        self.ips = IPService(self._http_client)
+        self.player_servers = PlayerServerService(self._http_client)
 
     @classmethod
     def from_config(cls, config: ClientConfig) -> "NewNanManagerClient":

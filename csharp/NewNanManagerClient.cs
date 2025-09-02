@@ -65,36 +65,49 @@ public class NewNanManagerClient : IDisposable
     public TokenService Tokens { get; }
 
     /// <summary>
+    /// IP管理服务
+    /// </summary>
+    public IPService IPs { get; }
+
+    /// <summary>
+    /// 玩家服务器关系管理服务
+    /// </summary>
+    public PlayerServerService PlayerServers { get; }
+
+    /// <summary>
     /// 使用默认HttpClient创建客户端
     /// </summary>
     public NewNanManagerClient(string baseUrl, string token, ILogger? logger = null)
-        : this(new NewNanManagerClientOptions { BaseUrl = baseUrl, Token = token }, logger)
-    {
-    }
+        : this(new NewNanManagerClientOptions { BaseUrl = baseUrl, Token = token }, logger) { }
 
     /// <summary>
     /// 使用配置选项创建客户端
     /// </summary>
     public NewNanManagerClient(NewNanManagerClientOptions options, ILogger? logger = null)
-        : this(CreateHttpClient(options), true, logger)
-    {
-    }
+        : this(CreateHttpClient(options), true, logger) { }
 
     /// <summary>
     /// 使用自定义HttpClient创建客户端
     /// </summary>
-    public NewNanManagerClient(HttpClient httpClient, bool disposeHttpClient = false, ILogger? logger = null)
+    public NewNanManagerClient(
+        HttpClient httpClient,
+        bool disposeHttpClient = false,
+        ILogger? logger = null
+    )
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _disposeHttpClient = disposeHttpClient;
         _logger = logger;
 
         // 初始化各个服务
-        Players = new PlayerService(_httpClient, _logger);
-        Servers = new ServerService(_httpClient, _logger);
-        Towns = new TownService(_httpClient, _logger);
-        Monitor = new MonitorService(_httpClient, _logger);
-        Tokens = new TokenService(_httpClient, _logger);
+        var httpClientBase = new HttpClientBase(_httpClient, _logger);
+        Players = new PlayerService(httpClientBase);
+        Servers = new ServerService(httpClientBase);
+        Towns = new TownService(httpClientBase);
+        Monitor = new MonitorService(httpClientBase);
+        Tokens = new TokenService(httpClientBase);
+        IPs = new IPService(httpClientBase);
+        PlayerServers = new PlayerServerService(httpClientBase);
     }
 
     /// <summary>
@@ -104,14 +117,14 @@ public class NewNanManagerClient : IDisposable
     {
         if (string.IsNullOrEmpty(options.BaseUrl))
             throw new ArgumentException("BaseUrl cannot be null or empty", nameof(options));
-        
+
         if (string.IsNullOrEmpty(options.Token))
             throw new ArgumentException("Token cannot be null or empty", nameof(options));
 
         var httpClient = new HttpClient
         {
             BaseAddress = new Uri(options.BaseUrl.TrimEnd('/')),
-            Timeout = options.Timeout
+            Timeout = options.Timeout,
         };
 
         // 设置认证头

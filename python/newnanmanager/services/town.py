@@ -5,10 +5,9 @@ from typing import Optional
 from ..http_client import HttpClient
 from ..models import (
     CreateTownRequest,
-    ManageTownMemberRequest,
     Town,
-    TownMembersData,
     TownsListData,
+    TownDetailResponse,
     UpdateTownRequest,
 )
 
@@ -44,13 +43,18 @@ class TownService:
         Returns:
             城镇列表数据
         """
-        params = {
-            "page": page,
-            "page_size": page_size,
-            "search": search,
-            "min_level": min_level,
-            "max_level": max_level,
+        params: dict[str, int | str] = {
+            "page": page or 1,
+            "page_size": page_size or 20,
         }
+
+        # 只添加非None的可选参数
+        if search is not None:
+            params["search"] = search
+        if min_level is not None:
+            params["min_level"] = min_level
+        if max_level is not None:
+            params["max_level"] = max_level
 
         return await self._http.get(
             "/api/v1/towns",
@@ -76,18 +80,21 @@ class TownService:
             response_model=Town,
         )
 
-    async def get_town(self, town_id: int) -> Town:
+    async def get_town(self, town_id: int, detail: bool = False) -> TownDetailResponse:
         """获取城镇详情.
 
         Args:
             town_id: 城镇ID
+            detail: 是否返回详细信息（包括镇长和成员）
 
         Returns:
-            城镇信息
+            城镇详细信息
         """
+        params = {"detail": detail} if detail else None
         return await self._http.get(
             f"/api/v1/towns/{town_id}",
-            response_model=Town,
+            params=params,
+            response_model=TownDetailResponse,
         )
 
     async def update_town(
@@ -117,46 +124,3 @@ class TownService:
             town_id: 城镇ID
         """
         await self._http.delete(f"/api/v1/towns/{town_id}")
-
-    async def get_town_members(
-        self,
-        town_id: int,
-        page: Optional[int] = None,
-        page_size: Optional[int] = None,
-    ) -> TownMembersData:
-        """获取城镇成员列表.
-
-        Args:
-            town_id: 城镇ID
-            page: 页码
-            page_size: 每页大小
-
-        Returns:
-            城镇成员数据
-        """
-        params = {
-            "page": page,
-            "page_size": page_size,
-        }
-
-        return await self._http.get(
-            f"/api/v1/towns/{town_id}/members",
-            params=params,
-            response_model=TownMembersData,
-        )
-
-    async def manage_town_member(
-        self,
-        town_id: int,
-        request: ManageTownMemberRequest,
-    ) -> None:
-        """管理城镇成员.
-
-        Args:
-            town_id: 城镇ID
-            request: 成员管理请求
-        """
-        await self._http.post(
-            f"/api/v1/towns/{town_id}/members",
-            json_data=request,
-        )

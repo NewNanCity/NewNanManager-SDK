@@ -87,3 +87,33 @@ public class TownMembersData : PagedData<Player>
         set => Items = value;
     }
 }
+
+/// <summary>
+/// 城镇详细信息响应
+/// </summary>
+public class TownDetailResponse
+{
+    /// <summary>
+    /// 城镇基本信息
+    /// </summary>
+    [JsonPropertyName("town")]
+    public Town Town { get; set; } = new();
+
+    /// <summary>
+    /// 镇长信息
+    /// </summary>
+    [JsonPropertyName("leader")]
+    public Player? Leader { get; set; }
+
+    /// <summary>
+    /// 成员列表（包括镇长）
+    /// </summary>
+    [JsonPropertyName("members")]
+    public List<Player> Members { get; set; } = new();
+
+    /// <summary>
+    /// 成员总数
+    /// </summary>
+    [JsonPropertyName("member_count")]
+    public long MemberCount { get; set; }
+}

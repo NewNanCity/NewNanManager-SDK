@@ -2,6 +2,7 @@ package com.nanmanager.client
 
 import com.nanmanager.client.exceptions.*
 import com.nanmanager.client.models.*
+import com.nanmanager.client.services.*
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -13,9 +14,12 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.contentOrNull
 
 /**
- * NewNanManager客户端SDK
+ * NewNanManager客户端SDK - 新版模块化架构
  *
  * 使用示例:
  * ```kotlin
@@ -24,8 +28,10 @@ import kotlinx.serialization.json.Json
  *     baseUrl = "https://your-server.com"
  * )
  *
- * val servers = client.listServers()
- * val players = client.listPlayers()
+ * // 使用模块化服务
+ * val servers = client.servers.listServers()
+ * val players = client.players.listPlayers()
+ * val towns = client.towns.listTowns()
  * ```
  */
 class NewNanManagerClient(
@@ -77,21 +83,25 @@ class NewNanManagerClient(
                         println("响应体: $responseBody")
                         println("========================")
 
-                        when (response.status) {
-                            HttpStatusCode.Unauthorized -> throw AuthenticationException("Invalid token or unauthorized access")
-                            HttpStatusCode.BadRequest,
-                            HttpStatusCode.NotFound,
-                            HttpStatusCode.Conflict,
-                            HttpStatusCode.UnprocessableEntity -> {
-                                try {
-                                    val errorResponse = response.body<ErrorResponse>()
-                                    throw NanManagerException(errorResponse.code, errorResponse.message)
-                                } catch (e: Exception) {
-                                    throw NanManagerException(response.status.value, "HTTP ${response.status.value}: $responseBody")
+                        // 统一处理服务端错误响应格式 {"detail": "xxx"}
+                        // 与TypeScript SDK保持一致的错误处理逻辑
+                        var errorMessage = responseBody.ifEmpty { "HTTP ${response.status.value}" }
+
+                        try {
+                            // 尝试从响应体中解析JSON格式的错误信息
+                            if (responseBody.isNotEmpty() && responseBody.startsWith("{")) {
+                                val json = Json { ignoreUnknownKeys = true }
+                                val errorData = json.parseToJsonElement(responseBody).jsonObject
+                                val detail = errorData["detail"]?.jsonPrimitive?.contentOrNull
+                                if (detail != null) {
+                                    errorMessage = detail
                                 }
                             }
-                            else -> throw NanManagerException(response.status.value, "HTTP ${response.status.value}: $responseBody")
+                        } catch (e: Exception) {
+                            // 如果无法解析JSON，使用原始响应体
                         }
+
+                        throw NanManagerException(response.status.value, errorMessage)
                     }
                     is ServerResponseException -> {
                         println("=== 服务器异常详情 ===")
@@ -114,11 +124,50 @@ class NewNanManagerClient(
         }
     }
 
-    // ========== 玩家管理 ==========
+    // ========== 所有服务模块 ==========
 
     /**
-     * 获取玩家列表
+     * 玩家管理服务
      */
+    val players: PlayerService = PlayerService(httpClient, baseUrl, token)
+
+    /**
+     * 服务器管理服务
+     */
+    val servers: ServerService = ServerService(httpClient, baseUrl, token)
+
+    /**
+     * 城镇管理服务
+     */
+    val towns: TownService = TownService(httpClient, baseUrl, token)
+
+    /**
+     * 服务器监控服务
+     */
+    val monitor: MonitorService = MonitorService(httpClient, baseUrl, token)
+
+    /**
+     * API Token管理服务
+     */
+    val tokens: TokenService = TokenService(httpClient, baseUrl, token)
+
+    /**
+     * IP管理服务
+     */
+    val ips: IPService = IPService(httpClient, baseUrl, token)
+
+    /**
+     * 玩家服务器关系管理服务
+     */
+    val playerServers: PlayerServerService = PlayerServerService(httpClient, baseUrl, token)
+
+    // ========== 向后兼容的便捷方法 ==========
+
+    /**
+     * 获取玩家列表（向后兼容）
+     * @deprecated 请使用 players.listPlayers() 方法
+     */
+    @Deprecated("请使用 players.listPlayers() 方法")
     suspend fun listPlayers(
         page: Int? = null,
         pageSize: Int? = null,
@@ -126,244 +175,176 @@ class NewNanManagerClient(
         townId: Int? = null,
         banMode: BanMode? = null
     ): ListPlayersResponse {
-        val response = httpClient.get("$baseUrl/api/v1/players") {
-            headers {
-                append("Authorization", "Bearer $token")
-                append("X-API-Token", token)
-            }
-            page?.let { parameter("page", it) }
-            pageSize?.let { parameter("page_size", it) }
-            search?.let { parameter("search", it) }
-            townId?.let { parameter("town_id", it) }
-            banMode?.let { parameter("ban_mode", it.value) }
-        }
-        return response.body<ApiResponse<ListPlayersResponse>>().data!!
+        val request = ListPlayersRequest(
+            page = page ?: 1,
+            pageSize = pageSize ?: 20,
+            search = search,
+            townId = townId,
+            banMode = banMode
+        )
+        return players.listPlayers(request)
     }
 
     /**
-     * 创建玩家
+     * 创建玩家（向后兼容）
+     * @deprecated 请使用 players.createPlayer() 方法
      */
+    @Deprecated("请使用 players.createPlayer() 方法")
     suspend fun createPlayer(request: CreatePlayerRequest): Player {
-        val response = httpClient.post("$baseUrl/api/v1/players") {
-            headers {
-                append("Authorization", "Bearer $token")
-                append("X-API-Token", token)
-            }
-            contentType(ContentType.Application.Json)
-            setBody(request)
-        }
-        return response.body<ApiResponse<Player>>().data!!
+        return players.createPlayer(request)
     }
 
     /**
-     * 验证玩家登录
+     * 批量玩家验证（向后兼容）
+     * @deprecated 请使用 players.validate() 方法
      */
+    @Deprecated("请使用 players.validate() 方法")
+    suspend fun validate(request: ValidateRequest): ValidateResponse {
+        return players.validate(request)
+    }
+
+    /**
+     * 验证玩家登录（向后兼容）
+     * @deprecated 请使用 players.validate() 方法进行批量验证
+     */
+    @Deprecated("请使用 players.validate() 方法进行批量验证")
     suspend fun validateLogin(request: ValidateLoginRequest): ValidateLoginResponse {
-        val response = httpClient.post("$baseUrl/api/v1/players/validate-login") {
-            headers {
-                append("Authorization", "Bearer $token")
-                append("X-API-Token", token)
-            }
-            contentType(ContentType.Application.Json)
-            setBody(request)
-        }
-        return response.body<ApiResponse<ValidateLoginResponse>>().data!!
+        return players.validateLogin(request)
     }
 
     /**
-     * 获取玩家详情
+     * 获取玩家详情（向后兼容）
+     * @deprecated 请使用 players.getPlayer() 方法
      */
+    @Deprecated("请使用 players.getPlayer() 方法")
     suspend fun getPlayer(id: Int): Player {
-        val response = httpClient.get("$baseUrl/api/v1/players/$id") {
-            headers {
-                append("Authorization", "Bearer $token")
-                append("X-API-Token", token)
-            }
-        }
-        return response.body<ApiResponse<Player>>().data!!
+        return players.getPlayer(id)
     }
 
     /**
-     * 更新玩家信息
+     * 更新玩家信息（向后兼容）
+     * @deprecated 请使用 players.updatePlayer() 方法
      */
+    @Deprecated("请使用 players.updatePlayer() 方法")
     suspend fun updatePlayer(id: Int, request: UpdatePlayerRequest): Player {
-        val response = httpClient.put("$baseUrl/api/v1/players/$id") {
-            headers {
-                append("Authorization", "Bearer $token")
-                append("X-API-Token", token)
-            }
-            contentType(ContentType.Application.Json)
-            setBody(request)
-        }
-        return response.body<ApiResponse<Player>>().data!!
+        return players.updatePlayer(id, request)
     }
 
     /**
-     * 删除玩家
+     * 删除玩家（向后兼容）
+     * @deprecated 请使用 players.deletePlayer() 方法
      */
+    @Deprecated("请使用 players.deletePlayer() 方法")
     suspend fun deletePlayer(id: Int) {
-        httpClient.delete("$baseUrl/api/v1/players/$id") {
-            headers {
-                append("Authorization", "Bearer $token")
-                append("X-API-Token", token)
-            }
-        }
+        players.deletePlayer(id)
     }
 
     /**
-     * 封禁玩家
+     * 封禁玩家（向后兼容）
+     * @deprecated 请使用 players.banPlayer() 方法
      */
+    @Deprecated("请使用 players.banPlayer() 方法")
     suspend fun banPlayer(playerId: Int, request: BanPlayerRequest) {
-        httpClient.post("$baseUrl/api/v1/players/$playerId/ban") {
-            headers {
-                append("Authorization", "Bearer $token")
-                append("X-API-Token", token)
-            }
-            contentType(ContentType.Application.Json)
-            setBody(request)
-        }
+        players.banPlayer(playerId, request)
     }
 
     /**
-     * 解封玩家
+     * 解封玩家（向后兼容）
+     * @deprecated 请使用 players.unbanPlayer() 方法
      */
+    @Deprecated("请使用 players.unbanPlayer() 方法")
     suspend fun unbanPlayer(playerId: Int) {
-        httpClient.post("$baseUrl/api/v1/players/$playerId/unban") {
-            headers {
-                append("Authorization", "Bearer $token")
-                append("X-API-Token", token)
-            }
-        }
+        players.unbanPlayer(playerId)
     }
 
-    // ========== 服务器管理 ==========
-
     /**
-     * 获取服务器列表
+     * 获取服务器列表（向后兼容）
+     * @deprecated 请使用 servers.listServers() 方法
      */
+    @Deprecated("请使用 servers.listServers() 方法")
     suspend fun listServers(
         page: Int? = null,
         pageSize: Int? = null,
         search: String? = null,
         onlineOnly: Boolean? = null
     ): ListServersResponse {
-        val response = httpClient.get("$baseUrl/api/v1/servers") {
-            headers {
-                append("Authorization", "Bearer $token")
-                append("X-API-Token", token)
-                append("Accept", "application/json")
-            }
-            page?.let { parameter("page", it) }
-            pageSize?.let { parameter("page_size", it) }
-            search?.let { parameter("search", it) }
-            onlineOnly?.let { parameter("online_only", it) }
-        }
-        return response.body<ApiResponse<ListServersResponse>>().data!!
+        val request = ListServersRequest(
+            page = page ?: 1,
+            pageSize = pageSize ?: 20,
+            search = search,
+            onlineOnly = onlineOnly ?: false
+        )
+        return servers.listServers(request)
     }
 
     /**
-     * 注册服务器
+     * 注册服务器（向后兼容）
+     * @deprecated 请使用 servers.registerServer() 方法
      */
+    @Deprecated("请使用 servers.registerServer() 方法")
     suspend fun registerServer(request: RegisterServerRequest): ServerRegistry {
-        val response = httpClient.post("$baseUrl/api/v1/servers") {
-            headers {
-                append("Authorization", "Bearer $token")
-                append("X-API-Token", token)
-            }
-            contentType(ContentType.Application.Json)
-            setBody(request)
-        }
-        return response.body<ApiResponse<ServerRegistry>>().data!!
+        return servers.registerServer(request)
     }
 
     /**
-     * 获取服务器信息
+     * 获取服务器信息（向后兼容）
+     * @deprecated 请使用 servers.getServer() 方法
      */
+    @Deprecated("请使用 servers.getServer() 方法")
     suspend fun getServer(id: Int): ServerRegistry {
-        val response = httpClient.get("$baseUrl/api/v1/servers/$id") {
-            headers {
-                append("Authorization", "Bearer $token")
-                append("X-API-Token", token)
-            }
-        }
-        return response.body<ApiResponse<ServerRegistry>>().data!!
+        return servers.getServer(id)
     }
 
     /**
-     * 更新服务器信息
+     * 更新服务器信息（向后兼容）
+     * @deprecated 请使用 servers.updateServer() 方法
      */
+    @Deprecated("请使用 servers.updateServer() 方法")
     suspend fun updateServer(id: Int, request: UpdateServerRequest): ServerRegistry {
-        val response = httpClient.put("$baseUrl/api/v1/servers/$id") {
-            headers {
-                append("Authorization", "Bearer $token")
-                append("X-API-Token", token)
-            }
-            contentType(ContentType.Application.Json)
-            setBody(request)
-        }
-        return response.body<ApiResponse<ServerRegistry>>().data!!
+        return servers.updateServer(id, request)
     }
 
     /**
-     * 删除服务器
+     * 删除服务器（向后兼容）
+     * @deprecated 请使用 servers.deleteServer() 方法
      */
+    @Deprecated("请使用 servers.deleteServer() 方法")
     suspend fun deleteServer(id: Int) {
-        httpClient.delete("$baseUrl/api/v1/servers/$id") {
-            headers {
-                append("Authorization", "Bearer $token")
-                append("X-API-Token", token)
-            }
-        }
+        servers.deleteServer(id)
     }
 
     /**
-     * 获取服务器详细信息
+     * 获取服务器详细信息（向后兼容）
+     * @deprecated 请使用 servers.getServerDetail() 方法
      */
+    @Deprecated("请使用 servers.getServerDetail() 方法")
     suspend fun getServerDetail(id: Int): ServerDetailResponse {
-        val response = httpClient.get("$baseUrl/api/v1/servers/$id/detail") {
-            headers {
-                append("Authorization", "Bearer $token")
-                append("X-API-Token", token)
-            }
-        }
-        return response.body<ApiResponse<ServerDetailResponse>>().data!!
+        return servers.getServerDetail(id)
     }
 
-    // ========== 监控服务 ==========
-
     /**
-     * 获取服务器状态
+     * 获取服务器状态（向后兼容）
+     * @deprecated 请使用 monitor.getServerStatus() 方法
      */
+    @Deprecated("请使用 monitor.getServerStatus() 方法")
     suspend fun getServerStatus(serverId: Int): ServerStatus {
-        val response = httpClient.get("$baseUrl/api/v1/servers/$serverId/status") {
-            headers {
-                append("Authorization", "Bearer $token")
-                append("X-API-Token", token)
-            }
-        }
-        return response.body<ApiResponse<ServerStatus>>().data!!
+        return monitor.getServerStatus(serverId)
     }
 
-    // ========== Token管理服务 ==========
-
     /**
-     * 获取API Token列表
+     * 获取API Token列表（向后兼容）
+     * @deprecated 请使用 tokens.listApiTokens() 方法
      */
+    @Deprecated("请使用 tokens.listApiTokens() 方法")
     suspend fun listApiTokens(): ListApiTokensResponse {
-        val response = httpClient.get("$baseUrl/api/v1/tokens") {
-            headers {
-                append("Authorization", "Bearer $token")
-                append("X-API-Token", token)
-            }
-        }
-        return response.body<ApiResponse<ListApiTokensResponse>>().data!!
+        return tokens.listApiTokens()
     }
 
-    // ========== 城镇管理服务 ==========
-
     /**
-     * 获取城镇列表
+     * 获取城镇列表（向后兼容）
+     * @deprecated 请使用 towns.listTowns() 方法
      */
+    @Deprecated("请使用 towns.listTowns() 方法")
     suspend fun listTowns(
         page: Int? = null,
         pageSize: Int? = null,
@@ -371,88 +352,170 @@ class NewNanManagerClient(
         minLevel: Int? = null,
         maxLevel: Int? = null
     ): ListTownsResponse {
-        val response = httpClient.get("$baseUrl/api/v1/towns") {
-            headers {
-                append("Authorization", "Bearer $token")
-                append("X-API-Token", token)
-            }
-            page?.let { parameter("page", it) }
-            pageSize?.let { parameter("page_size", it) }
-            search?.let { parameter("search", it) }
-            minLevel?.let { parameter("min_level", it) }
-            maxLevel?.let { parameter("max_level", it) }
-        }
-        return response.body<ApiResponse<ListTownsResponse>>().data!!
+        val request = ListTownsRequest(
+            page = page ?: 1,
+            pageSize = pageSize ?: 20,
+            search = search,
+            minLevel = minLevel,
+            maxLevel = maxLevel
+        )
+        return towns.listTowns(request)
     }
 
     /**
-     * 创建城镇
+     * 创建城镇（向后兼容）
+     * @deprecated 请使用 towns.createTown() 方法
      */
+    @Deprecated("请使用 towns.createTown() 方法")
     suspend fun createTown(request: CreateTownRequest): Town {
-        val response = httpClient.post("$baseUrl/api/v1/towns") {
-            headers {
-                append("Authorization", "Bearer $token")
-                append("X-API-Token", token)
-            }
-            contentType(ContentType.Application.Json)
-            setBody(request)
-        }
-        return response.body<ApiResponse<Town>>().data!!
+        return towns.createTown(request)
     }
 
     /**
-     * 获取城镇详情
+     * 获取城镇详情（向后兼容）
+     * @deprecated 请使用 towns.getTown() 方法
      */
-    suspend fun getTown(id: Int): Town {
-        val response = httpClient.get("$baseUrl/api/v1/towns/$id") {
-            headers {
-                append("Authorization", "Bearer $token")
-                append("X-API-Token", token)
-            }
-        }
-        return response.body<ApiResponse<Town>>().data!!
+    @Deprecated("请使用 towns.getTown() 方法")
+    suspend fun getTown(id: Int): TownDetailResponse {
+        return towns.getTown(id)
     }
 
     /**
-     * 更新城镇信息
+     * 更新城镇信息（向后兼容）
+     * @deprecated 请使用 towns.updateTown() 方法
      */
+    @Deprecated("请使用 towns.updateTown() 方法")
     suspend fun updateTown(id: Int, request: UpdateTownRequest): Town {
-        val response = httpClient.put("$baseUrl/api/v1/towns/$id") {
-            headers {
-                append("Authorization", "Bearer $token")
-                append("X-API-Token", token)
-            }
-            contentType(ContentType.Application.Json)
-            setBody(request)
-        }
-        return response.body<ApiResponse<Town>>().data!!
+        return towns.updateTown(id, request)
     }
 
     /**
-     * 删除城镇
+     * 删除城镇（向后兼容）
+     * @deprecated 请使用 towns.deleteTown() 方法
      */
+    @Deprecated("请使用 towns.deleteTown() 方法")
     suspend fun deleteTown(id: Int) {
-        httpClient.delete("$baseUrl/api/v1/towns/$id") {
-            headers {
-                append("Authorization", "Bearer $token")
-                append("X-API-Token", token)
-            }
-        }
+        towns.deleteTown(id)
     }
 
     /**
-     * 获取城镇成员列表
+     * 获取城镇成员列表（向后兼容）
+     * @deprecated 请使用 towns.getTownMembers() 方法
      */
+    @Deprecated("请使用 towns.getTownMembers() 方法")
     suspend fun getTownMembers(townId: Int, page: Int? = null, pageSize: Int? = null): TownMembersResponse {
-        val response = httpClient.get("$baseUrl/api/v1/towns/$townId/members") {
-            headers {
-                append("Authorization", "Bearer $token")
-                append("X-API-Token", token)
-            }
-            page?.let { parameter("page", it) }
-            pageSize?.let { parameter("page_size", it) }
-        }
-        return response.body<ApiResponse<TownMembersResponse>>().data!!
+        val request = GetTownMembersRequest(
+            townId = townId,
+            page = page ?: 1,
+            pageSize = pageSize ?: 50
+        )
+        return towns.getTownMembers(request)
+    }
+
+    /**
+     * 设置玩家在线状态（向后兼容）
+     * @deprecated 请使用 playerServers.setPlayerOnline() 方法
+     */
+    @Deprecated("请使用 playerServers.setPlayerOnline() 方法")
+    suspend fun setPlayerOnline(request: SetPlayerOnlineRequest) {
+        playerServers.setPlayerOnline(request)
+    }
+
+    /**
+     * 获取玩家的服务器列表（向后兼容）
+     * @deprecated 请使用 playerServers.getPlayerServers() 方法
+     */
+    @Deprecated("请使用 playerServers.getPlayerServers() 方法")
+    suspend fun getPlayerServers(
+        playerId: Int,
+        page: Int = 1,
+        pageSize: Int = 20
+    ): PlayerServersResponse {
+        return playerServers.getPlayerServers(playerId)
+    }
+
+    /**
+     * 获取服务器的玩家列表（向后兼容）
+     * @deprecated 请使用 playerServers.getServerPlayers() 方法
+     */
+    @Deprecated("请使用 playerServers.getServerPlayers() 方法")
+    suspend fun getServerPlayers(
+        serverId: Int,
+        page: Int = 1,
+        pageSize: Int = 20
+    ): ServerPlayersResponse {
+        val request = GetServerPlayersRequest(
+            serverId = serverId,
+            page = page,
+            pageSize = pageSize
+        )
+        return playerServers.getServerPlayers(request)
+    }
+
+    /**
+     * 获取在线玩家列表（向后兼容）
+     * @deprecated 请使用 playerServers.getOnlinePlayers() 方法
+     */
+    @Deprecated("请使用 playerServers.getOnlinePlayers() 方法")
+    suspend fun getOnlinePlayers(
+        page: Int = 1,
+        pageSize: Int = 20,
+        search: String? = null,
+        serverId: Int? = null
+    ): ServerPlayersResponse {
+        val request = GetOnlinePlayersRequest(
+            page = page,
+            pageSize = pageSize,
+            search = search,
+            serverId = serverId
+        )
+        return playerServers.getOnlinePlayers(request)
+    }
+
+    /**
+     * 获取IP信息（向后兼容）
+     * @deprecated 请使用 ips.getIPInfo() 方法
+     */
+    @Deprecated("请使用 ips.getIPInfo() 方法")
+    suspend fun getIPInfo(ip: String): IPInfo {
+        return ips.getIPInfo(ip)
+    }
+
+    /**
+     * 封禁IP（向后兼容）
+     * @deprecated 请使用 ips.banIP() 方法
+     */
+    @Deprecated("请使用 ips.banIP() 方法")
+    suspend fun banIP(request: BanIPRequest) {
+        ips.banIP(request.ip, request.reason)
+    }
+
+    /**
+     * 解封IP（向后兼容）
+     * @deprecated 请使用 ips.unbanIP() 方法
+     */
+    @Deprecated("请使用 ips.unbanIP() 方法")
+    suspend fun unbanIP(request: UnbanIPRequest) {
+        ips.unbanIP(request.ip)
+    }
+
+    /**
+     * 获取封禁IP列表（向后兼容）
+     * @deprecated 请使用 ips.getBannedIPs() 方法
+     */
+    @Deprecated("请使用 ips.getBannedIPs() 方法")
+    suspend fun listBannedIPs(
+        page: Int = 1,
+        pageSize: Int = 20,
+        search: String? = null,
+        activeOnly: Boolean? = null
+    ): ListIPsResponse {
+        val request = ListIPsRequest(
+            page = page,
+            pageSize = pageSize,
+            bannedOnly = true
+        )
+        return ips.getBannedIPs(request)
     }
 
     override fun close() {

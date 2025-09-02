@@ -21,14 +21,22 @@ class TokenService:
         """
         self._http = http_client
 
-    async def list_api_tokens(self) -> ListApiTokensData:
+    async def list_api_tokens(
+        self, page: int = 1, page_size: int = 20
+    ) -> ListApiTokensData:
         """获取API Token列表.
+
+        Args:
+            page: 页码
+            page_size: 每页数量
 
         Returns:
             Token列表数据
         """
+        params = {"page": page, "page_size": page_size}
         return await self._http.get(
             "/api/v1/tokens",
+            params=params,
             response_model=ListApiTokensData,
         )
 

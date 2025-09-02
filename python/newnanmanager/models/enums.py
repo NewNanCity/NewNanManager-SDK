@@ -1,6 +1,6 @@
 """Enumeration types for NewNanManager API."""
 
-from enum import Enum, IntEnum
+from enum import IntEnum
 
 
 class BanMode(IntEnum):
@@ -11,16 +11,25 @@ class BanMode(IntEnum):
     PERMANENT = 2  # 永久封禁
 
 
-class LoginAction(str, Enum):
+class LoginAction(IntEnum):
     """登录动作枚举."""
 
-    LOGIN = "login"  # 登录
-    LOGOUT = "logout"  # 登出
+    LOGIN = 1  # 登录
+    LOGOUT = 2  # 登出
 
 
-class ServerType(str, Enum):
-    """服务器类型枚举."""
+class ThreatLevel(IntEnum):
+    """IP威胁等级枚举."""
 
-    MINECRAFT = "minecraft"  # Minecraft游戏服务器
-    PROXY = "proxy"  # 代理服务器
-    LOBBY = "lobby"  # 大厅服务器
+    LOW = 0  # 低威胁
+    MEDIUM = 1  # 中等威胁
+    HIGH = 2  # 高威胁
+    CRITICAL = 3  # 严重威胁
+
+
+class QueryStatus(IntEnum):
+    """IP查询状态枚举."""
+
+    PENDING = 0  # 待查询
+    COMPLETED = 1  # 已完成
+    FAILED = 2  # 查询失败

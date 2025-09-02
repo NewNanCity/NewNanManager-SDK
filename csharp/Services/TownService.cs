@@ -9,9 +9,8 @@ namespace NewNanManager.Client.Services;
 /// </summary>
 public class TownService : HttpClientBase
 {
-    public TownService(HttpClient httpClient, ILogger? logger = null) : base(httpClient, logger)
-    {
-    }
+    public TownService(HttpClient httpClient, ILogger? logger = null)
+        : base(httpClient, logger) { }
 
     /// <summary>
     /// 获取城镇列表
@@ -29,7 +28,8 @@ public class TownService : HttpClientBase
         string? search = null,
         int? minLevel = null,
         int? maxLevel = null,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         var queryParams = new Dictionary<string, object?>
         {
@@ -37,7 +37,7 @@ public class TownService : HttpClientBase
             ["page_size"] = pageSize,
             ["search"] = search,
             ["min_level"] = minLevel,
-            ["max_level"] = maxLevel
+            ["max_level"] = maxLevel,
         };
 
         var queryString = BuildQueryString(queryParams);
@@ -50,7 +50,10 @@ public class TownService : HttpClientBase
     /// <param name="request">创建城镇请求</param>
     /// <param name="cancellationToken">取消令牌</param>
     /// <returns>创建的城镇信息</returns>
-    public async Task<Town> CreateTownAsync(CreateTownRequest request, CancellationToken cancellationToken = default)
+    public async Task<Town> CreateTownAsync(
+        CreateTownRequest request,
+        CancellationToken cancellationToken = default
+    )
     {
         return await PostAsync<Town>("/api/v1/towns", request, cancellationToken);
     }
@@ -59,11 +62,22 @@ public class TownService : HttpClientBase
     /// 获取城镇详情
     /// </summary>
     /// <param name="id">城镇ID</param>
+    /// <param name="detail">是否返回详细信息（包括镇长和成员）</param>
     /// <param name="cancellationToken">取消令牌</param>
-    /// <returns>城镇信息</returns>
-    public async Task<Town> GetTownAsync(int id, CancellationToken cancellationToken = default)
+    /// <returns>城镇详细信息</returns>
+    public async Task<TownDetailResponse> GetTownAsync(
+        int id,
+        bool detail = false,
+        CancellationToken cancellationToken = default
+    )
     {
-        return await GetAsync<Town>($"/api/v1/towns/{id}", cancellationToken);
+        var queryParams = new Dictionary<string, object?> { ["detail"] = detail };
+
+        var queryString = BuildQueryString(queryParams);
+        return await GetAsync<TownDetailResponse>(
+            $"/api/v1/towns/{id}{queryString}",
+            cancellationToken
+        );
     }
 
     /// <summary>
@@ -73,7 +87,11 @@ public class TownService : HttpClientBase
     /// <param name="request">更新请求</param>
     /// <param name="cancellationToken">取消令牌</param>
     /// <returns>更新后的城镇信息</returns>
-    public async Task<Town> UpdateTownAsync(int id, UpdateTownRequest request, CancellationToken cancellationToken = default)
+    public async Task<Town> UpdateTownAsync(
+        int id,
+        UpdateTownRequest request,
+        CancellationToken cancellationToken = default
+    )
     {
         return await PutAsync<Town>($"/api/v1/towns/{id}", request, cancellationToken);
     }
@@ -100,26 +118,19 @@ public class TownService : HttpClientBase
         int townId,
         int? page = null,
         int? pageSize = null,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         var queryParams = new Dictionary<string, object?>
         {
             ["page"] = page,
-            ["page_size"] = pageSize
+            ["page_size"] = pageSize,
         };
 
         var queryString = BuildQueryString(queryParams);
-        return await GetAsync<TownMembersData>($"/api/v1/towns/{townId}/members{queryString}", cancellationToken);
-    }
-
-    /// <summary>
-    /// 管理城镇成员
-    /// </summary>
-    /// <param name="townId">城镇ID</param>
-    /// <param name="request">成员管理请求</param>
-    /// <param name="cancellationToken">取消令牌</param>
-    public async Task ManageTownMemberAsync(int townId, ManageTownMemberRequest request, CancellationToken cancellationToken = default)
-    {
-        await PostAsync($"/api/v1/towns/{townId}/members", request, cancellationToken);
+        return await GetAsync<TownMembersData>(
+            $"/api/v1/towns/{townId}/members{queryString}",
+            cancellationToken
+        );
     }
 }
