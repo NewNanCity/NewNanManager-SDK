@@ -100,20 +100,14 @@ public class TownDetailResponse
     public Town Town { get; set; } = new();
 
     /// <summary>
-    /// 镇长信息
+    /// 镇长ID
     /// </summary>
     [JsonPropertyName("leader")]
-    public Player? Leader { get; set; }
+    public int? Leader { get; set; } // 符合IDL中的 optional i32 leader 定义
 
     /// <summary>
     /// 成员列表（包括镇长）
     /// </summary>
     [JsonPropertyName("members")]
     public List<Player> Members { get; set; } = new();
-
-    /// <summary>
-    /// 成员总数
-    /// </summary>
-    [JsonPropertyName("member_count")]
-    public long MemberCount { get; set; }
 }

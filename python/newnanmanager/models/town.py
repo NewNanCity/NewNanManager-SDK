@@ -51,6 +51,7 @@ class TownDetailResponse(BaseModel):
     """城镇详细信息响应."""
 
     town: Town = Field(description="城镇基本信息")
-    leader: Optional[Player] = Field(default=None, description="镇长信息")
+    leader: Optional[int] = Field(
+        default=None, description="镇长ID"
+    )  # 符合IDL中的 optional i32 leader 定义
     members: list[Player] = Field(default_factory=list, description="成员列表")
-    member_count: int = Field(description="成员总数")

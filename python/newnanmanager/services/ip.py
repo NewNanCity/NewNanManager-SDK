@@ -33,7 +33,9 @@ class IPService:
         Returns:
             IP信息（包含风险信息）
         """
-        return await self._http_client.get(f"/api/v1/ips/{ip}", response_model=IPInfo)
+        return await self._http_client.get(
+            f"/api/v1/ips/{ip}", params=None, response_model=IPInfo
+        )
 
     async def ban_ip(self, request: BanIPRequest) -> None:
         """封禁IP（支持批量）.
@@ -120,5 +122,5 @@ class IPService:
             IP统计信息
         """
         return await self._http_client.get(
-            "/api/v1/ips/statistics", response_model=IPStatistics
+            "/api/v1/ips/statistics", params=None, response_model=IPStatistics
         )

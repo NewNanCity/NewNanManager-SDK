@@ -3,76 +3,113 @@ using System.Text.Json.Serialization;
 namespace NewNanManager.Client.Models;
 
 /// <summary>
-/// 玩家服务器列表数据
+/// 玩家服务器关系信息
 /// </summary>
-public class PlayerServersData : PaginatedData<ServerRegistry> { }
-
-/// <summary>
-/// 服务器玩家列表数据
-/// </summary>
-public class ServerPlayersData : PaginatedData<Player> { }
-
-/// <summary>
-/// 在线玩家列表数据
-/// </summary>
-public class OnlinePlayersData : PaginatedData<Player> { }
-
-/// <summary>
-/// 封禁IP请求
-/// </summary>
-public class BanIPRequest
+public class PlayerServer
 {
     /// <summary>
-    /// IP地址
+    /// 玩家ID
     /// </summary>
-    [JsonPropertyName("ip")]
-    public string IP { get; set; } = string.Empty;
+    [JsonPropertyName("player_id")]
+    public int PlayerId { get; set; }
 
     /// <summary>
-    /// 封禁原因
+    /// 服务器ID
     /// </summary>
-    [JsonPropertyName("reason")]
-    public string? Reason { get; set; }
+    [JsonPropertyName("server_id")]
+    public int ServerId { get; set; }
+
+    /// <summary>
+    /// 是否在线
+    /// </summary>
+    [JsonPropertyName("online")]
+    public bool Online { get; set; }
+
+    /// <summary>
+    /// 加入时间(ISO8601格式)
+    /// </summary>
+    [JsonPropertyName("joined_at")]
+    public DateTime JoinedAt { get; set; }
+
+    /// <summary>
+    /// 创建时间(ISO8601格式)
+    /// </summary>
+    [JsonPropertyName("created_at")]
+    public DateTime CreatedAt { get; set; }
+
+    /// <summary>
+    /// 更新时间(ISO8601格式)
+    /// </summary>
+    [JsonPropertyName("updated_at")]
+    public DateTime UpdatedAt { get; set; }
 }
 
 /// <summary>
-/// 批量封禁IP请求
+/// 在线玩家信息
 /// </summary>
-public class BatchBanIPsRequest
+public class OnlinePlayer
 {
     /// <summary>
-    /// IP地址列表
+    /// 玩家ID
     /// </summary>
-    [JsonPropertyName("ips")]
-    public List<string> IPs { get; set; } = new();
+    [JsonPropertyName("player_id")]
+    public int PlayerId { get; set; }
 
     /// <summary>
-    /// 封禁原因
+    /// 玩家名
     /// </summary>
-    [JsonPropertyName("reason")]
-    public string? Reason { get; set; }
+    [JsonPropertyName("player_name")]
+    public string PlayerName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 服务器ID
+    /// </summary>
+    [JsonPropertyName("server_id")]
+    public int ServerId { get; set; }
+
+    /// <summary>
+    /// 服务器名
+    /// </summary>
+    [JsonPropertyName("server_name")]
+    public string ServerName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 加入时间(ISO8601格式)
+    /// </summary>
+    [JsonPropertyName("joined_at")]
+    public DateTime JoinedAt { get; set; }
 }
 
 /// <summary>
-/// 批量封禁IP响应
+/// 玩家服务器关系列表数据
 /// </summary>
-public class BatchBanIPsResponse
+public class PlayerServersData
 {
     /// <summary>
-    /// 成功封禁的IP列表
+    /// 服务器关系列表
     /// </summary>
-    [JsonPropertyName("success")]
-    public List<string> Success { get; set; } = new();
-
-    /// <summary>
-    /// 封禁失败的IP列表
-    /// </summary>
-    [JsonPropertyName("failed")]
-    public List<string> Failed { get; set; } = new();
+    [JsonPropertyName("servers")]
+    public List<PlayerServer> Servers { get; set; } = new();
 
     /// <summary>
     /// 总数
     /// </summary>
     [JsonPropertyName("total")]
-    public int Total { get; set; }
+    public long Total { get; set; }
+}
+
+/// <summary>
+/// 服务器在线玩家列表数据
+/// </summary>
+public class ServerPlayersData : PagedData<OnlinePlayer>
+{
+    /// <summary>
+    /// 在线玩家列表
+    /// </summary>
+    [JsonPropertyName("players")]
+    public List<OnlinePlayer> Players
+    {
+        get => Items;
+        set => Items = value;
+    }
 }

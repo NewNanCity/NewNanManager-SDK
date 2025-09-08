@@ -282,17 +282,6 @@ public class ComprehensiveTestProgram
 
             if (testTownId.HasValue && testPlayerId.HasValue)
             {
-                Console.WriteLine("7.1 Adding player to town...");
-                try
-                {
-                    var manageMemberRequest = new ManageTownMemberRequest
-                    {
-                        PlayerId = testPlayerId.Value,
-                        Action = "add",
-                    };
-                    await client.Towns.ManageTownMemberAsync(testTownId.Value, manageMemberRequest);
-                    Console.WriteLine("✓ Player added to town");
-                }
                 catch (Exception e)
                 {
                     Console.WriteLine($"✗ Add player to town failed: {e.Message}");

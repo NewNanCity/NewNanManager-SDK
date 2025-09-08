@@ -23,13 +23,13 @@
   "author": "NewNanManager Team",
   "license": "MIT",
   "dependencies": {
-    "axios": "^1.6.0",
-    "@sttot/axios-api": "^0.2.5"
+    "@sttot/axios-api": "^0.2.5",
+    "axios": "^1.6.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
     "rimraf": "^5.0.0",
-    "ts-node": "^10.9.0",
+    "ts-node": "^10.9.2",
     "typescript": "^5.0.0"
   }
 }

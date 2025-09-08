@@ -75,7 +75,6 @@ func main() {
 - `UpdateTown()` - 更新城镇信息
 - `DeleteTown()` - 删除城镇
 - `GetTownMembers()` - 获取城镇成员列表
-- `ManageTownMember()` - 管理城镇成员
 
 ### Token 管理
 - `ListApiTokens()` - 获取 API Token 列表

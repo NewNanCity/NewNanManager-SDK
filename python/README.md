@@ -167,17 +167,6 @@ town = await client.towns.create_town(
 
 # 获取城镇成员
 members = await client.towns.get_town_members(town.id)
-
-# 管理城镇成员
-from newnanmanager.models import ManageTownMemberRequest
-
-await client.towns.manage_town_member(
-    town.id,
-    ManageTownMemberRequest(
-        player_id=player_id,
-        action="add"
-    )
-)
 ```
 
 ### Token管理

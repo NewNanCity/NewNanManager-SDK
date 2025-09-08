@@ -35,11 +35,20 @@ export const initTownService = (apiFactory: ReturnType<typeof apiBase>) => {
           description: request.description
         }
       }),
-      ({ data }) => data as Town,
+      ({ data }) => ({
+        id: data.id,
+        name: data.name,
+        level: data.level,
+        leaderId: data.leader_id,
+        qqGroup: data.qq_group,
+        description: data.description,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at
+      }),
       commonErrorHandler
     );
 
-    // 获取城镇列表
+        // 获取城镇列表
     public listTowns = apiFactory<ListTownsRequest, ListTownsResponse>(
       (request = {}) => ({
         method: 'GET',
@@ -47,33 +56,66 @@ export const initTownService = (apiFactory: ReturnType<typeof apiBase>) => {
         params: this.buildParams({
           page: request.page,
           page_size: request.pageSize,
+          name: request.name,
           search: request.search,
-          level: request.level
+          min_level: request.minLevel,
+          max_level: request.maxLevel
         })
       }),
-      ({ data }) => data as ListTownsResponse,
+      ({ data }) => ({
+        towns: data.towns.map((town: any) => ({
+          id: town.id,
+          name: town.name,
+          level: town.level,
+          leaderId: town.leader_id,
+          qqGroup: town.qq_group,
+          description: town.description,
+          createdAt: town.created_at,
+          updatedAt: town.updated_at
+        })),
+        total: data.total,
+        page: data.page,
+        pageSize: data.page_size
+      }),
       commonErrorHandler
     );
 
-    // 获取城镇详情
-    public getTown = apiFactory<GetTownRequest, Town>(
+    // 获取城镇详情（根据IDL规范，返回TownDetailResponse）
+    public getTown = apiFactory<GetTownRequest, TownDetailResponse>(
       (request) => ({
         method: 'GET',
         url: `/api/v1/towns/${request.id}`,
         params: request.detail ? { detail: request.detail } : undefined
       }),
-      ({ data }) => data as Town,
-      commonErrorHandler
-    );
-
-    // 获取城镇详细信息（包含镇长和成员信息）
-    public getTownDetail = apiFactory<GetTownRequest, TownDetailResponse>(
-      (request) => ({
-        method: 'GET',
-        url: `/api/v1/towns/${request.id}`,
-        params: { detail: true }
+      ({ data }) => ({
+        town: {
+          id: data.town.id,
+          name: data.town.name,
+          level: data.town.level,
+          leaderId: data.town.leader_id,
+          qqGroup: data.town.qq_group,
+          description: data.town.description,
+          createdAt: data.town.created_at,
+          updatedAt: data.town.updated_at
+        },
+        leader: data.leader,  // 直接使用ID，符合IDL中的 optional i32 leader 定义
+        members: data.members.map((member: any) => ({
+          id: member.id,
+          name: member.name,
+          townId: member.town_id,
+          qq: member.qq,
+          qqguild: member.qqguild,
+          discord: member.discord,
+          inQqGroup: member.in_qq_group,
+          inQqGuild: member.in_qq_guild,
+          inDiscord: member.in_discord,
+          banMode: member.ban_mode,
+          banExpire: member.ban_expire,
+          banReason: member.ban_reason,
+          createdAt: member.created_at,
+          updatedAt: member.updated_at
+        }))
       }),
-      ({ data }) => data as TownDetailResponse,
       commonErrorHandler
     );
 
@@ -90,7 +132,16 @@ export const initTownService = (apiFactory: ReturnType<typeof apiBase>) => {
           description: request.description
         }
       }),
-      ({ data }) => data as Town,
+      ({ data }) => ({
+        id: data.id,
+        name: data.name,
+        level: data.level,
+        leaderId: data.leader_id,
+        qqGroup: data.qq_group,
+        description: data.description,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at
+      }),
       commonErrorHandler
     );
 
@@ -111,10 +162,20 @@ export const initTownService = (apiFactory: ReturnType<typeof apiBase>) => {
         url: `/api/v1/towns/${request.townId}/members`,
         params: this.buildParams({
           page: request.page,
-          page_size: request.pageSize
+          pageSize: request.pageSize  // 使用符合IDL规范的字段命名
         })
       }),
-      ({ data }) => data as TownMembersResponse,
+      ({ data }) => ({
+        members: data.members.map((member: any) => ({
+          playerId: member.player_id,
+          playerName: member.player_name,
+          joinedAt: member.joined_at,
+          role: member.role
+        })),
+        total: data.total,
+        page: data.page,
+        pageSize: data.page_size
+      }),
       commonErrorHandler
     );
 

@@ -8,9 +8,7 @@ import {
   HeartbeatRequest,
   HeartbeatResponse,
   GetMonitorStatsRequest,
-  MonitorStatsResponse,
-  LatencyRequest,
-  EmptyResponse
+  MonitorStatsResponse
 } from '../types';
 import { commonErrorHandler } from '../utils/errorHandler';
 
@@ -20,7 +18,7 @@ export const initMonitorService = (apiFactory: ReturnType<typeof apiBase>) => {
     public heartbeat = apiFactory<HeartbeatRequest, HeartbeatResponse>(
       (request) => ({
         method: 'POST',
-        url: `/api/v1/servers/${request.serverId}/heartbeat`,
+        url: `/api/v1/monitor/${request.serverId}/heartbeat`,
         data: {
           current_players: request.currentPlayers,
           max_players: request.maxPlayers,
@@ -30,27 +28,11 @@ export const initMonitorService = (apiFactory: ReturnType<typeof apiBase>) => {
           rtt_ms: request.rttMs
         }
       }),
-      ({ data }) => data as HeartbeatResponse,
-      commonErrorHandler
-    );
-
-    // 获取延迟统计数据
-    public getLatencyStats = apiFactory<{ serverId: number }, any>(
-      (request) => ({
-        method: 'GET',
-        url: `/api/v1/servers/${request.serverId}/latency`
+      ({ data }) => ({
+        receivedAt: data.received_at,
+        responseAt: data.response_at,
+        expireDurationMs: data.expire_duration_ms
       }),
-      ({ data }) => data,
-      commonErrorHandler
-    );
-
-    // 获取服务器状态
-    public getServerStatus = apiFactory<{ serverId: number }, any>(
-      (request) => ({
-        method: 'GET',
-        url: `/api/v1/servers/${request.serverId}/status`
-      }),
-      ({ data }) => data,
       commonErrorHandler
     );
 
@@ -58,13 +40,21 @@ export const initMonitorService = (apiFactory: ReturnType<typeof apiBase>) => {
     public getMonitorStats = apiFactory<GetMonitorStatsRequest, MonitorStatsResponse>(
       (request) => ({
         method: 'GET',
-        url: `/api/v1/servers/${request.serverId}/monitor`,
+        url: `/api/v1/monitor/${request.serverId}/stats`,
         params: {
           since: request.since,
           duration: request.duration
         }
       }),
-      ({ data }) => data as MonitorStatsResponse,
+      ({ data }) => ({
+        serverId: data.server_id,
+        stats: data.stats.map((stat: any) => ({
+          timestamp: stat.timestamp,
+          currentPlayers: stat.current_players,
+          tps: stat.tps,
+          latencyMs: stat.latency_ms
+        }))
+      }),
       commonErrorHandler
     );
   }

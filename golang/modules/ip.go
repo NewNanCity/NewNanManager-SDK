@@ -71,6 +71,37 @@ func (s *IPService) GetBannedIPs(page, pageSize *int32) (*BannedIPsData, error) 
 	return &result, nil
 }
 
+// ListIPs 获取IP列表
+func (s *IPService) ListIPs(page, pageSize *int32, bannedOnly *bool, minThreatLevel *ThreatLevel, minRiskScore *int32) (*BannedIPsData, error) {
+	req := s.client.R()
+
+	if page != nil {
+		req.SetQueryParam("page", strconv.Itoa(int(*page)))
+	}
+	if pageSize != nil {
+		req.SetQueryParam("page_size", strconv.Itoa(int(*pageSize)))
+	}
+	if bannedOnly != nil {
+		req.SetQueryParam("banned_only", strconv.FormatBool(*bannedOnly))
+	}
+	if minThreatLevel != nil {
+		req.SetQueryParam("min_threat_level", strconv.Itoa(int(*minThreatLevel)))
+	}
+	if minRiskScore != nil {
+		req.SetQueryParam("min_risk_score", strconv.Itoa(int(*minRiskScore)))
+	}
+
+	resp, err := req.Get("/api/v1/ips")
+
+	var result BannedIPsData
+	err = utils.HandleResponse(resp, err, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
 // GetSuspiciousIPs 获取可疑IP列表
 func (s *IPService) GetSuspiciousIPs(page, pageSize *int32) (*SuspiciousIPsData, error) {
 	req := s.client.R()

@@ -39,8 +39,23 @@ export const initPlayerService = (apiFactory: ReturnType<typeof apiBase>) => {
           in_discord: request.inDiscord
         }
       }),
-      // 处理响应：新的响应格式直接返回数据
-      ({ data }) => data as Player,
+      // 处理响应：转换snake_case到camelCase
+      ({ data }) => ({
+        id: data.id,
+        name: data.name,
+        townId: data.town_id,
+        qq: data.qq,
+        qqguild: data.qqguild,
+        discord: data.discord,
+        inQqGroup: data.in_qq_group,
+        inQqGuild: data.in_qq_guild,
+        inDiscord: data.in_discord,
+        banMode: data.ban_mode,
+        banExpire: data.ban_expire,
+        banReason: data.ban_reason,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at
+      }),
       // 处理错误：解析新的错误格式 {"detail": "..."}
       commonErrorHandler
     );
@@ -62,7 +77,27 @@ export const initPlayerService = (apiFactory: ReturnType<typeof apiBase>) => {
           discord: request.discord
         })
       }),
-      ({ data }) => data as ListPlayersResponse,
+      ({ data }) => ({
+        players: data.players.map((player: any) => ({
+          id: player.id,
+          name: player.name,
+          townId: player.town_id,
+          qq: player.qq,
+          qqguild: player.qqguild,
+          discord: player.discord,
+          inQqGroup: player.in_qq_group,
+          inQqGuild: player.in_qq_guild,
+          inDiscord: player.in_discord,
+          banMode: player.ban_mode,
+          banExpire: player.ban_expire,
+          banReason: player.ban_reason,
+          createdAt: player.created_at,
+          updatedAt: player.updated_at
+        })),
+        total: data.total,
+        page: data.page,
+        pageSize: data.page_size
+      }),
       commonErrorHandler
     );
 
@@ -72,7 +107,22 @@ export const initPlayerService = (apiFactory: ReturnType<typeof apiBase>) => {
         method: 'GET',
         url: `/api/v1/players/${request.id}`
       }),
-      ({ data }) => data as Player,
+      ({ data }) => ({
+        id: data.id,
+        name: data.name,
+        townId: data.town_id,
+        qq: data.qq,
+        qqguild: data.qqguild,
+        discord: data.discord,
+        inQqGroup: data.in_qq_group,
+        inQqGuild: data.in_qq_guild,
+        inDiscord: data.in_discord,
+        banMode: data.ban_mode,
+        banExpire: data.ban_expire,
+        banReason: data.ban_reason,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at
+      }),
       commonErrorHandler
     );
 
@@ -92,7 +142,22 @@ export const initPlayerService = (apiFactory: ReturnType<typeof apiBase>) => {
           in_discord: request.inDiscord
         }
       }),
-      ({ data }) => data as Player,
+      ({ data }) => ({
+        id: data.id,
+        name: data.name,
+        townId: data.town_id,
+        qq: data.qq,
+        qqguild: data.qqguild,
+        discord: data.discord,
+        inQqGroup: data.in_qq_group,
+        inQqGuild: data.in_qq_guild,
+        inDiscord: data.in_discord,
+        banMode: data.ban_mode,
+        banExpire: data.ban_expire,
+        banReason: data.ban_reason,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at
+      }),
       commonErrorHandler
     );
 
@@ -145,11 +210,22 @@ export const initPlayerService = (apiFactory: ReturnType<typeof apiBase>) => {
             protocol_version: p.protocolVersion
           })),
           server_id: request.serverId,
-          login: request.login,
-          timestamp: request.timestamp || Date.now()
+          login: request.login
         }
       }),
-      ({ data }) => data as ValidateResponse,
+      ({ data }) => ({
+        results: data.results.map((result: any) => ({
+          playerName: result.player_name,
+          allowed: result.allowed,
+          playerId: result.player_id,
+          reason: result.reason,
+          newbie: result.newbie,
+          banMode: result.ban_mode,
+          banExpire: result.ban_expire,
+          banReason: result.ban_reason
+        })),
+        processedAt: data.processed_at
+      }),
       commonErrorHandler
     );
 

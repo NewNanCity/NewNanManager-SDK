@@ -117,6 +117,7 @@ class PlayerService:
         """
         return await self._http.get(
             f"/api/v1/players/{player_id}",
+            params=None,
             response_model=Player,
         )
 

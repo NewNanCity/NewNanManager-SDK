@@ -61,3 +61,50 @@ public enum ServerType
     /// </summary>
     Lobby,
 }
+
+/// <summary>
+/// IP威胁等级枚举
+/// </summary>
+public enum ThreatLevel
+{
+    /// <summary>
+    /// 低威胁
+    /// </summary>
+    Low = 0,
+
+    /// <summary>
+    /// 中等威胁
+    /// </summary>
+    Medium = 1,
+
+    /// <summary>
+    /// 高威胁
+    /// </summary>
+    High = 2,
+
+    /// <summary>
+    /// 严重威胁
+    /// </summary>
+    Critical = 3,
+}
+
+/// <summary>
+/// IP查询状态枚举
+/// </summary>
+public enum QueryStatus
+{
+    /// <summary>
+    /// 待查询
+    /// </summary>
+    Pending = 0,
+
+    /// <summary>
+    /// 已完成
+    /// </summary>
+    Completed = 1,
+
+    /// <summary>
+    /// 查询失败
+    /// </summary>
+    Failed = 2,
+}

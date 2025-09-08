@@ -30,7 +30,21 @@ export const initTokenService = (apiFactory: ReturnType<typeof apiBase>) => {
           expire_days: request.expireDays
         }
       }),
-      ({ data }) => data as CreateApiTokenResponse,
+      ({ data }) => ({
+        tokenInfo: {
+          id: data.token_info.id,
+          name: data.token_info.name,
+          role: data.token_info.role,
+          description: data.token_info.description,
+          active: data.token_info.active,
+          expireAt: data.token_info.expire_at,
+          lastUsedAt: data.token_info.last_used_at,
+          lastUsedIp: data.token_info.last_used_ip,
+          createdAt: data.token_info.created_at,
+          updatedAt: data.token_info.updated_at
+        },
+        tokenValue: data.token_value
+      }),
       commonErrorHandler
     );
 
@@ -45,7 +59,23 @@ export const initTokenService = (apiFactory: ReturnType<typeof apiBase>) => {
           search: request.search
         })
       }),
-      ({ data }) => data as ListApiTokensResponse,
+      ({ data }) => ({
+        tokens: data.tokens.map((token: any) => ({
+          id: token.id,
+          name: token.name,
+          role: token.role,
+          description: token.description,
+          active: token.active,
+          expireAt: token.expire_at,
+          lastUsedAt: token.last_used_at,
+          lastUsedIp: token.last_used_ip,
+          createdAt: token.created_at,
+          updatedAt: token.updated_at
+        })),
+        total: data.total,
+        page: data.page,
+        pageSize: data.page_size
+      }),
       commonErrorHandler
     );
 
@@ -55,7 +85,18 @@ export const initTokenService = (apiFactory: ReturnType<typeof apiBase>) => {
         method: 'GET',
         url: `/api/v1/tokens/${request.id}`
       }),
-      ({ data }) => data as ApiToken,
+      ({ data }) => ({
+        id: data.id,
+        name: data.name,
+        role: data.role,
+        description: data.description,
+        active: data.active,
+        expireAt: data.expire_at,
+        lastUsedAt: data.last_used_at,
+        lastUsedIp: data.last_used_ip,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at
+      }),
       commonErrorHandler
     );
 
@@ -71,7 +112,18 @@ export const initTokenService = (apiFactory: ReturnType<typeof apiBase>) => {
           active: request.active
         }
       }),
-      ({ data }) => data as ApiToken,
+      ({ data }) => ({
+        id: data.id,
+        name: data.name,
+        role: data.role,
+        description: data.description,
+        active: data.active,
+        expireAt: data.expire_at,
+        lastUsedAt: data.last_used_at,
+        lastUsedIp: data.last_used_ip,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at
+      }),
       commonErrorHandler
     );
 

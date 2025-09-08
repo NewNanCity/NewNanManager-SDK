@@ -165,36 +165,6 @@ public class ValidateLoginRequest
 }
 
 /// <summary>
-/// 玩家验证请求（支持批处理）
-/// </summary>
-public class ValidateRequest
-{
-    /// <summary>
-    /// 玩家列表（1-100个）
-    /// </summary>
-    [JsonPropertyName("players")]
-    public List<PlayerValidateInfo> Players { get; set; } = new();
-
-    /// <summary>
-    /// 服务器ID：1-999999
-    /// </summary>
-    [JsonPropertyName("server_id")]
-    public int ServerId { get; set; }
-
-    /// <summary>
-    /// 是否为登录验证（true=登录需记录日志，false=定期检查不记录日志）
-    /// </summary>
-    [JsonPropertyName("login")]
-    public bool Login { get; set; }
-
-    /// <summary>
-    /// 请求时间戳：0或Unix时间戳，默认0
-    /// </summary>
-    [JsonPropertyName("timestamp")]
-    public long Timestamp { get; set; } = 0;
-}
-
-/// <summary>
 /// 创建服务器请求
 /// </summary>
 public class CreateServerRequest
@@ -210,12 +180,6 @@ public class CreateServerRequest
     /// </summary>
     [JsonPropertyName("address")]
     public string? Address { get; set; }
-
-    /// <summary>
-    /// 服务器类型
-    /// </summary>
-    [JsonPropertyName("server_type")]
-    public ServerType? ServerType { get; set; }
 
     /// <summary>
     /// 服务器描述
@@ -240,12 +204,6 @@ public class UpdateServerRequest
     /// </summary>
     [JsonPropertyName("address")]
     public string? Address { get; set; }
-
-    /// <summary>
-    /// 服务器类型
-    /// </summary>
-    [JsonPropertyName("server_type")]
-    public ServerType? ServerType { get; set; }
 
     /// <summary>
     /// 服务器描述
@@ -444,4 +402,88 @@ public class UpdateApiTokenRequest
     /// </summary>
     [JsonPropertyName("active")]
     public bool? Active { get; set; }
+}
+
+/// <summary>
+/// 城镇列表请求
+/// </summary>
+public class ListTownsRequest
+{
+    /// <summary>
+    /// 页码
+    /// </summary>
+    [JsonPropertyName("page")]
+    public int Page { get; set; } = 1;
+
+    /// <summary>
+    /// 每页数量
+    /// </summary>
+    [JsonPropertyName("page_size")]
+    public int PageSize { get; set; } = 20;
+
+    /// <summary>
+    /// 城镇名称
+    /// </summary>
+    [JsonPropertyName("name")]
+    public string? Name { get; set; }
+
+    /// <summary>
+    /// 搜索关键词
+    /// </summary>
+    [JsonPropertyName("search")]
+    public string? Search { get; set; }
+
+    /// <summary>
+    /// 最小等级
+    /// </summary>
+    [JsonPropertyName("min_level")]
+    public int? MinLevel { get; set; }
+
+    /// <summary>
+    /// 最大等级
+    /// </summary>
+    [JsonPropertyName("max_level")]
+    public int? MaxLevel { get; set; }
+}
+
+/// <summary>
+/// 设置玩家离线请求
+/// </summary>
+public class SetPlayersOfflineRequest
+{
+    /// <summary>
+    /// 服务器ID
+    /// </summary>
+    [JsonPropertyName("server_id")]
+    public int ServerId { get; set; }
+
+    /// <summary>
+    /// 玩家ID列表（1-1000个）
+    /// </summary>
+    [JsonPropertyName("player_ids")]
+    public List<int> PlayerIds { get; set; } = new();
+}
+
+/// <summary>
+/// 玩家验证请求（支持批处理）
+/// </summary>
+public class ValidateRequest
+{
+    /// <summary>
+    /// 玩家列表（1-100个）
+    /// </summary>
+    [JsonPropertyName("players")]
+    public List<PlayerValidateInfo> Players { get; set; } = new();
+
+    /// <summary>
+    /// 服务器ID
+    /// </summary>
+    [JsonPropertyName("server_id")]
+    public int ServerId { get; set; }
+
+    /// <summary>
+    /// 是否为登录验证
+    /// </summary>
+    [JsonPropertyName("login")]
+    public bool Login { get; set; }
 }

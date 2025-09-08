@@ -70,7 +70,11 @@ class PlayerValidateResult(BaseModel):
     player_id: Optional[int] = Field(default=None, description="玩家ID")
     reason: Optional[str] = Field(default=None, description="拒绝原因")
     newbie: bool = Field(default=False, description="是否为新玩家")
-    ip_risk: Optional[dict] = Field(default=None, description="IP风险信息")
+    ban_mode: Optional[BanMode] = Field(default=None, description="封禁模式")
+    ban_expire: Optional[str] = Field(
+        default=None, description="封禁到期时间(ISO8601格式)"
+    )
+    ban_reason: Optional[str] = Field(default=None, description="封禁原因")
 
 
 class ValidateData(BaseModel):

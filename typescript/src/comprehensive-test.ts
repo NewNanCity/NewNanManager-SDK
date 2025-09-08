@@ -1,12 +1,11 @@
 import { NewNanManagerClient } from './client';
 import {
   CreatePlayerRequest,
-  RegisterServerRequest,
+  CreateServerRequest,
   CreateTownRequest,
   ValidateRequest,
   PlayerValidateInfo,
-  SetPlayerOnlineRequest,
-  ManageTownMemberRequest,
+  SetPlayersOfflineRequest,
   GetTownMembersRequest,
   GetOnlinePlayersRequest,
   ListPlayersRequest,
@@ -114,12 +113,12 @@ async function runComprehensiveTest() {
     console.log('\n2.2 Registering a new server...');
     try {
       const timestamp = Date.now();
-      const registerRequest: RegisterServerRequest = {
+      const createRequest: CreateServerRequest = {
         name: `TestServerTS_${timestamp}`,
         address: `test${timestamp}.example.com:25565`,
         description: 'Test server for comprehensive testing'
       };
-      const newServer = await client.servers.registerServer(registerRequest);
+      const newServer = await client.servers.createServer(createRequest);
       testServerId = newServer.id;
       console.log(`✓ Registered server: ${newServer.name} (ID: ${newServer.id})`);
     } catch (e: any) {
@@ -130,8 +129,8 @@ async function runComprehensiveTest() {
     if (testServerId !== null) {
       console.log('\n2.3 Getting server details...');
       try {
-        const server = await client.servers.getServerDetail({ id: testServerId });
-        console.log(`✓ Server: ${server.name}, Address: ${server.address}`);
+        const serverDetail = await client.servers.getServer({ id: testServerId, detail: true });
+        console.log(`✓ Server: ${serverDetail.server.name}, Address: ${serverDetail.server.address}`);
       } catch (e: any) {
         console.log(`✗ Get server detail failed: ${e.message}`);
       }

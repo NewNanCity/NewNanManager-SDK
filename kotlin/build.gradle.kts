@@ -12,28 +12,18 @@ repositories {
 }
 
 dependencies {
-    // Ktor客户端核心
-    implementation("io.ktor:ktor-client-core:2.3.0")
-    implementation("io.ktor:ktor-client-cio:2.3.0")
+    // HTTP客户端 - 使用OkHttp，同步调用
+    implementation("com.squareup.okhttp3:okhttp:5.1.0")
 
-    // JSON序列化支持
-    implementation("io.ktor:ktor-client-content-negotiation:2.3.0")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
-
-    // 日志支持
-    implementation("io.ktor:ktor-client-logging:2.3.0")
-    implementation("ch.qos.logback:logback-classic:1.4.7")
-
-    // 协程支持
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
+    // JSON序列化 - 使用Jackson，性能优异
+    implementation("com.fasterxml.jackson.core:jackson-core:2.18.3")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.18.3")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.18.3")
 
     // 测试依赖
     testImplementation(kotlin("test"))
-    testImplementation("io.ktor:ktor-client-mock:2.3.0")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("com.squareup.okhttp3:mockwebserver:5.1.0")
 }
 
 tasks.test {
@@ -42,40 +32,29 @@ tasks.test {
 
 kotlin {
     jvmToolchain(21)
+
+    compilerOptions {
+        freeCompilerArgs.add("-Xannotation-default-target=param-property")
+    }
 }
 
 application {
-    mainClass.set("com.nanmanager.client.MainKt")
+    mainClass.set("com.nanmanager.bukkit.examples.BasicExampleKt")
 }
 
-// 添加运行测试的任务
-tasks.register<JavaExec>("runIntegrationTest") {
-    group = "verification"
-    description = "Run integration tests"
-    classpath = sourceSets["main"].runtimeClasspath
-    mainClass.set("com.nanmanager.client.MainKt")
+// 创建源码jar
+tasks.register<Jar>("sourcesJar") {
+    archiveClassifier.set("sources")
+    from(sourceSets.main.get().allSource)
 }
 
-// 添加运行更新后SDK测试的任务
-tasks.register<JavaExec>("runTestUpdatedSDK") {
-    group = "verification"
-    description = "Run updated SDK tests"
-    classpath = sourceSets["main"].runtimeClasspath
-    mainClass.set("TestUpdatedSDKKt")
+// 创建文档jar
+tasks.register<Jar>("javadocJar") {
+    archiveClassifier.set("javadoc")
+    from(tasks.javadoc)
 }
 
-// 添加运行模块化SDK测试的任务
-tasks.register<JavaExec>("runTestModularSDK") {
-    group = "verification"
-    description = "Run modular SDK tests"
-    classpath = sourceSets["main"].runtimeClasspath
-    mainClass.set("TestModularSDKKt")
-}
-
-// 添加运行综合测试的任务
-tasks.register<JavaExec>("runComprehensiveTest") {
-    group = "verification"
-    description = "Run comprehensive SDK tests"
-    classpath = sourceSets["main"].runtimeClasspath
-    mainClass.set("ComprehensiveTestKt")
+artifacts {
+    archives(tasks["sourcesJar"])
+    archives(tasks["javadocJar"])
 }

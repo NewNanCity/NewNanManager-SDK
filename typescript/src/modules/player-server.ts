@@ -5,7 +5,7 @@
 
 import { apiBase } from '@sttot/axios-api';
 import {
-  GetOnlinePlayersRequest,
+  PlayerServersResponse,
   ServerPlayersResponse,
   EmptyResponse,
   SetPlayersOfflineRequest
@@ -15,50 +15,62 @@ import { commonErrorHandler } from '../utils/errorHandler';
 export const initPlayerServerService = (apiFactory: ReturnType<typeof apiBase>) => {
   class PlayerServerService {
 
-
-    // 获取全局在线玩家列表
-    public getOnlinePlayers = apiFactory<GetOnlinePlayersRequest, ServerPlayersResponse>(
+    // 获取玩家的服务器关系
+    public getPlayerServers = apiFactory<{ playerId: number; onlineOnly?: boolean }, PlayerServersResponse>(
       (request) => ({
         method: 'GET',
-        url: '/api/v1/online-players',
+        url: `/api/v1/players/${request.playerId}/servers`,
+        params: this.buildParams({
+          online_only: request.onlineOnly
+        })
+      }),
+      ({ data }) => ({
+        servers: data.servers.map((server: any) => ({
+          playerId: server.player_id,
+          serverId: server.server_id,
+          online: server.online,
+          joinedAt: server.joined_at,
+          createdAt: server.created_at,
+          updatedAt: server.updated_at
+        })),
+        total: data.total,
+        page: data.page,
+        pageSize: data.page_size
+      }),
+      commonErrorHandler
+    );
+
+    // 获取全局在线玩家
+    public getServerPlayers = apiFactory<{
+      page?: number;
+      pageSize?: number;
+      search?: string;
+      serverId?: number;
+      onlineOnly?: boolean
+    }, ServerPlayersResponse>(
+      (request) => ({
+        method: 'GET',
+        url: '/api/v1/server-players',
         params: this.buildParams({
           page: request.page,
           page_size: request.pageSize,
           search: request.search,
-          server_id: request.serverId
-        })
-      }),
-      ({ data }) => data as ServerPlayersResponse,
-      commonErrorHandler
-    );
-
-    // 获取玩家的服务器列表
-    public getPlayerServers = apiFactory<{ playerId: number; page?: number; pageSize?: number }, ServerPlayersResponse>(
-      (request) => ({
-        method: 'GET',
-        url: '/api/v1/player-servers/servers',
-        params: this.buildParams({
-          player_id: request.playerId,
-          page: request.page,
-          page_size: request.pageSize
-        })
-      }),
-      ({ data }) => data as ServerPlayersResponse,
-      commonErrorHandler
-    );
-
-    // 获取服务器的玩家列表
-    public getServerPlayers = apiFactory<{ serverId: number; page?: number; pageSize?: number }, ServerPlayersResponse>(
-      (request) => ({
-        method: 'GET',
-        url: '/api/v1/player-servers/players',
-        params: this.buildParams({
           server_id: request.serverId,
-          page: request.page,
-          page_size: request.pageSize
+          online_only: request.onlineOnly
         })
       }),
-      ({ data }) => data as ServerPlayersResponse,
+      ({ data }) => ({
+        players: data.players.map((player: any) => ({
+          playerId: player.player_id,
+          playerName: player.player_name,
+          serverId: player.server_id,
+          serverName: player.server_name,
+          joinedAt: player.joined_at
+        })),
+        total: data.total,
+        page: data.page,
+        pageSize: data.page_size
+      }),
       commonErrorHandler
     );
 

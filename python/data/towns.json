@@ -1,0 +1,136 @@
+{
+"towns": [
+	{
+		"id" : 1,
+		"name" : "凯夏镇",
+		"level" : 1,
+		"leader" : 91,
+		"qqgroup" : "262672436"
+	},
+	{
+		"id" : 2,
+		"name" : "江秋镇",
+		"level" : 2,
+		"leader" : 31,
+		"qqgroup" : "1070775707"
+	},
+	{
+		"id" : 3,
+		"name" : "牛腩镇",
+		"level" : 0,
+		"leader" : 90,
+		"qqgroup" : null
+	},
+	{
+		"id" : 4,
+		"name" : "凛冬城",
+		"level" : 0,
+		"leader" : 39,
+		"qqgroup" : null
+	},
+	{
+		"id" : 5,
+		"name" : "云梦泽",
+		"level" : 1,
+		"leader" : null,
+		"qqgroup" : null
+	},
+	{
+		"id" : 6,
+		"name" : "自由之翼镇",
+		"level" : 0,
+		"leader" : 650,
+		"qqgroup" : null
+	},
+	{
+		"id" : 7,
+		"name" : "湖畔镇",
+		"level" : 0,
+		"leader" : 24,
+		"qqgroup" : null
+	},
+	{
+		"id" : 8,
+		"name" : "莫斯科",
+		"level" : 1,
+		"leader" : 70,
+		"qqgroup" : "964630439"
+	},
+	{
+		"id" : 9,
+		"name" : "桃花源",
+		"level" : 4,
+		"leader" : 78,
+		"qqgroup" : "1129324923"
+	},
+	{
+		"id" : 10,
+		"name" : "永霜冻土",
+		"level" : 4,
+		"leader" : 187,
+		"qqgroup" : "1040643413"
+	},
+	{
+		"id" : 11,
+		"name" : "天元镇",
+		"level" : 1,
+		"leader" : 22,
+		"qqgroup" : "556818377"
+	},
+	{
+		"id" : 12,
+		"name" : "沉春镇",
+		"level" : 1,
+		"leader" : 54,
+		"qqgroup" : "523695474"
+	},
+	{
+		"id" : 13,
+		"name" : "未央镇",
+		"level" : 0,
+		"leader" : 127,
+		"qqgroup" : "1029300437"
+	},
+	{
+		"id" : 14,
+		"name" : "隐居茶物语",
+		"level" : 0,
+		"leader" : 94,
+		"qqgroup" : "713709865"
+	},
+	{
+		"id" : 15,
+		"name" : "岚雪镇",
+		"level" : 3,
+		"leader" : 569,
+		"qqgroup" : "936055531"
+	},
+	{
+		"id" : 16,
+		"name" : "稻香镇",
+		"level" : 2,
+		"leader" : 262,
+		"qqgroup" : "637379524"
+	},
+	{
+		"id" : 17,
+		"name" : "流放地",
+		"level" : 0,
+		"leader" : null,
+		"qqgroup" : null
+	},
+	{
+		"id" : 18,
+		"name" : "西村镇",
+		"level" : 1,
+		"leader" : 356,
+		"qqgroup" : "533279219"
+	},
+	{
+		"id" : 19,
+		"name" : "青阳镇",
+		"level" : 2,
+		"leader" : 309,
+		"qqgroup" : "784875561"
+	}
+]}

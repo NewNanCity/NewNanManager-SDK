@@ -42,7 +42,7 @@ export interface PaginationRequest {
 export interface PaginationResponse {
   total: number;
   page: number;
-  page_size: number; // 匹配服务端的字段名
+  pageSize: number; // 匹配服务端的字段名
 }
 
 export interface EmptyResponse {}
@@ -104,14 +104,15 @@ export interface PlayerValidateResult {
   playerId?: number;
   reason?: string;
   newbie: boolean;
-  ipRisk?: Record<string, any>;
+  banMode?: BanMode;
+  banExpire?: string;
+  banReason?: string;
 }
 
 export interface ValidateRequest {
   players: PlayerValidateInfo[];
   serverId: number;
   login: boolean;
-  timestamp?: number;
 }
 
 export interface ValidateResponse {
@@ -125,8 +126,27 @@ export interface ServerRegistry {
   name: string;
   address: string;
   description?: string;
+  active: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface ServerStatus {
+  serverId: number;
+  online: boolean;
+  currentPlayers: number;
+  maxPlayers: number;
+  latencyMs?: number;
+  tps?: number;
+  version?: string;
+  motd?: string;
+  expireAt: string;
+  lastHeartbeat: string;
+}
+
+export interface ServerDetailResponse {
+  server: ServerRegistry;
+  status?: ServerStatus;
 }
 
 export interface CreateServerRequest {
@@ -159,46 +179,67 @@ export interface CreateTownRequest {
 
 export interface PlayerServer {
   playerId: number;
+  serverId: number;
+  online: boolean;
+  joinedAt: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface OnlinePlayer {
+  playerId: number;
   playerName: string;
   serverId: number;
   serverName: string;
-  online: boolean;
-  lastOnline?: string;
-  firstJoined: string;
-  totalPlayTime: number;
+  joinedAt: string;
 }
 
-export interface GetOnlinePlayersRequest extends PaginationRequest {
-  search?: string;
-  serverId?: number;
+export interface GetPlayerServersRequest {
+  playerId: number;
+  onlineOnly?: boolean;
+}
+
+export interface PlayerServersResponse extends PaginationResponse {
+  servers: PlayerServer[];
 }
 
 export interface ServerPlayersResponse extends PaginationResponse {
-  players: PlayerServer[];
+  players: OnlinePlayer[];
 }
 
 // ========== IP管理（新功能）==========
 export interface IPInfo {
-  ip: string;
-  country?: string;
-  region?: string;
-  city?: string;
-  isp?: string;
-  org?: string;
-  timezone?: string;
-  lat?: number;
-  lon?: number;
-  mobile?: boolean;
-  proxy?: boolean;
-  hosting?: boolean;
-  queryStatus: string;
-  queryAttempts: number;
-  lastQueryAt?: string;
-  createdAt: string;
-  updatedAt: string;
-  // 风险信息字段
-  riskLevel: string;
-  riskDescription: string;
+  ip: string;                      // IP地址
+  ipType: string;                  // IP类型：ipv4/ipv6
+  country?: string;                // 国家/地区
+  countryCode?: string;            // 国家代码
+  region?: string;                 // 省份/州
+  city?: string;                   // 城市
+  latitude?: number;               // 纬度
+  longitude?: number;              // 经度
+  timezone?: string;               // 时区
+  isp?: string;                    // 网络服务提供商
+  organization?: string;           // 组织名称
+  asn?: string;                    // ASN号码
+  isBogon: boolean;                // 是否为Bogon IP
+  isMobile: boolean;               // 是否为移动网络
+  isSatellite: boolean;            // 是否为卫星网络
+  isCrawler: boolean;              // 是否为爬虫
+  isDatacenter: boolean;           // 是否为数据中心IP
+  isTor: boolean;                  // 是否为Tor出口节点
+  isProxy: boolean;                // 是否为代理IP
+  isVpn: boolean;                  // 是否为VPN
+  isAbuser: boolean;               // 是否为滥用者
+  banned: boolean;                 // 是否被封禁
+  banReason?: string;              // 封禁原因
+  threatLevel: ThreatLevel;        // 威胁等级
+  riskScore: number;               // 风险评分（0-100）
+  queryStatus: QueryStatus;        // 查询状态
+  lastQueryAt?: string;            // 最后查询时间(ISO8601格式)
+  createdAt: string;               // 创建时间(ISO8601格式)
+  updatedAt: string;               // 更新时间(ISO8601格式)
+  riskLevel: string;               // 风险等级
+  riskDescription: string;         // 风险描述
 }
 
 export interface BanIPRequest {
@@ -232,6 +273,23 @@ export interface ListBannedIPsRequest extends PaginationRequest {
 
 export interface ListBannedIPsResponse extends PaginationResponse {
   bans: IPBan[];
+}
+
+export interface ListIPsResponse extends PaginationResponse {
+  ips: IPInfo[];
+}
+
+export interface IPStatistics {
+  totalIps: number;
+  completedIps: number;
+  pendingIps: number;
+  failedIps: number;
+  bannedIps: number;
+  proxyIps: number;
+  vpnIps: number;
+  torIps: number;
+  datacenterIps: number;
+  highRiskIps: number;
 }
 
 // ========== 更多玩家相关接口 ==========
@@ -288,15 +346,15 @@ export interface DeleteTownRequest {
 }
 
 export interface ListTownsRequest extends PaginationRequest {
+  name?: string;
   search?: string;
-  level?: number;
+  minLevel?: number;
+  maxLevel?: number;
 }
 
 export interface ListTownsResponse extends PaginationResponse {
   towns: Town[];
 }
-
-
 
 export interface GetTownMembersRequest extends PaginationRequest {
   townId: number;
@@ -315,14 +373,14 @@ export interface TownMembersResponse extends PaginationResponse {
 
 export interface TownDetailResponse {
   town: Town;
-  leader?: Player;
+  leader?: number;  // 镇长ID，符合IDL中的 optional i32 leader 定义
   members: Player[];
-  memberCount: number;
 }
 
 // ========== 更多服务器相关接口 ==========
 export interface GetServerRequest {
   id: number;
+  detail?: boolean;
 }
 
 export interface UpdateServerRequest {
@@ -338,6 +396,7 @@ export interface DeleteServerRequest {
 
 export interface ListServersRequest extends PaginationRequest {
   search?: string;
+  onlineOnly?: boolean;
 }
 
 export interface ListServersResponse extends PaginationResponse {
@@ -362,20 +421,20 @@ export interface HeartbeatRequest {
 }
 
 export interface HeartbeatResponse {
-  received_at: number;           // 服务端接收时间戳(毫秒)
-  response_at: number;           // 服务端响应时间戳(毫秒)
-  expire_duration_ms: number;    // 状态过期时间(毫秒)
+  receivedAt: number;           // 服务端接收时间戳(毫秒)
+  responseAt: number;           // 服务端响应时间戳(毫秒)
+  expireDurationMs: number;    // 状态过期时间(毫秒)
 }
 
 export interface MonitorStatRecord {
   timestamp: number;             // 统计时间戳
-  current_players: number;       // 当前在线人数
+  currentPlayers: number;       // 当前在线人数
   tps?: number;                  // 服务器TPS
-  latency_ms?: number;           // 延迟毫秒
+  latencyMs?: number;           // 延迟毫秒
 }
 
 export interface MonitorStatsResponse {
-  server_id: number;             // 服务器ID
+  serverId: number;             // 服务器ID
   stats: MonitorStatRecord[];    // 监控统计信息列表
 }
 
@@ -399,12 +458,8 @@ export interface CreateApiTokenRequest {
 }
 
 export interface CreateApiTokenResponse {
-  id: number;
-  name: string;
-  token: string;
-  role: string;
-  description?: string;
-  createdAt: string;
+  tokenInfo: ApiToken;
+  tokenValue: string;
 }
 
 export interface UpdateApiTokenRequest {
@@ -428,7 +483,10 @@ export interface ApiToken {
   name: string;
   role: string;
   description?: string;
+  active: boolean;
+  expireAt?: string;
   lastUsedAt?: string;
+  lastUsedIp?: string;
   createdAt: string;
   updatedAt: string;
 }

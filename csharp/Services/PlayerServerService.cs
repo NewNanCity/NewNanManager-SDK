@@ -13,25 +13,19 @@ public class PlayerServerService : HttpClientBase
         : base(httpClient, logger) { }
 
     /// <summary>
-    /// 获取玩家的服务器列表
+    /// 获取玩家的服务器关系
     /// </summary>
     /// <param name="playerId">玩家ID</param>
-    /// <param name="page">页码</param>
-    /// <param name="pageSize">每页大小</param>
+    /// <param name="onlineOnly">是否只显示在线服务器</param>
     /// <param name="cancellationToken">取消令牌</param>
-    /// <returns>玩家的服务器列表</returns>
+    /// <returns>玩家的服务器关系</returns>
     public async Task<PlayerServersData> GetPlayerServersAsync(
         int playerId,
-        int? page = null,
-        int? pageSize = null,
+        bool? onlineOnly = null,
         CancellationToken cancellationToken = default
     )
     {
-        var queryParams = new Dictionary<string, object?>
-        {
-            ["page"] = page,
-            ["page_size"] = pageSize,
-        };
+        var queryParams = new Dictionary<string, object?> { ["online_only"] = onlineOnly };
 
         var queryString = BuildQueryString(queryParams);
         return await GetAsync<PlayerServersData>(
@@ -41,18 +35,20 @@ public class PlayerServerService : HttpClientBase
     }
 
     /// <summary>
-    /// 获取服务器的玩家列表
+    /// 获取全局在线玩家
     /// </summary>
-    /// <param name="serverId">服务器ID</param>
     /// <param name="page">页码</param>
     /// <param name="pageSize">每页大小</param>
+    /// <param name="search">搜索玩家名</param>
+    /// <param name="serverId">服务器ID（可选）</param>
     /// <param name="onlineOnly">是否只显示在线玩家</param>
     /// <param name="cancellationToken">取消令牌</param>
-    /// <returns>服务器的玩家列表</returns>
+    /// <returns>全局在线玩家列表</returns>
     public async Task<ServerPlayersData> GetServerPlayersAsync(
-        int serverId,
         int? page = null,
         int? pageSize = null,
+        string? search = null,
+        int? serverId = null,
         bool? onlineOnly = null,
         CancellationToken cancellationToken = default
     )
@@ -61,41 +57,14 @@ public class PlayerServerService : HttpClientBase
         {
             ["page"] = page,
             ["page_size"] = pageSize,
+            ["search"] = search,
+            ["server_id"] = serverId,
             ["online_only"] = onlineOnly,
         };
 
         var queryString = BuildQueryString(queryParams);
         return await GetAsync<ServerPlayersData>(
-            $"/api/v1/servers/{serverId}/players{queryString}",
-            cancellationToken
-        );
-    }
-
-    /// <summary>
-    /// 获取在线玩家列表
-    /// </summary>
-    /// <param name="page">页码</param>
-    /// <param name="pageSize">每页大小</param>
-    /// <param name="serverId">服务器ID（可选，筛选特定服务器的在线玩家）</param>
-    /// <param name="cancellationToken">取消令牌</param>
-    /// <returns>在线玩家列表</returns>
-    public async Task<OnlinePlayersData> GetOnlinePlayersAsync(
-        int? page = null,
-        int? pageSize = null,
-        int? serverId = null,
-        CancellationToken cancellationToken = default
-    )
-    {
-        var queryParams = new Dictionary<string, object?>
-        {
-            ["page"] = page,
-            ["page_size"] = pageSize,
-            ["server_id"] = serverId,
-        };
-
-        var queryString = BuildQueryString(queryParams);
-        return await GetAsync<OnlinePlayersData>(
-            $"/api/v1/online-players{queryString}",
+            $"/api/v1/server-players{queryString}",
             cancellationToken
         );
     }

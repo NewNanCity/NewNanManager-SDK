@@ -158,13 +158,6 @@ var town = await client.Towns.CreateTownAsync(new CreateTownRequest
 
 // 获取城镇成员
 var members = await client.Towns.GetTownMembersAsync(town.Id);
-
-// 管理城镇成员
-await client.Towns.ManageTownMemberAsync(town.Id, new ManageTownMemberRequest
-{
-    PlayerId = playerId,
-    Action = "add"
-});
 ```
 
 ### Token管理

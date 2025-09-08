@@ -6,9 +6,7 @@ from ..http_client import HttpClient
 from ..models import (
     HeartbeatData,
     HeartbeatRequest,
-    LatencyStatsData,
     MonitorStatsData,
-    ServerStatus,
 )
 
 
@@ -38,37 +36,9 @@ class MonitorService:
             心跳响应数据
         """
         return await self._http.post(
-            f"/api/v1/servers/{server_id}/heartbeat",
+            f"/api/v1/monitor/{server_id}/heartbeat",
             json_data=request,
             response_model=HeartbeatData,
-        )
-
-    async def get_latency_stats(self, server_id: int) -> LatencyStatsData:
-        """获取延迟统计.
-
-        Args:
-            server_id: 服务器ID
-
-        Returns:
-            延迟统计数据
-        """
-        return await self._http.get(
-            f"/api/v1/servers/{server_id}/latency",
-            response_model=LatencyStatsData,
-        )
-
-    async def get_server_status(self, server_id: int) -> ServerStatus:
-        """获取服务器状态.
-
-        Args:
-            server_id: 服务器ID
-
-        Returns:
-            服务器状态
-        """
-        return await self._http.get(
-            f"/api/v1/servers/{server_id}/status",
-            response_model=ServerStatus,
         )
 
     async def get_monitor_stats(
@@ -94,7 +64,7 @@ class MonitorService:
             params["duration"] = duration
 
         return await self._http.get(
-            f"/api/v1/servers/{server_id}/monitor",
+            f"/api/v1/monitor/{server_id}/stats",
             params=params,
             response_model=MonitorStatsData,
         )

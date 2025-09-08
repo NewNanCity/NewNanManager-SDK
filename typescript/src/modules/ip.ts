@@ -8,8 +8,11 @@ import {
   IPInfo,
   BanIPRequest,
   UnbanIPRequest,
+  ListIPsRequest,
+  ListIPsResponse,
   ListBannedIPsRequest,
   ListBannedIPsResponse,
+  IPStatistics,
   EmptyResponse
 } from '../types';
 import { commonErrorHandler } from '../utils/errorHandler';
@@ -22,7 +25,39 @@ export const initIPService = (apiFactory: ReturnType<typeof apiBase>) => {
         method: 'GET',
         url: `/api/v1/ips/${request.ip}`
       }),
-      ({ data }) => data as IPInfo,
+      ({ data }) => ({
+        ip: data.ip,
+        ipType: data.ip_type,
+        country: data.country,
+        countryCode: data.country_code,
+        region: data.region,
+        city: data.city,
+        latitude: data.latitude,
+        longitude: data.longitude,
+        timezone: data.timezone,
+        isp: data.isp,
+        organization: data.organization,
+        asn: data.asn,
+        isBogon: data.is_bogon,
+        isMobile: data.is_mobile,
+        isSatellite: data.is_satellite,
+        isCrawler: data.is_crawler,
+        isDatacenter: data.is_datacenter,
+        isTor: data.is_tor,
+        isProxy: data.is_proxy,
+        isVpn: data.is_vpn,
+        isAbuser: data.is_abuser,
+        banned: data.banned,
+        banReason: data.ban_reason,
+        threatLevel: data.threat_level,
+        riskScore: data.risk_score,
+        queryStatus: data.query_status,
+        lastQueryAt: data.last_query_at,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at,
+        riskLevel: data.risk_level,
+        riskDescription: data.risk_description
+      }),
       commonErrorHandler
     );
 
@@ -64,7 +99,202 @@ export const initIPService = (apiFactory: ReturnType<typeof apiBase>) => {
           active_only: request.activeOnly
         })
       }),
-      ({ data }) => data as ListBannedIPsResponse,
+      ({ data }) => ({
+        bans: data.ips.map((ip: any) => ({
+          ip: ip.ip,
+          reason: ip.ban_reason || '',
+          bannedAt: ip.created_at,
+          unbannedAt: undefined,
+          unbanReason: undefined,
+          active: ip.banned
+        })),
+        total: data.total,
+        page: data.page,
+        pageSize: data.page_size
+      }),
+      commonErrorHandler
+    );
+
+    // 获取IP列表
+    public listIPs = apiFactory<ListIPsRequest, ListIPsResponse>(
+      (request = {}) => ({
+        method: 'GET',
+        url: '/api/v1/ips',
+        params: this.buildParams({
+          page: request.page,
+          page_size: request.pageSize,
+          banned_only: request.bannedOnly,
+          min_threat_level: request.minThreatLevel,
+          min_risk_score: request.minRiskScore
+        })
+      }),
+      ({ data }) => ({
+        ips: data.ips.map((ip: any) => ({
+          ip: ip.ip,
+          ipType: ip.ip_type,
+          country: ip.country,
+          countryCode: ip.country_code,
+          region: ip.region,
+          city: ip.city,
+          latitude: ip.latitude,
+          longitude: ip.longitude,
+          timezone: ip.timezone,
+          isp: ip.isp,
+          organization: ip.organization,
+          asn: ip.asn,
+          isBogon: ip.is_bogon,
+          isMobile: ip.is_mobile,
+          isSatellite: ip.is_satellite,
+          isCrawler: ip.is_crawler,
+          isDatacenter: ip.is_datacenter,
+          isTor: ip.is_tor,
+          isProxy: ip.is_proxy,
+          isVpn: ip.is_vpn,
+          isAbuser: ip.is_abuser,
+          banned: ip.banned,
+          banReason: ip.ban_reason,
+          threatLevel: ip.threat_level,
+          riskScore: ip.risk_score,
+          queryStatus: ip.query_status,
+          lastQueryAt: ip.last_query_at,
+          createdAt: ip.created_at,
+          updatedAt: ip.updated_at,
+          riskLevel: ip.risk_level,
+          riskDescription: ip.risk_description
+        })),
+        total: data.total,
+        page: data.page,
+        pageSize: data.page_size
+      }),
+      commonErrorHandler
+    );
+
+    // 获取可疑IP列表
+    public getSuspiciousIPs = apiFactory<ListIPsRequest, ListIPsResponse>(
+      (request = {}) => ({
+        method: 'GET',
+        url: '/api/v1/ips/suspicious',
+        params: this.buildParams({
+          page: request.page,
+          page_size: request.pageSize,
+          banned_only: request.bannedOnly,
+          min_threat_level: request.minThreatLevel,
+          min_risk_score: request.minRiskScore
+        })
+      }),
+      ({ data }) => ({
+        ips: data.ips.map((ip: any) => ({
+          ip: ip.ip,
+          ipType: ip.ip_type,
+          country: ip.country,
+          countryCode: ip.country_code,
+          region: ip.region,
+          city: ip.city,
+          latitude: ip.latitude,
+          longitude: ip.longitude,
+          timezone: ip.timezone,
+          isp: ip.isp,
+          organization: ip.organization,
+          asn: ip.asn,
+          isBogon: ip.is_bogon,
+          isMobile: ip.is_mobile,
+          isSatellite: ip.is_satellite,
+          isCrawler: ip.is_crawler,
+          isDatacenter: ip.is_datacenter,
+          isTor: ip.is_tor,
+          isProxy: ip.is_proxy,
+          isVpn: ip.is_vpn,
+          isAbuser: ip.is_abuser,
+          banned: ip.banned,
+          banReason: ip.ban_reason,
+          threatLevel: ip.threat_level,
+          riskScore: ip.risk_score,
+          queryStatus: ip.query_status,
+          lastQueryAt: ip.last_query_at,
+          createdAt: ip.created_at,
+          updatedAt: ip.updated_at,
+          riskLevel: ip.risk_level,
+          riskDescription: ip.risk_description
+        })),
+        total: data.total,
+        page: data.page,
+        pageSize: data.page_size
+      }),
+      commonErrorHandler
+    );
+
+    // 获取高风险IP列表
+    public getHighRiskIPs = apiFactory<ListIPsRequest, ListIPsResponse>(
+      (request = {}) => ({
+        method: 'GET',
+        url: '/api/v1/ips/high-risk',
+        params: this.buildParams({
+          page: request.page,
+          page_size: request.pageSize,
+          banned_only: request.bannedOnly,
+          min_threat_level: request.minThreatLevel,
+          min_risk_score: request.minRiskScore
+        })
+      }),
+      ({ data }) => ({
+        ips: data.ips.map((ip: any) => ({
+          ip: ip.ip,
+          ipType: ip.ip_type,
+          country: ip.country,
+          countryCode: ip.country_code,
+          region: ip.region,
+          city: ip.city,
+          latitude: ip.latitude,
+          longitude: ip.longitude,
+          timezone: ip.timezone,
+          isp: ip.isp,
+          organization: ip.organization,
+          asn: ip.asn,
+          isBogon: ip.is_bogon,
+          isMobile: ip.is_mobile,
+          isSatellite: ip.is_satellite,
+          isCrawler: ip.is_crawler,
+          isDatacenter: ip.is_datacenter,
+          isTor: ip.is_tor,
+          isProxy: ip.is_proxy,
+          isVpn: ip.is_vpn,
+          isAbuser: ip.is_abuser,
+          banned: ip.banned,
+          banReason: ip.ban_reason,
+          threatLevel: ip.threat_level,
+          riskScore: ip.risk_score,
+          queryStatus: ip.query_status,
+          lastQueryAt: ip.last_query_at,
+          createdAt: ip.created_at,
+          updatedAt: ip.updated_at,
+          riskLevel: ip.risk_level,
+          riskDescription: ip.risk_description
+        })),
+        total: data.total,
+        page: data.page,
+        pageSize: data.page_size
+      }),
+      commonErrorHandler
+    );
+
+    // 获取IP统计信息
+    public getIPStatistics = apiFactory<{}, IPStatistics>(
+      () => ({
+        method: 'GET',
+        url: '/api/v1/ips/statistics'
+      }),
+      ({ data }) => ({
+        totalIps: data.total_ips,
+        completedIps: data.completed_ips,
+        pendingIps: data.pending_ips,
+        failedIps: data.failed_ips,
+        bannedIps: data.banned_ips,
+        proxyIps: data.proxy_ips,
+        vpnIps: data.vpn_ips,
+        torIps: data.tor_ips,
+        datacenterIps: data.datacenter_ips,
+        highRiskIps: data.high_risk_ips
+      }),
       commonErrorHandler
     );
 

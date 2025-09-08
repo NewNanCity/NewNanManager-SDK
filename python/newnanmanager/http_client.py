@@ -3,7 +3,7 @@
 import asyncio
 import json
 import logging
-from typing import Any, Dict, Optional, Type, TypeVar, Union
+from typing import Any, Dict, Optional, Type, TypeVar, Union, overload
 from urllib.parse import urlencode, urljoin
 
 import aiohttp
@@ -275,6 +275,22 @@ class HttpClient:
         raise HttpException(message=message, status_code=status_code)
 
     # HTTP方法的便捷函数
+    @overload
+    async def get(
+        self,
+        endpoint: str,
+        params: Optional[Dict[str, Any]],
+        response_model: Type[T],
+    ) -> T: ...
+
+    @overload
+    async def get(
+        self,
+        endpoint: str,
+        params: Optional[Dict[str, Any]] = None,
+        response_model: None = None,
+    ) -> Dict[str, Any]: ...
+
     async def get(
         self,
         endpoint: str,
@@ -286,6 +302,22 @@ class HttpClient:
             "GET", endpoint, params=params, response_model=response_model
         )
 
+    @overload
+    async def post(
+        self,
+        endpoint: str,
+        json_data: Optional[Union[Dict[str, Any], BaseModel]],
+        response_model: Type[T],
+    ) -> T: ...
+
+    @overload
+    async def post(
+        self,
+        endpoint: str,
+        json_data: Optional[Union[Dict[str, Any], BaseModel]] = None,
+        response_model: None = None,
+    ) -> Dict[str, Any]: ...
+
     async def post(
         self,
         endpoint: str,
@@ -296,6 +328,22 @@ class HttpClient:
         return await self._make_request(
             "POST", endpoint, json_data=json_data, response_model=response_model
         )
+
+    @overload
+    async def put(
+        self,
+        endpoint: str,
+        json_data: Optional[Union[Dict[str, Any], BaseModel]],
+        response_model: Type[T],
+    ) -> T: ...
+
+    @overload
+    async def put(
+        self,
+        endpoint: str,
+        json_data: Optional[Union[Dict[str, Any], BaseModel]] = None,
+        response_model: None = None,
+    ) -> Dict[str, Any]: ...
 
     async def put(
         self,

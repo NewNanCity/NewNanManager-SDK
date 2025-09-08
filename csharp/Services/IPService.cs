@@ -77,6 +77,38 @@ public class IPService : HttpClientBase
     }
 
     /// <summary>
+    /// 获取IP列表
+    /// </summary>
+    /// <param name="page">页码</param>
+    /// <param name="pageSize">每页大小</param>
+    /// <param name="bannedOnly">仅显示被封禁的IP</param>
+    /// <param name="minThreatLevel">最小威胁等级</param>
+    /// <param name="minRiskScore">最小风险评分</param>
+    /// <param name="cancellationToken">取消令牌</param>
+    /// <returns>IP列表</returns>
+    public async Task<IPsListData> GetIPsAsync(
+        int? page = null,
+        int? pageSize = null,
+        bool? bannedOnly = null,
+        ThreatLevel? minThreatLevel = null,
+        int? minRiskScore = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var queryParams = new Dictionary<string, object?>
+        {
+            ["page"] = page,
+            ["page_size"] = pageSize,
+            ["banned_only"] = bannedOnly,
+            ["min_threat_level"] = minThreatLevel,
+            ["min_risk_score"] = minRiskScore,
+        };
+
+        var queryString = BuildQueryString(queryParams);
+        return await GetAsync<IPsListData>($"/api/v1/ips{queryString}", cancellationToken);
+    }
+
+    /// <summary>
     /// 获取可疑IP列表
     /// </summary>
     /// <param name="page">页码</param>

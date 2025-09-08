@@ -39,7 +39,7 @@ class BanPlayerRequest(BaseModel):
 
     ban_mode: BanMode = Field(description="封禁模式")
     duration_seconds: Optional[int] = Field(
-        default=None, description="封禁持续时间（秒）"
+        default=None, description="封禁持续时间（秒），支持大整数值"
     )
     reason: str = Field(description="封禁原因")
 
@@ -50,10 +50,9 @@ class ValidateRequest(BaseModel):
     players: list[PlayerValidateInfo] = Field(description="玩家列表（1-100个）")
     server_id: int = Field(description="服务器ID")
     login: bool = Field(description="是否为登录验证")
-    timestamp: int = Field(default=0, description="请求时间戳")
 
 
-class RegisterServerRequest(BaseModel):
+class CreateServerRequest(BaseModel):
     """注册服务器请求."""
 
     name: str = Field(description="服务器名称")
@@ -95,6 +94,17 @@ class CreateTownRequest(BaseModel):
     description: Optional[str] = Field(default=None, description="城镇描述")
 
 
+class ListTownsRequest(BaseModel):
+    """城镇列表请求."""
+
+    page: int = Field(default=1, description="页码")
+    page_size: int = Field(default=20, description="每页数量")
+    name: Optional[str] = Field(default=None, description="城镇名称")
+    search: Optional[str] = Field(default=None, description="搜索关键词")
+    min_level: Optional[int] = Field(default=None, description="最小等级")
+    max_level: Optional[int] = Field(default=None, description="最大等级")
+
+
 class UpdateTownRequest(BaseModel):
     """更新城镇请求."""
 
@@ -103,31 +113,6 @@ class UpdateTownRequest(BaseModel):
     leader_id: Optional[int] = Field(default=None, description="城主ID")
     qq_group: Optional[str] = Field(default=None, description="QQ群号")
     description: Optional[str] = Field(default=None, description="城镇描述")
-
-
-class ManageTownMemberRequest(BaseModel):
-    """管理城镇成员请求."""
-
-    player_id: Optional[int] = Field(default=None, description="玩家ID")
-    action: Optional[str] = Field(default=None, description="操作类型")
-
-
-class CreateApiTokenRequest(BaseModel):
-    """创建API Token请求."""
-
-    name: Optional[str] = Field(default=None, description="Token名称")
-    role: Optional[str] = Field(default=None, description="Token角色")
-    description: Optional[str] = Field(default=None, description="Token描述")
-    expire_days: Optional[int] = Field(default=None, description="过期天数")
-
-
-class UpdateApiTokenRequest(BaseModel):
-    """更新API Token请求."""
-
-    name: Optional[str] = Field(default=None, description="Token名称")
-    role: Optional[str] = Field(default=None, description="Token角色")
-    description: Optional[str] = Field(default=None, description="Token描述")
-    active: Optional[bool] = Field(default=None, description="是否激活")
 
 
 # IP相关请求
@@ -170,3 +155,29 @@ class SetPlayersOfflineRequest(BaseModel):
 
     server_id: int = Field(description="服务器ID")
     player_ids: list[int] = Field(description="玩家ID列表（1-1000个）")
+
+
+# API Token相关请求
+class CreateApiTokenRequest(BaseModel):
+    """创建API Token请求."""
+
+    name: str = Field(description="Token名称")
+    role: str = Field(description="Token角色")
+    description: Optional[str] = Field(default=None, description="Token描述")
+    expire_days: Optional[int] = Field(default=None, description="过期天数")
+
+
+class UpdateApiTokenRequest(BaseModel):
+    """更新API Token请求."""
+
+    name: Optional[str] = Field(default=None, description="Token名称")
+    role: Optional[str] = Field(default=None, description="Token角色")
+    description: Optional[str] = Field(default=None, description="Token描述")
+    active: Optional[bool] = Field(default=None, description="是否激活")
+
+
+class ListApiTokensRequest(BaseModel):
+    """API Token列表请求."""
+
+    page: int = Field(default=1, description="页码")
+    page_size: int = Field(default=20, description="每页数量")

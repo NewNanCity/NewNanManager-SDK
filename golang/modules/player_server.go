@@ -17,15 +17,12 @@ func NewPlayerServerService(client *resty.Client) *PlayerServerService {
 	return &PlayerServerService{client: client}
 }
 
-// GetPlayerServers 获取玩家的服务器列表
-func (s *PlayerServerService) GetPlayerServers(playerID int32, page, pageSize *int32) (*PlayerServersData, error) {
+// GetPlayerServers 获取玩家的服务器关系
+func (s *PlayerServerService) GetPlayerServers(playerID int32, onlineOnly *bool) (*PlayerServersData, error) {
 	req := s.client.R()
 
-	if page != nil {
-		req.SetQueryParam("page", strconv.Itoa(int(*page)))
-	}
-	if pageSize != nil {
-		req.SetQueryParam("page_size", strconv.Itoa(int(*pageSize)))
+	if onlineOnly != nil {
+		req.SetQueryParam("online_only", strconv.FormatBool(*onlineOnly))
 	}
 
 	resp, err := req.Get("/api/v1/players/" + strconv.Itoa(int(playerID)) + "/servers")
@@ -39,8 +36,8 @@ func (s *PlayerServerService) GetPlayerServers(playerID int32, page, pageSize *i
 	return &result, nil
 }
 
-// GetServerPlayers 获取服务器的玩家列表
-func (s *PlayerServerService) GetServerPlayers(serverID int32, page, pageSize *int32, onlineOnly *bool) (*ServerPlayersData, error) {
+// GetServerPlayers 获取全局在线玩家
+func (s *PlayerServerService) GetServerPlayers(page, pageSize *int32, search *string, serverID *int32, onlineOnly *bool) (*ServerPlayersData, error) {
 	req := s.client.R()
 
 	if page != nil {
@@ -48,39 +45,20 @@ func (s *PlayerServerService) GetServerPlayers(serverID int32, page, pageSize *i
 	}
 	if pageSize != nil {
 		req.SetQueryParam("page_size", strconv.Itoa(int(*pageSize)))
+	}
+	if search != nil {
+		req.SetQueryParam("search", *search)
+	}
+	if serverID != nil {
+		req.SetQueryParam("server_id", strconv.Itoa(int(*serverID)))
 	}
 	if onlineOnly != nil {
 		req.SetQueryParam("online_only", strconv.FormatBool(*onlineOnly))
 	}
 
-	resp, err := req.Get("/api/v1/servers/" + strconv.Itoa(int(serverID)) + "/players")
+	resp, err := req.Get("/api/v1/server-players")
 
 	var result ServerPlayersData
-	err = utils.HandleResponse(resp, err, &result)
-	if err != nil {
-		return nil, err
-	}
-
-	return &result, nil
-}
-
-// GetOnlinePlayers 获取在线玩家列表
-func (s *PlayerServerService) GetOnlinePlayers(page, pageSize *int32, serverID *int32) (*OnlinePlayersData, error) {
-	req := s.client.R()
-
-	if page != nil {
-		req.SetQueryParam("page", strconv.Itoa(int(*page)))
-	}
-	if pageSize != nil {
-		req.SetQueryParam("page_size", strconv.Itoa(int(*pageSize)))
-	}
-	if serverID != nil {
-		req.SetQueryParam("server_id", strconv.Itoa(int(*serverID)))
-	}
-
-	resp, err := req.Get("/api/v1/online-players")
-
-	var result OnlinePlayersData
 	err = utils.HandleResponse(resp, err, &result)
 	if err != nil {
 		return nil, err

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="1a2d5d46-66b7-48f9-9f09-9ab3cad53a9f" name="更改" comment="">
+      <change beforePath="$PROJECT_DIR$/../csharp/Models/Enums.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../csharp/Models/Enums.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../csharp/Models/IP.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../csharp/Models/IP.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../csharp/Models/Player.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../csharp/Models/Player.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../csharp/Models/PlayerServer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../csharp/Models/PlayerServer.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../csharp/Models/Requests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../csharp/Models/Requests.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../csharp/Models/Town.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../csharp/Models/Town.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../csharp/Services/IPService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../csharp/Services/IPService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../csharp/Services/PlayerServerService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../csharp/Services/PlayerServerService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../golang/modules/ip.go" beforeDir="false" afterPath="$PROJECT_DIR$/../golang/modules/ip.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../golang/modules/player_server.go" beforeDir="false" afterPath="$PROJECT_DIR$/../golang/modules/player_server.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../golang/modules/types.go" beforeDir="false" afterPath="$PROJECT_DIR$/../golang/modules/types.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../kotlin/src/main/kotlin/com/nanmanager/client/models/Models.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../kotlin/src/main/kotlin/com/nanmanager/client/models/Models.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../kotlin/src/main/kotlin/com/nanmanager/client/services/PlayerServerService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../kotlin/src/main/kotlin/com/nanmanager/client/services/PlayerServerService.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../python/comprehensive_test.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../python/newnanmanager/http_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/../python/newnanmanager/http_client.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../python/newnanmanager/models/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/../python/newnanmanager/models/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../python/newnanmanager/models/player.py" beforeDir="false" afterPath="$PROJECT_DIR$/../python/newnanmanager/models/player.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../python/newnanmanager/models/requests.py" beforeDir="false" afterPath="$PROJECT_DIR$/../python/newnanmanager/models/requests.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../python/newnanmanager/models/town.py" beforeDir="false" afterPath="$PROJECT_DIR$/../python/newnanmanager/models/town.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../python/newnanmanager/services/ip.py" beforeDir="false" afterPath="$PROJECT_DIR$/../python/newnanmanager/services/ip.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../python/newnanmanager/services/monitor.py" beforeDir="false" afterPath="$PROJECT_DIR$/../python/newnanmanager/services/monitor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../python/newnanmanager/services/player.py" beforeDir="false" afterPath="$PROJECT_DIR$/../python/newnanmanager/services/player.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../python/newnanmanager/services/player_server.py" beforeDir="false" afterPath="$PROJECT_DIR$/../python/newnanmanager/services/player_server.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../python/newnanmanager/services/token.py" beforeDir="false" afterPath="$PROJECT_DIR$/../python/newnanmanager/services/token.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../python/test_sdk.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../typescript/FINAL_TEST_SUMMARY.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../typescript/INTEGRATION_TEST.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../typescript/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/../typescript/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../typescript/TEST_RESULTS.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../typescript/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/../typescript/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../typescript/src/comprehensive-test.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../typescript/src/comprehensive-test.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../typescript/src/modules/ip.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../typescript/src/modules/ip.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../typescript/src/modules/monitor.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../typescript/src/modules/monitor.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../typescript/src/modules/player-server.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../typescript/src/modules/player-server.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../typescript/src/modules/player.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../typescript/src/modules/player.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../typescript/src/modules/server.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../typescript/src/modules/server.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../typescript/src/modules/token.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../typescript/src/modules/token.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../typescript/src/modules/town.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../typescript/src/modules/town.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../typescript/src/types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../typescript/src/types.ts" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="GradleScriptDefinitionsStorage" workingDir="$PROJECT_DIR$" gradleHome="C:\Users\nmg_w\.gradle\wrapper\dists\gradle-8.14-bin\38aieal9i53h9rfe7vjup95b9\gradle-8.14" javaHome="C:\Users\nmg_w\.jdks\openjdk-24.0.2" gradleVersion="8.14">
+    <option name="jvmArguments">
+      <list>
+        <option value="-Dhttp.proxyHost=localhost" />
+        <option value="-Dhttp.proxyPort=7890" />
+        <option value="-Dhttps.proxyHost=localhost" />
+        <option value="-Dhttps.proxyPort=7890" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 7
+}]]></component>
+  <component name="ProjectId" id="32MWeeYvLOYFZoLfi1qZWTb7MxS" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/nmg_w/Developer/Minecraft/NewNanManager/sdk/kotlin-bukkit",
+    "settings.editor.selected.configurable": "reference.settingsdialog.project.gradle"
+  }
+}]]></component>
+  <component name="RunManager">
+    <configuration default="true" type="JetRunConfigurationType">
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <option name="filePath" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="默认任务">
+      <changelist id="1a2d5d46-66b7-48f9-9f09-9ab3cad53a9f" name="更改" comment="" />
+      <created>1737846067965</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1737846067965</updated>
+      <workItem from="1737846069167" duration="208000" />
+    </task>
+    <servers />
+  </component>
+</project>

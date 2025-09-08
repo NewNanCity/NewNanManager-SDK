@@ -69,6 +69,7 @@ class TokenService:
         """
         return await self._http.get(
             f"/api/v1/tokens/{token_id}",
+            params=None,
             response_model=ApiToken,
         )
 

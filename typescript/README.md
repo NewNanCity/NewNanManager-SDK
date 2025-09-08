@@ -79,8 +79,9 @@ await client.players.listPlayers();
 await client.players.banPlayer({ playerId: 1, reason: 'Test' });
 
 // 服务器管理模块
-await client.servers.registerServer({ name: 'TestServer', address: '127.0.0.1:25565' });
+await client.servers.createServer({ name: 'TestServer', address: '127.0.0.1:25565' });
 await client.servers.listServers();
+await client.servers.getServer({ id: 1, detail: true }); // 获取服务器详情
 
 // 城镇管理模块
 await client.towns.createTown({ name: 'TestTown', serverId: 1 });

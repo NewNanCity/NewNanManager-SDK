@@ -30,7 +30,6 @@ __all__ = [
     "ValidateData",
     # IP
     "IPInfo",
-    "IPRiskInfo",
     "IPStatistics",
     "IPsListData",
     # Player-Server
@@ -59,12 +58,12 @@ __all__ = [
     "UpdatePlayerRequest",
     "BanPlayerRequest",
     "ValidateRequest",
-    "RegisterServerRequest",
+    "CreateServerRequest",
     "UpdateServerRequest",
     "HeartbeatRequest",
     "CreateTownRequest",
+    "ListTownsRequest",
     "UpdateTownRequest",
-    "ManageTownMemberRequest",
     "CreateApiTokenRequest",
     "UpdateApiTokenRequest",
     "BanIPRequest",

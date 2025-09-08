@@ -1,14 +1,10 @@
 import { NewNanManagerClient } from './client';
 import {
   CreatePlayerRequest,
-  RegisterServerRequest,
   CreateTownRequest,
   ValidateRequest,
   PlayerValidateInfo,
-  SetPlayerOnlineRequest,
-  ManageTownMemberRequest,
   GetTownMembersRequest,
-  GetOnlinePlayersRequest,
   ListPlayersRequest,
   ListServersRequest,
   ListTownsRequest,
@@ -425,14 +421,6 @@ class IntegrationTestRunner {
 
       const townId = this.testData.towns[0].id;
       const playerId = this.testData.players[0].id;
-
-      // 添加成员到城镇
-      const addMemberReq: ManageTownMemberRequest = {
-        townId,
-        playerId,
-        action: 'add'  // 根据IDL定义，应该是小写的 'add'
-      };
-      await this.client.towns.manageTownMember(addMemberReq);
 
       // 获取城镇成员列表
       const membersReq: GetTownMembersRequest = { townId };

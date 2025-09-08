@@ -6,6 +6,7 @@
 import { apiBase } from '@sttot/axios-api';
 import {
   ServerRegistry,
+  ServerDetailResponse,
   CreateServerRequest,
   GetServerRequest,
   UpdateServerRequest,
@@ -29,7 +30,15 @@ export const initServerService = (apiFactory: ReturnType<typeof apiBase>) => {
           description: request.description
         }
       }),
-      ({ data }) => data as ServerRegistry,
+      ({ data }) => ({
+        id: data.id,
+        name: data.name,
+        address: data.address,
+        description: data.description,
+        active: data.active,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at
+      }),
       commonErrorHandler
     );
 
@@ -41,20 +50,59 @@ export const initServerService = (apiFactory: ReturnType<typeof apiBase>) => {
         params: this.buildParams({
           page: request.page || 1,
           page_size: request.pageSize || 20,
-          search: request.search
+          search: request.search,
+          online_only: request.onlineOnly
         })
       }),
-      ({ data }) => data as ListServersResponse,
+      ({ data }) => ({
+        servers: data.servers.map((server: any) => ({
+          id: server.id,
+          name: server.name,
+          address: server.address,
+          description: server.description,
+          active: server.active,
+          createdAt: server.created_at,
+          updatedAt: server.updated_at
+        })),
+        total: data.total,
+        page: data.page,
+        pageSize: data.page_size
+      }),
       commonErrorHandler
     );
 
     // 获取服务器详情
-    public getServer = apiFactory<GetServerRequest, ServerRegistry>(
+    public getServer = apiFactory<GetServerRequest, ServerDetailResponse>(
       (request) => ({
         method: 'GET',
-        url: `/api/v1/servers/${request.id}`
+        url: `/api/v1/servers/${request.id}`,
+        params: this.buildParams({
+          detail: request.detail
+        })
       }),
-      ({ data }) => data as ServerRegistry,
+      ({ data }) => ({
+        server: {
+          id: data.server.id,
+          name: data.server.name,
+          address: data.server.address,
+          description: data.server.description,
+          active: data.server.active,
+          createdAt: data.server.created_at,
+          updatedAt: data.server.updated_at
+        },
+        status: data.status ? {
+          serverId: data.status.server_id,
+          online: data.status.online,
+          currentPlayers: data.status.current_players,
+          maxPlayers: data.status.max_players,
+          latencyMs: data.status.latency_ms,
+          tps: data.status.tps,
+          version: data.status.version,
+          motd: data.status.motd,
+          expireAt: data.status.expire_at,
+          lastHeartbeat: data.status.last_heartbeat
+        } : undefined
+      }),
       commonErrorHandler
     );
 
@@ -69,7 +117,15 @@ export const initServerService = (apiFactory: ReturnType<typeof apiBase>) => {
           description: request.description
         }
       }),
-      ({ data }) => data as ServerRegistry,
+      ({ data }) => ({
+        id: data.id,
+        name: data.name,
+        address: data.address,
+        description: data.description,
+        active: data.active,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at
+      }),
       commonErrorHandler
     );
 
@@ -80,16 +136,6 @@ export const initServerService = (apiFactory: ReturnType<typeof apiBase>) => {
         url: `/api/v1/servers/${request.id}`
       }),
       ({ data }) => data as EmptyResponse,
-      commonErrorHandler
-    );
-
-    // 获取服务器详细信息
-    public getServerDetail = apiFactory<GetServerRequest, ServerRegistry>(
-      (request) => ({
-        method: 'GET',
-        url: `/api/v1/servers/${request.id}/detail`
-      }),
-      ({ data }) => data as ServerRegistry,
       commonErrorHandler
     );
 

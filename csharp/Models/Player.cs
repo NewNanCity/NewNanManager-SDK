@@ -187,42 +187,6 @@ public class PlayerValidateInfo
 }
 
 /// <summary>
-/// IP风险信息
-/// </summary>
-public class IPRiskInfo
-{
-    /// <summary>
-    /// IP地址
-    /// </summary>
-    [JsonPropertyName("ip")]
-    public string IP { get; set; } = string.Empty;
-
-    /// <summary>
-    /// 风险等级
-    /// </summary>
-    [JsonPropertyName("risk_level")]
-    public string RiskLevel { get; set; } = string.Empty;
-
-    /// <summary>
-    /// 风险评分
-    /// </summary>
-    [JsonPropertyName("risk_score")]
-    public int RiskScore { get; set; }
-
-    /// <summary>
-    /// 是否被封禁
-    /// </summary>
-    [JsonPropertyName("banned")]
-    public bool Banned { get; set; }
-
-    /// <summary>
-    /// 风险描述
-    /// </summary>
-    [JsonPropertyName("description")]
-    public string Description { get; set; } = string.Empty;
-}
-
-/// <summary>
 /// 单个玩家验证结果
 /// </summary>
 public class PlayerValidateResult
@@ -258,10 +222,22 @@ public class PlayerValidateResult
     public bool Newbie { get; set; } = false;
 
     /// <summary>
-    /// IP风险信息
+    /// 封禁模式
     /// </summary>
-    [JsonPropertyName("ip_risk")]
-    public IPRiskInfo? IPRisk { get; set; }
+    [JsonPropertyName("ban_mode")]
+    public BanMode? BanMode { get; set; }
+
+    /// <summary>
+    /// 封禁到期时间
+    /// </summary>
+    [JsonPropertyName("ban_expire")]
+    public string? BanExpire { get; set; }
+
+    /// <summary>
+    /// 封禁原因
+    /// </summary>
+    [JsonPropertyName("ban_reason")]
+    public string? BanReason { get; set; }
 }
 
 /// <summary>

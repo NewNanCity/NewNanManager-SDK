@@ -7,7 +7,6 @@ from ..models import (
     PlayerServersData,
     ServerPlayersData,
 )
-from ..models.requests import SetPlayersOfflineRequest
 
 
 class PlayerServerService:
@@ -34,11 +33,12 @@ class PlayerServerService:
             玩家服务器关系数据
         """
         params = {"online_only": online_only} if online_only else {}
-        return await self._http_client.get(
+        result = await self._http_client.get(
             f"/api/v1/players/{player_id}/servers",
             params=params,
             response_model=PlayerServersData,
         )
+        return result  # type: ignore
 
     async def get_server_players(
         self,
@@ -48,7 +48,7 @@ class PlayerServerService:
         server_id: Optional[int] = None,
         online_only: bool = False,
     ) -> ServerPlayersData:
-        """获取服务器玩家.
+        """获取全局在线玩家.
 
         Args:
             page: 页码
@@ -63,27 +63,29 @@ class PlayerServerService:
         params: dict[str, Any] = {"page": page, "page_size": page_size}
         if search:
             params["search"] = search
-        if server_id:
+        if server_id is not None:
             params["server_id"] = server_id
         if online_only:
             params["online_only"] = online_only
 
-        return await self._http_client.get(
+        result = await self._http_client.get(
             "/api/v1/server-players", params=params, response_model=ServerPlayersData
         )
+        return result  # type: ignore
 
     async def set_players_offline(
-        self, request: SetPlayersOfflineRequest
+        self, server_id: int, player_ids: list[int]
     ) -> dict[str, Any]:
         """设置玩家离线状态 - 在玩家退出时调用.
 
         Args:
-            request: 设置玩家离线状态请求
+            server_id: 服务器ID
+            player_ids: 玩家ID列表
 
         Returns:
             空响应
         """
         return await self._http_client.post(
             "/api/v1/servers/players/offline",
-            json_data=request.model_dump(),
+            json_data={"server_id": server_id, "player_ids": player_ids},
         )
