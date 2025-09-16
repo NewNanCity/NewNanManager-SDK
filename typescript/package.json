@@ -1,0 +1,35 @@
+{
+  "name": "@newnanmanager/typescript-sdk",
+  "version": "2.0.0",
+  "description": "TypeScript SDK for NewNanManager API - 重新设计版本",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node src/index.ts",
+    "test": "ts-node test.ts",
+    "test:comprehensive": "ts-node src/comprehensive-test.ts",
+    "test:integration": "ts-node src/integration-test.ts",
+    "clean": "rimraf dist"
+  },
+  "keywords": [
+    "newnanmanager",
+    "minecraft",
+    "api",
+    "client",
+    "sdk",
+    "typescript"
+  ],
+  "author": "NewNanManager Team",
+  "license": "MIT",
+  "dependencies": {
+    "@sttot/axios-api": "^0.2.5",
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "rimraf": "^5.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.0.0"
+  }
+}
