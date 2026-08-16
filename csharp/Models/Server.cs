@@ -151,60 +151,6 @@ public class ServerDetailData
 }
 
 /// <summary>
-/// 延迟统计数据
-/// </summary>
-public class LatencyStatsData
-{
-    /// <summary>
-    /// 服务器ID
-    /// </summary>
-    [JsonPropertyName("server_id")]
-    public int ServerId { get; set; }
-
-    /// <summary>
-    /// 统计数量
-    /// </summary>
-    [JsonPropertyName("count")]
-    public long Count { get; set; }
-
-    /// <summary>
-    /// 当前延迟
-    /// </summary>
-    [JsonPropertyName("current")]
-    public long Current { get; set; }
-
-    /// <summary>
-    /// 平均延迟
-    /// </summary>
-    [JsonPropertyName("average")]
-    public long Average { get; set; }
-
-    /// <summary>
-    /// 最小延迟
-    /// </summary>
-    [JsonPropertyName("min")]
-    public long Min { get; set; }
-
-    /// <summary>
-    /// 最大延迟
-    /// </summary>
-    [JsonPropertyName("max")]
-    public long Max { get; set; }
-
-    /// <summary>
-    /// 方差
-    /// </summary>
-    [JsonPropertyName("variance")]
-    public double Variance { get; set; }
-
-    /// <summary>
-    /// 最后更新时间
-    /// </summary>
-    [JsonPropertyName("last_updated")]
-    public DateTime LastUpdated { get; set; }
-}
-
-/// <summary>
 /// 心跳响应数据
 /// </summary>
 public class HeartbeatData

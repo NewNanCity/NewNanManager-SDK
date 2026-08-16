@@ -4,7 +4,7 @@ import (
 	"strconv"
 
 	"github.com/go-resty/resty/v2"
-	"github.com/Gk0Wk/NewNanManager/sdk/golang/utils"
+	"github.com/NewNanCity/NewNanManager-SDK/clients/golang/utils"
 )
 
 // TokenService Token管理服务

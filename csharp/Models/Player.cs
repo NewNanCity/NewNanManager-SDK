@@ -109,54 +109,6 @@ public class PlayersListData : PagedData<Player>
 }
 
 /// <summary>
-/// 玩家登录信息
-/// </summary>
-public class PlayerLoginInfo
-{
-    /// <summary>
-    /// 玩家ID
-    /// </summary>
-    [JsonPropertyName("player_id")]
-    public int? PlayerId { get; set; }
-
-    /// <summary>
-    /// 玩家名称
-    /// </summary>
-    [JsonPropertyName("name")]
-    public string? Name { get; set; }
-
-    /// <summary>
-    /// IP地址
-    /// </summary>
-    [JsonPropertyName("ip")]
-    public string? IP { get; set; }
-}
-
-/// <summary>
-/// 登录验证数据
-/// </summary>
-public class ValidateLoginData
-{
-    /// <summary>
-    /// 是否允许登录
-    /// </summary>
-    [JsonPropertyName("allowed")]
-    public bool Allowed { get; set; }
-
-    /// <summary>
-    /// 玩家ID
-    /// </summary>
-    [JsonPropertyName("player_id")]
-    public int? PlayerId { get; set; }
-
-    /// <summary>
-    /// 拒绝原因
-    /// </summary>
-    [JsonPropertyName("reason")]
-    public string? Reason { get; set; }
-}
-
-/// <summary>
 /// 单个玩家验证信息
 /// </summary>
 public class PlayerValidateInfo

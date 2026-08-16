@@ -35,14 +35,6 @@ class PlayersListData(PagedData[Player]):
     players: list[Player] = Field(default_factory=list, description="玩家列表")
 
 
-class PlayerLoginInfo(BaseModel):
-    """玩家登录信息."""
-
-    player_id: int = Field(description="玩家ID")
-    name: str = Field(description="玩家名")
-    ip: str = Field(description="登录IP")
-
-
 class PlayerValidateInfo(BaseModel):
     """单个玩家验证信息."""
 

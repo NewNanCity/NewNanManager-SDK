@@ -49,19 +49,6 @@ class ServerDetailData(BaseModel):
     status: Optional[ServerStatus] = Field(default=None, description="服务器状态")
 
 
-class LatencyStatsData(BaseModel):
-    """延迟统计数据."""
-
-    server_id: int = Field(description="服务器ID")
-    count: int = Field(description="统计数量")
-    current: int = Field(description="当前延迟")
-    average: int = Field(description="平均延迟")
-    min: int = Field(description="最小延迟")
-    max: int = Field(description="最大延迟")
-    variance: float = Field(description="方差")
-    last_updated: str = Field(description="最后更新时间(ISO8601格式)")
-
-
 class HeartbeatData(BaseModel):
     """心跳响应数据."""
 

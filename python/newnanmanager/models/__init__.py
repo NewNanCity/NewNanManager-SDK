@@ -24,7 +24,6 @@ __all__ = [
     # Player
     "Player",
     "PlayersListData",
-    "PlayerLoginInfo",
     "PlayerValidateInfo",
     "PlayerValidateResult",
     "ValidateData",
@@ -42,12 +41,10 @@ __all__ = [
     "ServerStatus",
     "ServersListData",
     "ServerDetailData",
-    "LatencyStatsData",
     "HeartbeatData",
     # Town
     "Town",
     "TownsListData",
-    "TownMembersData",
     "TownDetailResponse",
     # Token
     "ApiToken",

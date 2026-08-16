@@ -3,7 +3,7 @@ package modules
 import (
 	"strconv"
 
-	"github.com/Gk0Wk/NewNanManager/sdk/golang/utils"
+	"github.com/NewNanCity/NewNanManager-SDK/clients/golang/utils"
 	"github.com/go-resty/resty/v2"
 )
 
@@ -61,11 +61,14 @@ func (s *ServerService) CreateServer(request CreateServerRequest) (*ServerRegist
 }
 
 // GetServer 获取服务器信息
-func (s *ServerService) GetServer(id int32) (*ServerRegistry, error) {
-	resp, err := s.client.R().
-		Get("/api/v1/servers/" + strconv.Itoa(int(id)))
+func (s *ServerService) GetServer(id int32, detail bool) (*ServerDetailData, error) {
+	req := s.client.R()
+	if detail {
+		req.SetQueryParam("detail", "true")
+	}
+	resp, err := req.Get("/api/v1/servers/" + strconv.Itoa(int(id)))
 
-	var result ServerRegistry
+	var result ServerDetailData
 	err = utils.HandleResponse(resp, err, &result)
 	if err != nil {
 		return nil, err
@@ -95,18 +98,4 @@ func (s *ServerService) DeleteServer(id int32) error {
 		Delete("/api/v1/servers/" + strconv.Itoa(int(id)))
 
 	return utils.HandleResponse(resp, err, nil)
-}
-
-// GetServerDetail 获取服务器详细信息
-func (s *ServerService) GetServerDetail(id int32) (*ServerDetailData, error) {
-	resp, err := s.client.R().
-		Get("/api/v1/servers/" + strconv.Itoa(int(id)) + "/detail")
-
-	var result ServerDetailData
-	err = utils.HandleResponse(resp, err, &result)
-	if err != nil {
-		return nil, err
-	}
-
-	return &result, nil
 }

@@ -356,21 +356,6 @@ export interface ListTownsResponse extends PaginationResponse {
   towns: Town[];
 }
 
-export interface GetTownMembersRequest extends PaginationRequest {
-  townId: number;
-}
-
-export interface TownMember {
-  playerId: number;
-  playerName: string;
-  joinedAt: string;
-  role: string;
-}
-
-export interface TownMembersResponse extends PaginationResponse {
-  members: TownMember[];
-}
-
 export interface TownDetailResponse {
   town: Town;
   leader?: number;  // 镇长ID，符合IDL中的 optional i32 leader 定义
@@ -410,17 +395,7 @@ export interface CreateServerRequest {
   description?: string;
 }
 
-export interface RegisterServerRequest extends CreateServerRequest {
-  // 向后兼容的别名
-}
-
 // ========== 监控相关接口 ==========
-export interface PlayerLoginInfo {
-  playerId: number;
-  name: string;
-  ip: string;
-}
-
 export interface HeartbeatRequest {
   serverId: number;
   currentPlayers: number;        // 当前在线人数
@@ -453,11 +428,6 @@ export interface GetMonitorStatsRequest {
   serverId: number;
   since?: number;                // 起始时间戳(Unix时间戳，0表示当前时间-duration)
   duration?: number;             // 持续时间(秒，默认3600秒)
-}
-
-export interface LatencyRequest {
-  serverId: number;
-  latency: number;
 }
 
 // ========== Token管理相关接口 ==========

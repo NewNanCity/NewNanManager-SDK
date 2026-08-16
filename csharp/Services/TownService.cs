@@ -106,31 +106,4 @@ public class TownService : HttpClientBase
         await DeleteAsync($"/api/v1/towns/{id}", cancellationToken);
     }
 
-    /// <summary>
-    /// 获取城镇成员列表
-    /// </summary>
-    /// <param name="townId">城镇ID</param>
-    /// <param name="page">页码</param>
-    /// <param name="pageSize">每页大小</param>
-    /// <param name="cancellationToken">取消令牌</param>
-    /// <returns>城镇成员数据</returns>
-    public async Task<TownMembersData> GetTownMembersAsync(
-        int townId,
-        int? page = null,
-        int? pageSize = null,
-        CancellationToken cancellationToken = default
-    )
-    {
-        var queryParams = new Dictionary<string, object?>
-        {
-            ["page"] = page,
-            ["page_size"] = pageSize,
-        };
-
-        var queryString = BuildQueryString(queryParams);
-        return await GetAsync<TownMembersData>(
-            $"/api/v1/towns/{townId}/members{queryString}",
-            cancellationToken
-        );
-    }
 }

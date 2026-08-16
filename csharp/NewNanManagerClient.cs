@@ -100,14 +100,13 @@ public class NewNanManagerClient : IDisposable
         _logger = logger;
 
         // 初始化各个服务
-        var httpClientBase = new HttpClientBase(_httpClient, _logger);
-        Players = new PlayerService(httpClientBase);
-        Servers = new ServerService(httpClientBase);
-        Towns = new TownService(httpClientBase);
-        Monitor = new MonitorService(httpClientBase);
-        Tokens = new TokenService(httpClientBase);
-        IPs = new IPService(httpClientBase);
-        PlayerServers = new PlayerServerService(httpClientBase);
+        Players = new PlayerService(_httpClient, _logger);
+        Servers = new ServerService(_httpClient, _logger);
+        Towns = new TownService(_httpClient, _logger);
+        Monitor = new MonitorService(_httpClient, _logger);
+        Tokens = new TokenService(_httpClient, _logger);
+        IPs = new IPService(_httpClient, _logger);
+        PlayerServers = new PlayerServerService(_httpClient, _logger);
     }
 
     /// <summary>

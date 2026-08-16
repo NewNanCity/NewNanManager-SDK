@@ -3,7 +3,7 @@ package modules
 import (
 	"strconv"
 
-	"github.com/Gk0Wk/NewNanManager/sdk/golang/utils"
+	"github.com/NewNanCity/NewNanManager-SDK/clients/golang/utils"
 	"github.com/go-resty/resty/v2"
 )
 
@@ -18,7 +18,7 @@ func NewTownService(client *resty.Client) *TownService {
 }
 
 // ListTowns 获取城镇列表
-func (s *TownService) ListTowns(page, pageSize *int32, search *string, minLevel, maxLevel *int32) (*TownsListData, error) {
+func (s *TownService) ListTowns(page, pageSize *int32, name, search *string, minLevel, maxLevel *int32) (*TownsListData, error) {
 	req := s.client.R()
 
 	if page != nil {
@@ -26,6 +26,9 @@ func (s *TownService) ListTowns(page, pageSize *int32, search *string, minLevel,
 	}
 	if pageSize != nil {
 		req.SetQueryParam("page_size", strconv.Itoa(int(*pageSize)))
+	}
+	if name != nil {
+		req.SetQueryParam("name", *name)
 	}
 	if search != nil {
 		req.SetQueryParam("search", *search)
@@ -103,26 +106,4 @@ func (s *TownService) DeleteTown(id int32) error {
 		Delete("/api/v1/towns/" + strconv.Itoa(int(id)))
 
 	return utils.HandleResponse(resp, err, nil)
-}
-
-// GetTownMembers 获取城镇成员列表
-func (s *TownService) GetTownMembers(townID int32, page, pageSize *int32) (*TownMembersData, error) {
-	req := s.client.R()
-
-	if page != nil {
-		req.SetQueryParam("page", strconv.Itoa(int(*page)))
-	}
-	if pageSize != nil {
-		req.SetQueryParam("page_size", strconv.Itoa(int(*pageSize)))
-	}
-
-	resp, err := req.Get("/api/v1/towns/" + strconv.Itoa(int(townID)) + "/members")
-
-	var result TownMembersData
-	err = utils.HandleResponse(resp, err, &result)
-	if err != nil {
-		return nil, err
-	}
-
-	return &result, nil
 }

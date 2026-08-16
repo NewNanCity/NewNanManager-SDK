@@ -112,17 +112,16 @@ await client.Players.UnbanPlayerAsync(player.Id);
 ### 服务器管理
 
 ```csharp
-// 注册服务器
-var server = await client.Servers.RegisterServerAsync(new RegisterServerRequest
+// 创建服务器
+var server = await client.Servers.CreateServerAsync(new CreateServerRequest
 {
     Name = "MyServer",
     Address = "127.0.0.1:25565",
-    ServerType = ServerType.Minecraft,
     Description = "我的Minecraft服务器"
 });
 
 // 获取服务器详细信息
-var detail = await client.Servers.GetServerDetailAsync(server.Id);
+var detail = await client.Servers.GetServerAsync(server.Id, detail: true);
 ```
 
 ### 监控服务
@@ -131,7 +130,6 @@ var detail = await client.Servers.GetServerDetailAsync(server.Id);
 // 发送心跳
 var heartbeat = await client.Monitor.HeartbeatAsync(serverId, new HeartbeatRequest
 {
-    Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
     CurrentPlayers = 10,
     MaxPlayers = 50,
     TPS = 19.8,
@@ -139,10 +137,10 @@ var heartbeat = await client.Monitor.HeartbeatAsync(serverId, new HeartbeatReque
 });
 
 // 获取服务器状态
-var status = await client.Monitor.GetServerStatusAsync(serverId);
+var status = (await client.Servers.GetServerAsync(serverId, detail: true)).Status;
 
 // 获取延迟统计
-var latencyStats = await client.Monitor.GetLatencyStatsAsync(serverId);
+var latencyStats = await client.Monitor.GetMonitorStatsAsync(serverId);
 ```
 
 ### 城镇管理
@@ -156,8 +154,9 @@ var town = await client.Towns.CreateTownAsync(new CreateTownRequest
     Description = "我的城镇"
 });
 
-// 获取城镇成员
-var members = await client.Towns.GetTownMembersAsync(town.Id);
+// 获取城镇详情（包含成员）
+var detail = await client.Towns.GetTownAsync(town.Id, detail: true);
+var members = detail.Members;
 ```
 
 ### Token管理

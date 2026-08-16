@@ -3,7 +3,7 @@ package modules
 import (
 	"strconv"
 
-	"github.com/Gk0Wk/NewNanManager/sdk/golang/utils"
+	"github.com/NewNanCity/NewNanManager-SDK/clients/golang/utils"
 	"github.com/go-resty/resty/v2"
 )
 

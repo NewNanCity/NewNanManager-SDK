@@ -89,25 +89,6 @@ public class PlayerService : HttpClientBase
     }
 
     /// <summary>
-    /// 验证玩家登录（向后兼容）
-    /// </summary>
-    /// <param name="request">登录验证请求</param>
-    /// <param name="cancellationToken">取消令牌</param>
-    /// <returns>验证结果</returns>
-    [Obsolete("Please use ValidateAsync method for batch validation")]
-    public async Task<ValidateLoginData> ValidateLoginAsync(
-        ValidateLoginRequest request,
-        CancellationToken cancellationToken = default
-    )
-    {
-        return await PostAsync<ValidateLoginData>(
-            "/api/v1/players/validate-login",
-            request,
-            cancellationToken
-        );
-    }
-
-    /// <summary>
     /// 获取玩家详情
     /// </summary>
     /// <param name="id">玩家ID</param>

@@ -110,20 +110,19 @@ await client.players.unban_player(player.id)
 ### 服务器管理
 
 ```python
-from newnanmanager.models import RegisterServerRequest, ServerType
+from newnanmanager.models import CreateServerRequest
 
 # 注册服务器
-server = await client.servers.register_server(
-    RegisterServerRequest(
+server = await client.servers.create_server(
+    CreateServerRequest(
         name="MyServer",
         address="127.0.0.1:25565",
-        server_type=ServerType.MINECRAFT,
         description="我的Minecraft服务器"
     )
 )
 
-# 获取服务器详细信息
-detail = await client.servers.get_server_detail(server.id)
+# 获取服务器信息
+detail = await client.servers.get_server(server.id, detail=True)
 ```
 
 ### 监控服务
@@ -165,8 +164,9 @@ town = await client.towns.create_town(
     )
 )
 
-# 获取城镇成员
-members = await client.towns.get_town_members(town.id)
+# 获取城镇详情（包含成员）
+detail = await client.towns.get_town(town.id, detail=True)
+members = detail.members
 ```
 
 ### Token管理

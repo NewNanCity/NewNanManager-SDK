@@ -1,7 +1,7 @@
-package main
+package nanmanager
 
 import (
-	"github.com/Gk0Wk/NewNanManager/sdk/golang/modules"
+	"github.com/NewNanCity/NewNanManager-SDK/clients/golang/modules"
 	"github.com/go-resty/resty/v2"
 )
 

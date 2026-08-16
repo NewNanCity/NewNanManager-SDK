@@ -196,8 +196,7 @@ data class PlayerValidateInfo(
 data class ValidateRequest(
     val players: List<PlayerValidateInfo>,                // 玩家列表（1-100个）
     @JsonProperty("server_id") val serverId: Int,         // 服务器ID
-    val login: Boolean = true,                            // 是否为登录验证
-    val timestamp: Long = 0                               // 请求时间戳
+    val login: Boolean                                    // 是否为登录验证
 )
 
 /**
@@ -209,7 +208,9 @@ data class PlayerValidateResult(
     @JsonProperty("player_id") val playerId: Int? = null, // 玩家ID
     val reason: String? = null,                           // 拒绝原因
     val newbie: Boolean = false,                          // 是否为新玩家
-    @JsonProperty("ip_info") val ipInfo: IPInfo? = null   // IP信息
+    @JsonProperty("ban_mode") val banMode: BanMode? = null,
+    @JsonProperty("ban_expire") val banExpire: String? = null,
+    @JsonProperty("ban_reason") val banReason: String? = null
 )
 
 /**

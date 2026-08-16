@@ -12,8 +12,6 @@ import {
   DeleteTownRequest,
   ListTownsRequest,
   ListTownsResponse,
-  GetTownMembersRequest,
-  TownMembersResponse,
   TownDetailResponse,
   EmptyResponse
 } from '../types';
@@ -129,7 +127,9 @@ export const initTownService = (apiFactory: ReturnType<typeof apiBase>) => {
           level: request.level,
           leader_id: request.leaderId,
           qq_group: request.qqGroup,
-          description: request.description
+          description: request.description,
+          add_players: request.addPlayers,
+          remove_players: request.removePlayers
         }
       }),
       ({ data }) => ({
@@ -154,32 +154,6 @@ export const initTownService = (apiFactory: ReturnType<typeof apiBase>) => {
       ({ data }) => data as EmptyResponse,
       commonErrorHandler
     );
-
-    // 获取城镇成员列表
-    public getTownMembers = apiFactory<GetTownMembersRequest, TownMembersResponse>(
-      (request) => ({
-        method: 'GET',
-        url: `/api/v1/towns/${request.townId}/members`,
-        params: this.buildParams({
-          page: request.page,
-          pageSize: request.pageSize  // 使用符合IDL规范的字段命名
-        })
-      }),
-      ({ data }) => ({
-        members: data.members.map((member: any) => ({
-          playerId: member.player_id,
-          playerName: member.player_name,
-          joinedAt: member.joined_at,
-          role: member.role
-        })),
-        total: data.total,
-        page: data.page,
-        pageSize: data.page_size
-      }),
-      commonErrorHandler
-    );
-
-
 
     // 辅助方法：构建查询参数，过滤掉undefined值
     public buildParams(params: Record<string, any>): Record<string, any> {

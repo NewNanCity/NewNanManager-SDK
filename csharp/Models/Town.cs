@@ -73,22 +73,6 @@ public class TownsListData : PagedData<Town>
 }
 
 /// <summary>
-/// 城镇成员数据
-/// </summary>
-public class TownMembersData : PagedData<Player>
-{
-    /// <summary>
-    /// 成员列表
-    /// </summary>
-    [JsonPropertyName("members")]
-    public List<Player> Members
-    {
-        get => Items;
-        set => Items = value;
-    }
-}
-
-/// <summary>
 /// 城镇详细信息响应
 /// </summary>
 public class TownDetailResponse

@@ -3,7 +3,7 @@ package modules
 import (
 	"strconv"
 
-	"github.com/Gk0Wk/NewNanManager/sdk/golang/utils"
+	"github.com/NewNanCity/NewNanManager-SDK/clients/golang/utils"
 	"github.com/go-resty/resty/v2"
 )
 
@@ -82,22 +82,6 @@ func (s *PlayerService) Validate(request ValidateRequest) (*ValidateResponse, er
 		Post("/api/v1/players/validate")
 
 	var result ValidateResponse
-	err = utils.HandleResponse(resp, err, &result)
-	if err != nil {
-		return nil, err
-	}
-
-	return &result, nil
-}
-
-// ValidateLogin 玩家登录验证（向后兼容）
-// Deprecated: Please use Validate method for batch validation
-func (s *PlayerService) ValidateLogin(request ValidateLoginRequest) (*ValidateLoginData, error) {
-	resp, err := s.client.R().
-		SetBody(request).
-		Post("/api/v1/players/validate-login")
-
-	var result ValidateLoginData
 	err = utils.HandleResponse(resp, err, &result)
 	if err != nil {
 		return nil, err

@@ -11,7 +11,7 @@ public class CreatePlayerRequest
     /// 玩家名称
     /// </summary>
     [JsonPropertyName("name")]
-    public string? Name { get; set; }
+    public string Name { get; set; } = string.Empty;
 
     /// <summary>
     /// 所属城镇ID
@@ -135,36 +135,6 @@ public class BanPlayerRequest
 }
 
 /// <summary>
-/// 验证登录请求
-/// </summary>
-public class ValidateLoginRequest
-{
-    /// <summary>
-    /// 玩家名称
-    /// </summary>
-    [JsonPropertyName("player_name")]
-    public string? PlayerName { get; set; }
-
-    /// <summary>
-    /// 服务器ID
-    /// </summary>
-    [JsonPropertyName("server_id")]
-    public int? ServerId { get; set; }
-
-    /// <summary>
-    /// 客户端版本
-    /// </summary>
-    [JsonPropertyName("client_version")]
-    public string? ClientVersion { get; set; }
-
-    /// <summary>
-    /// 协议版本
-    /// </summary>
-    [JsonPropertyName("protocol_version")]
-    public string? ProtocolVersion { get; set; }
-}
-
-/// <summary>
 /// 创建服务器请求
 /// </summary>
 public class CreateServerRequest
@@ -173,13 +143,13 @@ public class CreateServerRequest
     /// 服务器名称
     /// </summary>
     [JsonPropertyName("name")]
-    public string? Name { get; set; }
+    public string Name { get; set; } = string.Empty;
 
     /// <summary>
     /// 服务器地址
     /// </summary>
     [JsonPropertyName("address")]
-    public string? Address { get; set; }
+    public string Address { get; set; } = string.Empty;
 
     /// <summary>
     /// 服务器描述
@@ -217,12 +187,6 @@ public class UpdateServerRequest
 /// </summary>
 public class HeartbeatRequest
 {
-    /// <summary>
-    /// 服务器ID
-    /// </summary>
-    [JsonPropertyName("server_id")]
-    public int ServerId { get; set; }
-
     /// <summary>
     /// 当前在线人数
     /// </summary>
@@ -269,7 +233,7 @@ public class CreateTownRequest
     /// 城镇名称
     /// </summary>
     [JsonPropertyName("name")]
-    public string? Name { get; set; }
+    public string Name { get; set; } = string.Empty;
 
     /// <summary>
     /// 城镇等级
@@ -353,13 +317,13 @@ public class CreateApiTokenRequest
     /// Token名称
     /// </summary>
     [JsonPropertyName("name")]
-    public string? Name { get; set; }
+    public string Name { get; set; } = string.Empty;
 
     /// <summary>
     /// Token角色
     /// </summary>
     [JsonPropertyName("role")]
-    public string? Role { get; set; }
+    public string Role { get; set; } = string.Empty;
 
     /// <summary>
     /// Token描述

@@ -92,8 +92,7 @@ class BasicTest {
                 )
             ),
             serverId = 1,
-            login = true,
-            timestamp = System.currentTimeMillis() / 1000
+            login = true
         )
 
         assertEquals(2, validateRequest.players.size)

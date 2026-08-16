@@ -6,7 +6,6 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 from .common import PagedData
-from .player import Player
 
 
 class Town(BaseModel):
@@ -26,15 +25,6 @@ class TownsListData(PagedData[Town]):
     """城镇列表数据."""
 
     towns: list[Town] = Field(default_factory=list, description="城镇列表")
-
-
-class TownMembersData(BaseModel):
-    """城镇成员数据."""
-
-    members: list[Player] = Field(default_factory=list, description="成员列表")
-    total: int = Field(description="总数量")
-    page: int = Field(description="当前页码")
-    page_size: int = Field(description="每页大小")
 
 
 class TownDetailResponse(BaseModel):

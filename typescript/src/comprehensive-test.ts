@@ -6,7 +6,6 @@ import {
   ValidateRequest,
   PlayerValidateInfo,
   SetPlayersOfflineRequest,
-  GetTownMembersRequest,
   GetServerPlayersRequest,
   ListPlayersRequest,
   ListServersRequest,

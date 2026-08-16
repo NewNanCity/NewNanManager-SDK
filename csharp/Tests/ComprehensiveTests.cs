@@ -97,15 +97,19 @@ public class ComprehensiveTests : IDisposable
             _logger.LogInformation("Unbanned player successfully");
 
             // 7. 验证登录
-            var validateRequest = new ValidateLoginRequest
+            var validateRequest = new ValidateRequest
             {
-                PlayerName = newPlayerName,
+                Players = new List<PlayerValidateInfo>
+                {
+                    new() { PlayerName = newPlayerName, IP = "127.0.0.1" },
+                },
                 ServerId = 1,
+                Login = true,
             };
 
-            var validateResult = await _client.Players.ValidateLoginAsync(validateRequest);
+            var validateResult = await _client.Players.ValidateAsync(validateRequest);
             Assert.NotNull(validateResult);
-            _logger.LogInformation("Login validation result: {Allowed}", validateResult.Allowed);
+            _logger.LogInformation("Login validation result: {Allowed}", validateResult.Results.First().Allowed);
         }
         finally
         {
@@ -141,14 +145,14 @@ public class ComprehensiveTests : IDisposable
             _logger.LogInformation("Found {Count} servers", serversList.Total);
 
             // 2. 注册服务器
-            var registerRequest = new RegisterServerRequest
+            var registerRequest = new CreateServerRequest
             {
                 Name = testServerName,
                 Address = testServerAddress,
                 ServerType = ServerType.Minecraft,
             };
 
-            var registeredServer = await _client.Servers.RegisterServerAsync(registerRequest);
+            var registeredServer = await _client.Servers.CreateServerAsync(registerRequest);
             Assert.NotNull(registeredServer);
             Assert.Equal(testServerName, registeredServer.Name);
             createdServerId = registeredServer.Id;
@@ -161,7 +165,7 @@ public class ComprehensiveTests : IDisposable
             // 3. 获取服务器信息
             var server = await _client.Servers.GetServerAsync(registeredServer.Id);
             Assert.NotNull(server);
-            Assert.Equal(registeredServer.Id, server.Id);
+            Assert.Equal(registeredServer.Id, server.Server.Id);
 
             // 4. 更新服务器信息
             var newServerName = testServerName + "_Updated";
@@ -182,7 +186,7 @@ public class ComprehensiveTests : IDisposable
             _logger.LogInformation("Updated server name to: {Name}", updatedServer.Name);
 
             // 5. 获取服务器详细信息
-            var serverDetail = await _client.Servers.GetServerDetailAsync(registeredServer.Id);
+            var serverDetail = await _client.Servers.GetServerAsync(registeredServer.Id, detail: true);
             Assert.NotNull(serverDetail);
             Assert.NotNull(serverDetail.Server);
             Assert.Equal(registeredServer.Id, serverDetail.Server.Id);
@@ -251,13 +255,9 @@ public class ComprehensiveTests : IDisposable
             );
 
             // 5. 获取城镇成员列表
-            var members = await _client.Towns.GetTownMembersAsync(
-                createdTown.Id,
-                page: 1,
-                pageSize: 10
-            );
-            Assert.NotNull(members);
-            _logger.LogInformation("Town has {Count} members", members.Total);
+            var townDetail = await _client.Towns.GetTownAsync(createdTown.Id, detail: true);
+            Assert.NotNull(townDetail);
+            _logger.LogInformation("Town has {Count} members", townDetail.Members.Count);
         }
         finally
         {

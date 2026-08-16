@@ -5,7 +5,6 @@ import {
   CreateServerRequest,
   ValidateRequest,
   PlayerValidateInfo,
-  GetTownMembersRequest,
   ListPlayersRequest,
   ListServersRequest,
   ListTownsRequest,
@@ -409,7 +408,7 @@ class IntegrationTestRunner {
       console.log(`   Completed player lifecycle for: ${playerName}`);
     });
 
-    // 6.2 城镇成员管理流程
+    // 6.2 城镇详情中的成员数据
     await this.runTest('BusinessFlow.TownMemberManagement', async () => {
       if (this.testData.towns.length === 0 || this.testData.players.length === 0) {
         throw new Error('Need town and player data for this test');
@@ -418,21 +417,17 @@ class IntegrationTestRunner {
       const townId = this.testData.towns[0].id;
       const playerId = this.testData.players[0].id;
 
-      // 获取城镇成员列表
-      const membersReq: GetTownMembersRequest = { townId };
-      const members = await this.client.towns.getTownMembers(membersReq);
+      const detail = await this.client.towns.getTown({ id: townId, detail: true });
 
-      // 检查返回的成员列表结构
-      console.log(`   Retrieved ${members.members?.length || 0} members`);
+      console.log(`   Retrieved ${detail.members.length} members`);
 
-      // 根据实际API返回结构检查成员
-      const memberFound = members.members?.some(m => m.playerId === playerId);
+      const memberFound = detail.members.some(member => member.id === playerId);
       if (!memberFound) {
         console.log(`   Warning: Player ${playerId} not found in member list, but operation may have succeeded`);
         // 不抛出错误，因为可能是API返回结构的问题
       }
 
-      console.log(`   Town member management completed for town ID: ${townId}`);
+      console.log(`   Town detail query completed for town ID: ${townId}`);
     });
   }
 

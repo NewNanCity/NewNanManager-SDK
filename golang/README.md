@@ -58,15 +58,14 @@ func main() {
 - `DeletePlayer()` - 删除玩家
 - `BanPlayer()` - 封禁玩家
 - `UnbanPlayer()` - 解封玩家
-- `ValidateLogin()` - 验证玩家登录
+- `Validate()` - 批量验证玩家
 
 ### 服务器管理
 - `ListServers()` - 获取服务器列表
-- `RegisterServer()` - 注册服务器
-- `GetServer()` - 获取服务器信息
+- `CreateServer()` - 注册服务器
+- `GetServer()` - 获取服务器信息（可选详细状态）
 - `UpdateServer()` - 更新服务器信息
 - `DeleteServer()` - 删除服务器
-- `GetServerDetail()` - 获取服务器详细信息
 
 ### 城镇管理
 - `ListTowns()` - 获取城镇列表
@@ -74,7 +73,6 @@ func main() {
 - `GetTown()` - 获取城镇详情
 - `UpdateTown()` - 更新城镇信息
 - `DeleteTown()` - 删除城镇
-- `GetTownMembers()` - 获取城镇成员列表
 
 ### Token 管理
 - `ListApiTokens()` - 获取 API Token 列表
@@ -86,7 +84,6 @@ func main() {
 ### 监控服务
 - `Heartbeat()` - 服务器心跳
 - `GetLatencyStats()` - 获取延迟统计
-- `GetServerStatus()` - 获取服务器状态
 
 ## 使用示例
 
@@ -130,20 +127,18 @@ if err != nil {
 ### 服务器管理
 
 ```go
-// 注册服务器
-serverType := nanmanager.ServerTypeMinecraft
-registerReq := nanmanager.RegisterServerRequest{
+// 创建服务器
+createReq := nanmanager.CreateServerRequest{
     Name:       "我的服务器",
     Address:    "mc.example.com:25565",
-    ServerType: &serverType,
 }
-server, err := client.RegisterServer(registerReq)
+server, err := client.Servers.CreateServer(createReq)
 if err != nil {
     log.Fatal(err)
 }
 
 // 获取服务器详细信息
-detail, err := client.GetServerDetail(server.ID)
+detail, err := client.Servers.GetServer(server.ID, true)
 if err != nil {
     log.Fatal(err)
 }
@@ -164,12 +159,12 @@ if err != nil {
     log.Fatal(err)
 }
 
-// 获取城镇成员
-members, err := client.GetTownMembers(town.ID, nil, nil)
+// 获取城镇详情（包含成员）
+detail, err := client.Towns.GetTown(town.ID, true)
 if err != nil {
     log.Fatal(err)
 }
-fmt.Printf("城镇 %s 有 %d 个成员\n", town.Name, members.Total)
+fmt.Printf("城镇 %s 有 %d 个成员\n", town.Name, len(detail.Members))
 ```
 
 ## 错误处理

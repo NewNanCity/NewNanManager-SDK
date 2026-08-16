@@ -5,7 +5,7 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 from .enums import BanMode, ThreatLevel
-from .player import PlayerLoginInfo, PlayerValidateInfo
+from .player import PlayerValidateInfo
 
 
 class CreatePlayerRequest(BaseModel):
@@ -71,24 +71,19 @@ class UpdateServerRequest(BaseModel):
 class HeartbeatRequest(BaseModel):
     """心跳请求."""
 
-    timestamp: Optional[int] = Field(default=None, description="时间戳")
-    sequence_id: Optional[int] = Field(default=None, description="序列ID")
-    current_players: Optional[int] = Field(default=None, description="当前玩家数")
-    max_players: Optional[int] = Field(default=None, description="最大玩家数")
+    current_players: int = Field(description="当前玩家数")
+    max_players: int = Field(description="最大玩家数")
     tps: Optional[float] = Field(default=None, description="TPS")
     version: Optional[str] = Field(default=None, description="版本")
     motd: Optional[str] = Field(default=None, description="MOTD")
-    last_rtt_ms: Optional[int] = Field(default=None, description="最后RTT（毫秒）")
-    player_list: Optional[list[PlayerLoginInfo]] = Field(
-        default=None, description="玩家列表"
-    )
+    rtt_ms: Optional[int] = Field(default=None, description="RTT（毫秒）")
 
 
 class CreateTownRequest(BaseModel):
     """创建城镇请求."""
 
-    name: Optional[str] = Field(default=None, description="城镇名称")
-    level: Optional[int] = Field(default=None, description="城镇等级")
+    name: str = Field(description="城镇名称")
+    level: int = Field(default=0, description="城镇等级")
     leader_id: Optional[int] = Field(default=None, description="城主ID")
     qq_group: Optional[str] = Field(default=None, description="QQ群号")
     description: Optional[str] = Field(default=None, description="城镇描述")
@@ -113,6 +108,8 @@ class UpdateTownRequest(BaseModel):
     leader_id: Optional[int] = Field(default=None, description="城主ID")
     qq_group: Optional[str] = Field(default=None, description="QQ群号")
     description: Optional[str] = Field(default=None, description="城镇描述")
+    add_players: Optional[list[int]] = Field(default=None, description="待添加的玩家ID列表")
+    remove_players: Optional[list[int]] = Field(default=None, description="待移除的玩家ID列表")
 
 
 # IP相关请求

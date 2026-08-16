@@ -85,15 +85,16 @@ type ServerRegistry struct {
 }
 
 type ServerStatus struct {
-	ID             int32     `json:"id"`
 	ServerID       int32     `json:"server_id"`
-	IsOnline       bool      `json:"is_online"`
+	Online         bool      `json:"online"`
 	CurrentPlayers int32     `json:"current_players"`
 	MaxPlayers     int32     `json:"max_players"`
+	LatencyMs      *int32    `json:"latency_ms,omitempty"`
 	TPS            *float64  `json:"tps,omitempty"`
+	Version        *string   `json:"version,omitempty"`
+	Motd           *string   `json:"motd,omitempty"`
+	ExpireAt       string    `json:"expire_at"`
 	LastHeartbeat  time.Time `json:"last_heartbeat"`
-	CreatedAt      time.Time `json:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at"`
 }
 
 type ApiToken struct {
@@ -207,11 +208,6 @@ type ValidateResponse struct {
 	ProcessedAt int64                  `json:"processed_at"`
 }
 
-type ValidateLoginRequest struct {
-	Name string `json:"name"`
-	IP   string `json:"ip"`
-}
-
 type CreateServerRequest struct {
 	Name        string  `json:"name"`                  // 服务器名称：1-100字符
 	Address     string  `json:"address"`               // 服务器地址：1-255字符
@@ -225,7 +221,6 @@ type UpdateServerRequest struct {
 }
 
 type HeartbeatRequest struct {
-	ServerID       int32    `json:"server_id"`
 	CurrentPlayers int32    `json:"current_players"`
 	MaxPlayers     int32    `json:"max_players"`
 	TPS            *float64 `json:"tps,omitempty"`
@@ -237,7 +232,7 @@ type HeartbeatRequest struct {
 type CreateTownRequest struct {
 	Name        string  `json:"name"`
 	Description *string `json:"description,omitempty"`
-	Level       int32   `json:"level"`
+	Level       *int32  `json:"level,omitempty"`
 	QQGroup     *string `json:"qq_group,omitempty"`
 	LeaderID    *int32  `json:"leader_id,omitempty"`
 }
@@ -293,21 +288,14 @@ type UnbanIPRequest struct {
 // 响应类型
 type PlayersListData struct {
 	Players  []Player `json:"players"`
-	Total    int32    `json:"total"`
+	Total    int64    `json:"total"`
 	Page     int32    `json:"page"`
 	PageSize int32    `json:"page_size"` // 符合IDL规范的字段命名
 }
 
-type ValidateLoginData struct {
-	Valid     bool    `json:"valid"`
-	Player    *Player `json:"player,omitempty"`
-	IPInfo    *IPInfo `json:"ip_info,omitempty"`
-	BanReason *string `json:"ban_reason,omitempty"`
-}
-
 type ServersListData struct {
 	Servers  []ServerRegistry `json:"servers"`
-	Total    int32            `json:"total"`
+	Total    int64            `json:"total"`
 	Page     int32            `json:"page"`
 	PageSize int32            `json:"page_size"` // 符合IDL规范的字段命名
 }
@@ -335,18 +323,9 @@ type MonitorStatsData struct {
 	Stats    []MonitorStatRecord `json:"stats"`     // 监控统计信息列表
 }
 
-type LatencyStatsData struct {
-	ServerID    int32     `json:"server_id"`
-	AvgLatency  float64   `json:"avg_latency"`
-	MinLatency  float64   `json:"min_latency"`
-	MaxLatency  float64   `json:"max_latency"`
-	PacketLoss  float64   `json:"packet_loss"`
-	LastUpdated time.Time `json:"last_updated"`
-}
-
 type TownsListData struct {
 	Towns    []Town `json:"towns"`
-	Total    int32  `json:"total"`
+	Total    int64  `json:"total"`
 	Page     int32  `json:"page"`
 	PageSize int32  `json:"page_size"` // 符合IDL规范的字段命名
 }
@@ -357,16 +336,11 @@ type TownDetailResponse struct {
 	Members []Player `json:"members"`
 }
 
-type TownMembersData struct {
-	Members  []Player `json:"members"`
-	Total    int32    `json:"total"`
-	Page     int32    `json:"page"`
-	PageSize int32    `json:"page_size"` // 符合IDL规范的字段命名
-}
-
 type ListApiTokensData struct {
-	Tokens []ApiToken `json:"tokens"`
-	Total  int32      `json:"total"`
+	Tokens   []ApiToken `json:"tokens"`
+	Total    int64      `json:"total"`
+	Page     int32      `json:"page"`
+	PageSize int32      `json:"page_size"`
 }
 
 type CreateApiTokenData struct {
@@ -376,14 +350,14 @@ type CreateApiTokenData struct {
 
 type BannedIPsData struct {
 	IPs      []IPInfo `json:"ips"`
-	Total    int32    `json:"total"`
+	Total    int64    `json:"total"`
 	Page     int32    `json:"page"`
 	PageSize int32    `json:"page_size"` // 符合IDL规范的字段命名
 }
 
 type SuspiciousIPsData struct {
 	IPs      []IPInfo `json:"ips"`
-	Total    int32    `json:"total"`
+	Total    int64    `json:"total"`
 	Page     int32    `json:"page"`
 	PageSize int32    `json:"page_size"` // 符合IDL规范的字段命名
 }

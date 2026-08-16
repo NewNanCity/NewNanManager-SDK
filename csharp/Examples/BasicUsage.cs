@@ -68,10 +68,18 @@ public class BasicUsage
         Console.WriteLine($"更新玩家Discord: {updatedPlayer.Discord}");
 
         // 验证登录
-        var loginResult = await client.Players.ValidateLoginAsync(
-            new ValidateLoginRequest { PlayerName = newPlayer.Name, ServerId = 1 }
+        var loginResult = await client.Players.ValidateAsync(
+            new ValidateRequest
+            {
+                Players = new List<PlayerValidateInfo>
+                {
+                    new() { PlayerName = newPlayer.Name, IP = "127.0.0.1" },
+                },
+                ServerId = 1,
+                Login = true,
+            }
         );
-        Console.WriteLine($"登录验证结果: {(loginResult.Allowed ? "允许" : "拒绝")}");
+        Console.WriteLine($"登录验证结果: {(loginResult.Results.First().Allowed ? "允许" : "拒绝")}");
 
         // 清理
         await client.Players.DeletePlayerAsync(newPlayer.Id);
@@ -90,19 +98,18 @@ public class BasicUsage
         Console.WriteLine($"找到 {servers.Total} 个服务器");
 
         // 注册新服务器
-        var newServer = await client.Servers.RegisterServerAsync(
-            new RegisterServerRequest
+        var newServer = await client.Servers.CreateServerAsync(
+            new CreateServerRequest
             {
                 Name = "ExampleServer",
                 Address = "127.0.0.1:25565",
-                ServerType = ServerType.Minecraft,
                 Description = "示例服务器",
             }
         );
         Console.WriteLine($"注册服务器: {newServer.Name} (ID: {newServer.Id})");
 
         // 获取服务器详细信息
-        var serverDetail = await client.Servers.GetServerDetailAsync(newServer.Id);
+        var serverDetail = await client.Servers.GetServerAsync(newServer.Id, detail: true);
         Console.WriteLine($"服务器详情: {serverDetail.Server.Name}");
 
         // 清理
@@ -133,8 +140,8 @@ public class BasicUsage
         Console.WriteLine($"创建城镇: {newTown.Name} (ID: {newTown.Id})");
 
         // 获取城镇成员
-        var members = await client.Towns.GetTownMembersAsync(newTown.Id);
-        Console.WriteLine($"城镇成员数量: {members.Total}");
+        var townDetail = await client.Towns.GetTownAsync(newTown.Id, detail: true);
+        Console.WriteLine($"城镇成员数量: {townDetail.Members.Count}");
 
         // 清理
         await client.Towns.DeleteTownAsync(newTown.Id);
@@ -149,12 +156,11 @@ public class BasicUsage
         Console.WriteLine("\n=== 监控示例 ===");
 
         // 首先创建一个服务器用于监控
-        var server = await client.Servers.RegisterServerAsync(
-            new RegisterServerRequest
+        var server = await client.Servers.CreateServerAsync(
+            new CreateServerRequest
             {
                 Name = "MonitorServer",
                 Address = "127.0.0.1:25565",
-                ServerType = ServerType.Minecraft,
             }
         );
 
@@ -165,7 +171,6 @@ public class BasicUsage
                 server.Id,
                 new HeartbeatRequest
                 {
-                    Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
                     CurrentPlayers = 10,
                     MaxPlayers = 50,
                     TPS = 19.5,
@@ -175,12 +180,12 @@ public class BasicUsage
             Console.WriteLine($"心跳响应: {heartbeat.Status}");
 
             // 获取服务器状态
-            var status = await client.Monitor.GetServerStatusAsync(server.Id);
-            Console.WriteLine($"服务器状态: {(status.Online ? "在线" : "离线")}");
+            var status = (await client.Servers.GetServerAsync(server.Id, detail: true)).Status;
+            Console.WriteLine($"服务器状态: {(status?.Online == true ? "在线" : "离线")}");
 
             // 获取延迟统计
-            var latencyStats = await client.Monitor.GetLatencyStatsAsync(server.Id);
-            Console.WriteLine($"平均延迟: {latencyStats.Average}ms");
+            var latencyStats = await client.Monitor.GetMonitorStatsAsync(server.Id);
+            Console.WriteLine($"监控采样数: {latencyStats.Stats.Count}");
         }
         finally
         {

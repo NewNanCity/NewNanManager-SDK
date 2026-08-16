@@ -59,14 +59,17 @@ public class ServerService : HttpClientBase
     /// 获取服务器信息
     /// </summary>
     /// <param name="id">服务器ID</param>
+    /// <param name="detail">是否返回详细信息</param>
     /// <param name="cancellationToken">取消令牌</param>
     /// <returns>服务器信息</returns>
-    public async Task<ServerRegistry> GetServerAsync(
+    public async Task<ServerDetailData> GetServerAsync(
         int id,
+        bool detail = false,
         CancellationToken cancellationToken = default
     )
     {
-        return await GetAsync<ServerRegistry>($"/api/v1/servers/{id}", cancellationToken);
+        var detailQuery = detail ? "?detail=true" : string.Empty;
+        return await GetAsync<ServerDetailData>($"/api/v1/servers/{id}{detailQuery}", cancellationToken);
     }
 
     /// <summary>
@@ -93,19 +96,5 @@ public class ServerService : HttpClientBase
     public async Task DeleteServerAsync(int id, CancellationToken cancellationToken = default)
     {
         await DeleteAsync($"/api/v1/servers/{id}", cancellationToken);
-    }
-
-    /// <summary>
-    /// 获取服务器详细信息
-    /// </summary>
-    /// <param name="id">服务器ID</param>
-    /// <param name="cancellationToken">取消令牌</param>
-    /// <returns>服务器详细信息</returns>
-    public async Task<ServerDetailData> GetServerDetailAsync(
-        int id,
-        CancellationToken cancellationToken = default
-    )
-    {
-        return await GetAsync<ServerDetailData>($"/api/v1/servers/{id}/detail", cancellationToken);
     }
 }
