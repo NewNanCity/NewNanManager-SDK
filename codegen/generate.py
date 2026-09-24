@@ -257,6 +257,9 @@ def postprocess_generated_output(
     if language == "kotlin":
         postprocess_kotlin_output(manifest, output)
         return
+    if language == "csharp":
+        postprocess_csharp_output(manifest, output)
+        return
     if language != "golang":
         return
     module_path = str(manifest["languages"][language]["modulePath"])
@@ -294,6 +297,25 @@ def postprocess_generated_output(
         readme_text.replace(import_line, f'import newnanmanagerclient "{module_path}"', 1),
         encoding="utf-8",
     )
+
+
+def postprocess_csharp_output(manifest: dict[str, Any], output: Path) -> None:
+    """Remove machine-specific contract paths from C# generator documentation."""
+
+    package_name = str(manifest["languages"]["csharp"]["properties"]["packageName"])
+    readme = output / "src" / package_name / "README.md"
+    if not readme.is_file():
+        raise CodegenError("C# 生成物缺少库 README，无法清理本机路径")
+    readme_text = readme.read_text(encoding="utf-8")
+    rewritten, count = re.subn(
+        r"(?m)^inputSpec:.*$",
+        "inputSpec: path/to/newnanmanager.openapi.json",
+        readme_text,
+        count=1,
+    )
+    if count != 1:
+        raise CodegenError("C# 生成 README 缺少 inputSpec，拒绝猜测替换")
+    readme.write_text(rewritten, encoding="utf-8")
 
 
 def replace_once(text: str, pattern: str, replacement: str, *, label: str) -> str:

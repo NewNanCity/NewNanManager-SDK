@@ -15,7 +15,7 @@ python codegen/generate.py --all --check
 python -m unittest discover -s codegen -p "test*.py" -v
 ```
 
-默认输出为 `sdk/generated/<language>/`，目前包含 TypeScript、Go、Python、C#、Kotlin 和 Java 六种低级客户端。生成目录内的文件是低级传输层，不手工编辑；重复的 OpenAPI 文件、测试项目、发布脚本和 CI 文件会被排除，构建缓存由 `generated/.gitignore` 忽略。业务 SDK 仍由各语言 facade 负责鉴权选择、错误映射、重试边界、分页辅助和 Guardian session fencing；Java 手写 facade 位于 `java/`，不与生成输出混放。Java 使用 OkHttp/Gson 模板，以保留 OpenAPI 中两种鉴权方案的可配置入口，并只保留 Maven `pom.xml` 作为构建入口，避免生成器附带的旧 Android Gradle 模板。生成器的 Java README 仍保留 Gradle 作为下游依赖示例；该目录没有 Gradle 构建文件，实际构建使用 Maven。生成层和 facade 可从 SDK 根目录用 `mvn -B -ntp -f pom.xml test` 一起验证。
+默认输出为 `sdk/generated/<language>/`，目前包含 TypeScript、Go、Python、C#、Kotlin 和 Java 六种低级客户端。C# 生成 README 的 `inputSpec` 由脚本规范化成稳定占位路径，避免把某个开发者或临时 worktree 的绝对路径写入版本控制。生成目录内的文件是低级传输层，不手工编辑；重复的 OpenAPI 文件、测试项目、发布脚本和 CI 文件会被排除，构建缓存由 `generated/.gitignore` 忽略。业务 SDK 仍由各语言 facade 负责鉴权选择、错误映射、重试边界、分页辅助和 Guardian session fencing；Java 手写 facade 位于 `java/`，不与生成输出混放。Java 使用 OkHttp/Gson 模板，以保留 OpenAPI 中两种鉴权方案的可配置入口，并只保留 Maven `pom.xml` 作为构建入口，避免生成器附带的旧 Android Gradle 模板。生成器的 Java README 仍保留 Gradle 作为下游依赖示例；该目录没有 Gradle 构建文件，实际构建使用 Maven。生成层和 facade 可从 SDK 根目录用 `mvn -B -ntp -f pom.xml test` 一起验证。
 
 Kotlin 生成项目的构建文件由生成脚本按 `manifest.json` 的固定版本做后处理：Kotlin Gradle plugin 2.2.0、Gradle 8.14、Jackson 2.18.10 和 OkHttp 5.1.0。后处理会移除生成模板中不需要的 Spotless、Android/旧测试依赖，并保留 `mavenCentral()` 与 Gradle wrapper。生成后可以在 `generated/kotlin/` 使用 `./gradlew --offline build`（Windows 使用 `gradlew.bat`）验证低级客户端；`kotlin/` facade 还会把同一生成源码作为 source set 编译并通过 facade 的错误、鉴权和 session 适配层。TypeScript facade 在 `npm run build` 前通过 `typescript/scripts/sync-generated.mjs` 同步同一生成树，最终 dist 自包含 transport；`npm test` 会重复执行这一步。
 

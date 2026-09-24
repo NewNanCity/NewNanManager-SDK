@@ -6,7 +6,7 @@ Create a config.yaml file similar to what is below, then run the following power
 
 ```yaml
 generatorName: csharp
-inputSpec: C:\Users\nmg_w\.codex\worktrees\player-ip-usage-query-20260924\NewNanManager\contracts\newnanmanager.openapi.json
+inputSpec: path/to/newnanmanager.openapi.json
 outputDir: out
 
 # https://openapi-generator.tech/docs/generators/csharp

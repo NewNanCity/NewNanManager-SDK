@@ -1,9 +1,10 @@
 import hashlib
 import json
+import tempfile
 import unittest
 from pathlib import Path
 
-from generate import IGNORED_OUTPUT_FILES
+from generate import IGNORED_OUTPUT_FILES, postprocess_csharp_output
 
 
 CODEGEN_ROOT = Path(__file__).resolve().parent
@@ -55,6 +56,23 @@ class CodegenManifestTests(unittest.TestCase):
             self.assertTrue(forbidden_names.isdisjoint(files), language)
             self.assertFalse((output / "docs").exists(), language)
             self.assertFalse((output / ".github").exists(), language)
+
+    def test_csharp_postprocessor_replaces_machine_specific_contract_path(self) -> None:
+        package_name = self.manifest["languages"]["csharp"]["properties"]["packageName"]
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary)
+            readme = output / "src" / package_name / "README.md"
+            readme.parent.mkdir(parents=True)
+            readme.write_text(
+                "generatorName: csharp\ninputSpec: C:\\Users\\dev\\worktree\\contracts\\newnanmanager.openapi.json\n",
+                encoding="utf-8",
+            )
+            postprocess_csharp_output(self.manifest, output)
+            readme_text = readme.read_text(encoding="utf-8")
+
+        self.assertEqual(readme_text.count("inputSpec: "), 1)
+        self.assertIn("inputSpec: path/to/newnanmanager.openapi.json", readme_text)
+        self.assertNotIn("C:\\Users", readme_text)
 
     def test_generated_go_module_matches_sdk_baseline(self) -> None:
         go_mod = (SDK_ROOT / "generated" / "golang" / "go.mod").read_text(encoding="utf-8")
