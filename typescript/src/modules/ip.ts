@@ -95,17 +95,13 @@ export const initIPService = (apiFactory: ReturnType<typeof apiBase>) => {
         url: '/api/v1/ips/banned',
         params: this.buildParams({
           page: request.page,
-          page_size: request.pageSize,
-          active_only: request.activeOnly
+          page_size: request.pageSize
         })
       }),
       ({ data }) => ({
-        bans: data.ips.map((ip: any) => ({
+        bans: data.ips.map((ip: { ip: string; ban_reason?: string; banned: boolean }) => ({
           ip: ip.ip,
           reason: ip.ban_reason || '',
-          bannedAt: ip.created_at,
-          unbannedAt: undefined,
-          unbanReason: undefined,
           active: ip.banned
         })),
         total: data.total,

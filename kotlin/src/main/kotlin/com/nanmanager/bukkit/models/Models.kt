@@ -67,8 +67,19 @@ data class ApiResponse<T>(
     val requestId: String
 )
 
+data class ErrorDetails(
+    val category: String? = null,
+    val code: String? = null
+)
+
+/** Template error body; detail stays nullable for legacy server responses. */
 data class ErrorResponse(
-    val detail: String
+    val code: Int? = null,
+    val message: String? = null,
+    val detail: String? = null,
+    @JsonProperty("request_id") val requestId: String? = null,
+    @JsonProperty("trace_id") val traceId: String? = null,
+    val error: ErrorDetails? = null
 )
 
 // ==================== 玩家相关模型 ====================
@@ -194,7 +205,7 @@ data class PlayerValidateInfo(
  * 玩家验证请求（支持批处理）
  */
 data class ValidateRequest(
-    val players: List<PlayerValidateInfo>,                // 玩家列表（1-100个）
+    val players: List<PlayerValidateInfo>,                // 最多1000人；login=false为完整快照，允许空列表，不可分批
     @JsonProperty("server_id") val serverId: Int,         // 服务器ID
     val login: Boolean                                    // 是否为登录验证
 )
@@ -336,7 +347,9 @@ data class ServerStatus(
     val version: String? = null,                          // 服务器版本
     val motd: String? = null,                             // 服务器描述
     @JsonProperty("expire_at") val expireAt: String,      // 状态失效时间
-    @JsonProperty("last_heartbeat") val lastHeartbeat: String  // 最后心跳时间
+    @JsonProperty("last_heartbeat") val lastHeartbeat: String,  // 最后心跳时间
+    @JsonProperty("measurement_type") val measurementType: String? = null,
+    @JsonProperty("latency_metric") val latencyMetric: String? = null
 )
 
 /**
@@ -431,7 +444,9 @@ data class MonitorStatRecord(
     val timestamp: Long,                                  // 统计时间戳
     @JsonProperty("current_players") val currentPlayers: Int,  // 当前在线人数
     val tps: Double? = null,                              // 服务器TPS
-    @JsonProperty("latency_ms") val latencyMs: Long? = null    // 延迟毫秒
+    @JsonProperty("latency_ms") val latencyMs: Long? = null,    // 延迟毫秒
+    @JsonProperty("measurement_type") val measurementType: String? = null,
+    @JsonProperty("latency_metric") val latencyMetric: String? = null
 )
 
 /**
@@ -439,7 +454,8 @@ data class MonitorStatRecord(
  */
 data class GetMonitorStatsResponse(
     @JsonProperty("server_id") val serverId: Int,         // 服务器ID
-    val stats: List<MonitorStatRecord>                    // 监控统计信息列表
+    val stats: List<MonitorStatRecord>,                    // 监控统计信息列表
+    @JsonProperty("next_cursor") val nextCursor: String? = null
 )
 
 /**
@@ -448,7 +464,9 @@ data class GetMonitorStatsResponse(
 data class GetMonitorStatsRequest(
     @JsonProperty("server_id") val serverId: Int,         // 服务器ID
     val since: Long = 0,                                  // 起始时间戳
-    val duration: Long = 3600                             // 持续时间
+    val duration: Long = 3600,                            // 秒，最多86400
+    val limit: Int? = null,                               // 每页1..10000条，服务端默认1000
+    val cursor: String? = null                            // 最长1024字符；续页保留相同服务器和时间范围
 )
 
 // ==================== API Token相关模型 ====================
@@ -466,7 +484,8 @@ data class ApiToken(
     @JsonProperty("last_used_at") val lastUsedAt: String? = null,  // 最后使用时间
     @JsonProperty("last_used_ip") val lastUsedIp: String? = null,  // 最后使用IP
     @JsonProperty("created_at") val createdAt: String,    // 创建时间
-    @JsonProperty("updated_at") val updatedAt: String     // 更新时间
+    @JsonProperty("updated_at") val updatedAt: String,    // 更新时间
+    @JsonProperty("server_id") val serverId: Int? = null
 )
 
 /**
@@ -476,7 +495,8 @@ data class CreateApiTokenRequest(
     val name: String,                                     // Token名称
     val role: String,                                     // 角色
     val description: String? = null,                      // Token描述
-    @JsonProperty("expire_days") val expireDays: Long? = null  // 过期天数
+    @JsonProperty("expire_days") val expireDays: Long? = null,  // 过期天数
+    @JsonProperty("server_id") val serverId: Int? = null  // role=server时必须为正数
 )
 
 /**
@@ -494,7 +514,8 @@ data class UpdateApiTokenRequest(
     val name: String? = null,                             // Token名称
     val role: String? = null,                             // 角色
     val description: String? = null,                      // Token描述
-    val active: Boolean? = null                           // 是否激活
+    val active: Boolean? = null,                          // 是否激活
+    @JsonProperty("server_id") val serverId: Int? = null  // server角色可重绑；省略保留，改角色时服务端清空
 )
 
 /**

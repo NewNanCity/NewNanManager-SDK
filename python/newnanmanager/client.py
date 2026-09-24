@@ -2,7 +2,7 @@
 
 from typing import Optional
 
-from .config import ClientConfig
+from .config import AuthScheme, ClientConfig
 from .http_client import HttpClient
 from .services import (
     IPService,
@@ -28,6 +28,7 @@ class NewNanManagerClient:
         user_agent: str = "NewNanManager-Python-SDK/1.0.0",
         max_retries: int = 3,
         retry_delay: float = 1.0,
+        auth_scheme: AuthScheme = AuthScheme.BEARER,
     ) -> None:
         """初始化NewNanManager客户端.
 
@@ -39,6 +40,7 @@ class NewNanManagerClient:
             user_agent: 用户代理字符串
             max_retries: 最大重试次数
             retry_delay: 重试延迟（秒）
+            auth_scheme: 认证方案；每个请求只发送 Bearer 或 X-API-Token 之一
         """
         if config is not None:
             self._config = config
@@ -55,6 +57,7 @@ class NewNanManagerClient:
                 user_agent=user_agent,
                 max_retries=max_retries,
                 retry_delay=retry_delay,
+                auth_scheme=auth_scheme,
             )
 
         self._http_client = HttpClient(self._config)

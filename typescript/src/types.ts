@@ -32,6 +32,17 @@ export interface ClientConfig {
   baseUrl: string;
   token: string;
   timeout?: number;
+  authScheme?: AuthScheme;
+}
+
+export enum AuthScheme {
+  BEARER = 'bearer',
+  API_TOKEN = 'api-token'
+}
+
+export interface SessionContext {
+  id: string;
+  epoch: number;
 }
 
 export interface PaginationRequest {
@@ -110,6 +121,7 @@ export interface PlayerValidateResult {
 }
 
 export interface ValidateRequest {
+  /** At most 1000 entries; login=false is one complete snapshot and allows an empty list. */
   players: PlayerValidateInfo[];
   serverId: number;
   login: boolean;
@@ -142,6 +154,8 @@ export interface ServerStatus {
   motd?: string;
   expireAt: string;
   lastHeartbeat: string;
+  measurementType?: string;
+  latencyMetric?: string;
 }
 
 export interface ServerDetailResponse {
@@ -199,8 +213,9 @@ export interface GetPlayerServersRequest {
   onlineOnly?: boolean;
 }
 
-export interface PlayerServersResponse extends PaginationResponse {
+export interface PlayerServersResponse {
   servers: PlayerServer[];
+  total: number;
 }
 
 export interface ServerPlayersResponse extends PaginationResponse {
@@ -260,14 +275,19 @@ export interface ListIPsRequest extends PaginationRequest {
 export interface IPBan {
   ip: string;
   reason: string;
-  bannedAt: string;
+  /** @deprecated The API does not return the ban timestamp; this value is unknown. */
+  bannedAt?: string;
+  /** @deprecated The API returns current bans, not unban history. */
   unbannedAt?: string;
+  /** @deprecated The API returns current bans, not unban history. */
   unbanReason?: string;
   active: boolean;
 }
 
 export interface ListBannedIPsRequest extends PaginationRequest {
+  /** @deprecated Unsupported by the server; ignored and not sent. */
   search?: string;
+  /** @deprecated This endpoint only lists current bans; ignored and not sent. */
   activeOnly?: boolean;
 }
 
@@ -417,17 +437,22 @@ export interface MonitorStatRecord {
   currentPlayers: number;       // 当前在线人数
   tps?: number;                  // 服务器TPS
   latencyMs?: number;           // 延迟毫秒
+  measurementType?: string;
+  latencyMetric?: string;
 }
 
 export interface MonitorStatsResponse {
   serverId: number;             // 服务器ID
   stats: MonitorStatRecord[];    // 监控统计信息列表
+  nextCursor?: string;
 }
 
 export interface GetMonitorStatsRequest {
   serverId: number;
   since?: number;                // 起始时间戳(Unix时间戳，0表示当前时间-duration)
-  duration?: number;             // 持续时间(秒，默认3600秒)
+  duration?: number;             // 持续时间(秒，默认3600秒，最多86400秒)
+  limit?: number;                // 每页记录数，1..10000，服务端默认1000
+  cursor?: string;               // 不透明续页游标，最长1024字符；保持原serverId及时间范围
 }
 
 // ========== Token管理相关接口 ==========
@@ -436,6 +461,8 @@ export interface CreateApiTokenRequest {
   role: string;
   description?: string;
   expireDays?: number;
+  /** A positive server ID is required when role is server. */
+  serverId?: number;
 }
 
 export interface CreateApiTokenResponse {
@@ -449,6 +476,8 @@ export interface UpdateApiTokenRequest {
   role?: string;
   description?: string;
   active?: boolean;
+  /** Rebind a server token; omission keeps the old binding. Changing role clears it server-side. */
+  serverId?: number;
 }
 
 export interface DeleteApiTokenRequest {
@@ -456,6 +485,7 @@ export interface DeleteApiTokenRequest {
 }
 
 export interface ListApiTokensRequest extends PaginationRequest {
+  /** @deprecated 服务端不支持该筛选条件；保留兼容但不发送。 */
   search?: string;
 }
 
@@ -463,6 +493,7 @@ export interface ApiToken {
   id: number;
   name: string;
   role: string;
+  serverId?: number;
   description?: string;
   active: boolean;
   expireAt?: string;

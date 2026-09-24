@@ -20,6 +20,21 @@ public class NewNanManagerException : Exception
     /// </summary>
     public string? Details { get; }
 
+    /// <summary>Stable numeric code from the API error registry.</summary>
+    public int? ApiCode { get; }
+
+    /// <summary>Stable error category from the API error registry.</summary>
+    public string? ErrorCategory { get; }
+
+    /// <summary>Stable machine-readable error code.</summary>
+    public string? MachineCode { get; }
+
+    /// <summary>Trace identifier returned by the server.</summary>
+    public string? TraceId { get; }
+
+    /// <summary>Retry-After response header, preserved without guessing its format.</summary>
+    public string? RetryAfter { get; init; }
+
     public NewNanManagerException(string message)
         : base(message)
     {
@@ -36,13 +51,21 @@ public class NewNanManagerException : Exception
         int errorCode,
         string message,
         string? requestId = null,
-        string? details = null
+        string? details = null,
+        int? apiCode = null,
+        string? errorCategory = null,
+        string? machineCode = null,
+        string? traceId = null
     )
         : base(message)
     {
         ErrorCode = errorCode;
         RequestId = requestId;
         Details = details;
+        ApiCode = apiCode;
+        ErrorCategory = errorCategory;
+        MachineCode = machineCode;
+        TraceId = traceId;
     }
 
     public NewNanManagerException(
@@ -98,6 +121,13 @@ public class NewNanManagerHttpException : NewNanManagerException
     {
         StatusCode = statusCode;
     }
+
+    public NewNanManagerHttpException(int statusCode, string message, string? requestId, string? retryAfter)
+        : base(statusCode, message, requestId)
+    {
+        StatusCode = statusCode;
+        RetryAfter = retryAfter;
+    }
 }
 
 /// <summary>
@@ -105,11 +135,17 @@ public class NewNanManagerHttpException : NewNanManagerException
 /// </summary>
 public class ApiErrorException : NewNanManagerException
 {
+    public int StatusCode => ErrorCode;
+
     public ApiErrorException(
         int errorCode,
         string message,
         string? requestId = null,
-        string? details = null
+        string? details = null,
+        int? apiCode = null,
+        string? errorCategory = null,
+        string? machineCode = null,
+        string? traceId = null
     )
-        : base(errorCode, message, requestId, details) { }
+        : base(errorCode, message, requestId, details, apiCode, errorCategory, machineCode, traceId) { }
 }

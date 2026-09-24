@@ -86,4 +86,22 @@ public class PlayerServerService : HttpClientBase
 
         await PostAsync("/api/v1/servers/players/offline", request, cancellationToken);
     }
+
+    /// <summary>设置玩家离线状态并携带服务器会话 fencing 头。</summary>
+    public async Task SetPlayersOfflineAsync(
+        int serverId,
+        int[] playerIds,
+        SessionContext session,
+        CancellationToken cancellationToken = default
+    )
+    {
+        ArgumentNullException.ThrowIfNull(session);
+        var request = new { server_id = serverId, player_ids = playerIds };
+        await PostAsync(
+            "/api/v1/servers/players/offline",
+            request,
+            cancellationToken,
+            session.Headers
+        );
+    }
 }

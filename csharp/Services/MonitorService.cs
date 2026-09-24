@@ -32,6 +32,37 @@ public class MonitorService : HttpClientBase
         );
     }
 
+    /// <summary>发送携带服务器会话 fencing 头的心跳。</summary>
+    public async Task<HeartbeatData> HeartbeatAsync(
+        int serverId,
+        HeartbeatRequest request,
+        SessionContext session,
+        CancellationToken cancellationToken = default
+    )
+    {
+        ArgumentNullException.ThrowIfNull(session);
+        return await PostAsync<HeartbeatData>(
+            $"/api/v1/monitor/{serverId}/heartbeat",
+            request,
+            cancellationToken,
+            session.Headers
+        );
+    }
+
+    /// <summary>签发服务器实例会话。</summary>
+    public async Task<SessionContext> CreateServerSessionAsync(
+        int serverId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var response = await PostAsync<ServerSessionResponse>(
+            $"/api/v1/monitor/{serverId}/session",
+            new { },
+            cancellationToken: cancellationToken
+        );
+        return response.ToContext();
+    }
+
     /// <summary>
     /// 获取监控统计信息
     /// </summary>
@@ -47,16 +78,24 @@ public class MonitorService : HttpClientBase
         CancellationToken cancellationToken = default
     )
     {
-        var queryParams = new Dictionary<string, string>();
-        if (since.HasValue)
-            queryParams["since"] = since.Value.ToString();
-        if (duration.HasValue)
-            queryParams["duration"] = duration.Value.ToString();
+        return await GetMonitorStatsPageAsync(serverId, new MonitorStatsQuery { Since = since, Duration = duration }, cancellationToken);
+    }
 
-        var queryString =
-            queryParams.Count > 0
-                ? "?" + string.Join("&", queryParams.Select(kvp => $"{kvp.Key}={kvp.Value}"))
-                : string.Empty;
+    /// <summary>获取一页监控记录；NextCursor存在时可继续请求下一页。</summary>
+    public async Task<MonitorStatsData> GetMonitorStatsPageAsync(
+        int serverId,
+        MonitorStatsQuery query,
+        CancellationToken cancellationToken = default
+    )
+    {
+        ArgumentNullException.ThrowIfNull(query);
+        var queryString = BuildQueryString(new Dictionary<string, object?>
+        {
+            ["since"] = query.Since,
+            ["duration"] = query.Duration,
+            ["limit"] = query.Limit,
+            ["cursor"] = query.Cursor,
+        });
 
         return await GetAsync<MonitorStatsData>(
             $"/api/v1/monitor/{serverId}/stats{queryString}",

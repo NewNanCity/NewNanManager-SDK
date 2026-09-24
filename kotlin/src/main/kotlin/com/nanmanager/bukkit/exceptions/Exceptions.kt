@@ -6,7 +6,14 @@ package com.nanmanager.bukkit.exceptions
 open class NewNanManagerException(
     message: String,
     cause: Throwable? = null
-) : Exception(message, cause)
+) : Exception(message, cause) {
+    var requestId: String? = null
+        internal set
+    var retryAfter: String? = null
+        internal set
+    var traceId: String? = null
+        internal set
+}
 
 /**
  * HTTP请求异常
@@ -22,8 +29,14 @@ class HttpException(
  */
 class ApiException(
     val errorDetail: String,
-    cause: Throwable? = null
-) : NewNanManagerException("API Error: $errorDetail", cause)
+    cause: Throwable? = null,
+    val apiCode: Int? = null,
+    val errorCategory: String? = null,
+    val machineCode: String? = null
+) : NewNanManagerException("API Error: $errorDetail", cause) {
+    var statusCode: Int? = null
+        internal set
+}
 
 /**
  * 网络连接异常

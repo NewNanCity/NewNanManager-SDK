@@ -51,7 +51,7 @@ public abstract class HttpClientBase
 
         try
         {
-            var response = await _httpClient.GetAsync(endpoint, cancellationToken);
+            using var response = await _httpClient.GetAsync(endpoint, cancellationToken);
             return await HandleResponseAsync<T>(response, cancellationToken);
         }
         catch (HttpRequestException ex)
@@ -72,13 +72,14 @@ public abstract class HttpClientBase
     protected async Task<T> PostAsync<T>(
         string endpoint,
         object? body = null,
-        CancellationToken cancellationToken = default
+        CancellationToken cancellationToken = default,
+        IReadOnlyDictionary<string, string>? headers = null
     )
     {
         _logger?.LogDebug("Sending POST request to {Endpoint}", endpoint);
 
-        var content = CreateJsonContent(body);
-        var response = await _httpClient.PostAsync(endpoint, content, cancellationToken);
+        using var content = CreateJsonContent(body);
+        using var response = await SendPostAsync(endpoint, content, cancellationToken, headers);
         return await HandleResponseAsync<T>(response, cancellationToken);
     }
 
@@ -88,14 +89,31 @@ public abstract class HttpClientBase
     protected async Task PostAsync(
         string endpoint,
         object? body = null,
-        CancellationToken cancellationToken = default
+        CancellationToken cancellationToken = default,
+        IReadOnlyDictionary<string, string>? headers = null
     )
     {
         _logger?.LogDebug("Sending POST request to {Endpoint}", endpoint);
 
-        var content = CreateJsonContent(body);
-        var response = await _httpClient.PostAsync(endpoint, content, cancellationToken);
+        using var content = CreateJsonContent(body);
+        using var response = await SendPostAsync(endpoint, content, cancellationToken, headers);
         await HandleResponseAsync(response, cancellationToken);
+    }
+
+    private async Task<HttpResponseMessage> SendPostAsync(
+        string endpoint,
+        HttpContent? content,
+        CancellationToken cancellationToken,
+        IReadOnlyDictionary<string, string>? headers
+    )
+    {
+        if (headers is null || headers.Count == 0)
+            return await _httpClient.PostAsync(endpoint, content, cancellationToken);
+
+        using var request = new HttpRequestMessage(HttpMethod.Post, endpoint) { Content = content };
+        foreach (var header in headers)
+            request.Headers.TryAddWithoutValidation(header.Key, header.Value);
+        return await _httpClient.SendAsync(request, cancellationToken);
     }
 
     /// <summary>
@@ -109,8 +127,8 @@ public abstract class HttpClientBase
     {
         _logger?.LogDebug("Sending PUT request to {Endpoint}", endpoint);
 
-        var content = CreateJsonContent(body);
-        var response = await _httpClient.PutAsync(endpoint, content, cancellationToken);
+        using var content = CreateJsonContent(body);
+        using var response = await _httpClient.PutAsync(endpoint, content, cancellationToken);
         return await HandleResponseAsync<T>(response, cancellationToken);
     }
 
@@ -121,7 +139,7 @@ public abstract class HttpClientBase
     {
         _logger?.LogDebug("Sending DELETE request to {Endpoint}", endpoint);
 
-        var response = await _httpClient.DeleteAsync(endpoint, cancellationToken);
+        using var response = await _httpClient.DeleteAsync(endpoint, cancellationToken);
         await HandleResponseAsync(response, cancellationToken);
     }
 
@@ -148,9 +166,8 @@ public abstract class HttpClientBase
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
 
         _logger?.LogDebug(
-            "Received response: Status={StatusCode}, Content={Content}",
-            response.StatusCode,
-            content
+            "Received response: Status={StatusCode}",
+            response.StatusCode
         );
 
         // 处理HTTP错误状态码
@@ -180,9 +197,8 @@ public abstract class HttpClientBase
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
 
         _logger?.LogDebug(
-            "Received response: Status={StatusCode}, Content={Content}",
-            response.StatusCode,
-            content
+            "Received response: Status={StatusCode}",
+            response.StatusCode
         );
 
         // 处理HTTP错误状态码
@@ -201,21 +217,31 @@ public abstract class HttpClientBase
     private Task HandleHttpErrorAsync(HttpResponseMessage response, string content)
     {
         var statusCode = (int)response.StatusCode;
+        var requestId = response.Headers.TryGetValues("X-Request-ID", out var requestIds)
+            ? requestIds.FirstOrDefault() : null;
+        var retryAfter = response.Headers.TryGetValues("Retry-After", out var retryDelays)
+            ? retryDelays.FirstOrDefault() : null;
 
         try
         {
-            // 尝试解析新的错误响应格式 {"detail": "..."}
-            var errorData = JsonSerializer.Deserialize<Dictionary<string, object>>(
-                content,
-                _jsonOptions
-            );
-            if (errorData != null && errorData.ContainsKey("detail"))
+            var errorData = JsonSerializer.Deserialize<ErrorResponse>(content, _jsonOptions);
+            var apiMessage = errorData?.Message;
+            if (string.IsNullOrWhiteSpace(apiMessage))
+            {
+                apiMessage = errorData?.Detail;
+            }
+            if (!string.IsNullOrWhiteSpace(apiMessage))
             {
                 throw new ApiErrorException(
                     statusCode,
-                    errorData["detail"].ToString() ?? "Unknown error",
-                    null
-                );
+                    apiMessage,
+                    requestId ?? errorData?.RequestId,
+                    errorData?.Detail,
+                    errorData?.Code,
+                    errorData?.Error?.Category,
+                    errorData?.Error?.Code,
+                    errorData?.TraceId
+                ) { RetryAfter = retryAfter };
             }
         }
         catch (JsonException)
@@ -236,7 +262,7 @@ public abstract class HttpClientBase
             _ => $"HTTP {statusCode}: {response.ReasonPhrase}",
         };
 
-        throw new NewNanManagerHttpException(statusCode, message);
+        throw new NewNanManagerHttpException(statusCode, message, requestId, retryAfter);
     }
 
     /// <summary>

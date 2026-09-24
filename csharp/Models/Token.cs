@@ -25,6 +25,10 @@ public class ApiToken
     [JsonPropertyName("role")]
     public string Role { get; set; } = string.Empty;
 
+    /// <summary>server角色绑定的服务器ID。</summary>
+    [JsonPropertyName("server_id")]
+    public int? ServerId { get; set; }
+
     /// <summary>
     /// Token描述
     /// </summary>
@@ -96,4 +100,22 @@ public class ListApiTokensData
     /// </summary>
     [JsonPropertyName("tokens")]
     public List<ApiToken> Tokens { get; set; } = new();
+
+    /// <summary>
+    /// 总数量
+    /// </summary>
+    [JsonPropertyName("total")]
+    public long Total { get; set; }
+
+    /// <summary>
+    /// 当前页码
+    /// </summary>
+    [JsonPropertyName("page")]
+    public int Page { get; set; }
+
+    /// <summary>
+    /// 每页大小
+    /// </summary>
+    [JsonPropertyName("page_size")]
+    public int PageSize { get; set; }
 }

@@ -26,10 +26,17 @@ public class ServerRegistry
     public string Address { get; set; } = string.Empty;
 
     /// <summary>
-    /// 服务器类型
+    /// 兼容旧调用方的本地属性，服务端不提供该字段。
     /// </summary>
-    [JsonPropertyName("server_type")]
+    [Obsolete("The API does not define server_type; this compatibility property is not serialized.")]
+    [JsonIgnore]
     public ServerType ServerType { get; set; }
+
+    /// <summary>
+    /// 是否激活
+    /// </summary>
+    [JsonPropertyName("active")]
+    public bool Active { get; set; }
 
     /// <summary>
     /// 服务器描述
@@ -114,6 +121,14 @@ public class ServerStatus
     /// </summary>
     [JsonPropertyName("last_heartbeat")]
     public DateTime LastHeartbeat { get; set; }
+
+    /// <summary>采样来源：push/pull/unknown；缺失时未知。</summary>
+    [JsonPropertyName("measurement_type")]
+    public string? MeasurementType { get; set; }
+
+    /// <summary>延迟口径：rtt/legacy；缺失时未知。</summary>
+    [JsonPropertyName("latency_metric")]
+    public string? LatencyMetric { get; set; }
 }
 
 /// <summary>
@@ -202,6 +217,14 @@ public class MonitorStatRecord
     /// </summary>
     [JsonPropertyName("latency_ms")]
     public long? LatencyMs { get; set; }
+
+    /// <summary>采样来源：push/pull/unknown；缺失时未知。</summary>
+    [JsonPropertyName("measurement_type")]
+    public string? MeasurementType { get; set; }
+
+    /// <summary>延迟口径：rtt/legacy；缺失时未知。</summary>
+    [JsonPropertyName("latency_metric")]
+    public string? LatencyMetric { get; set; }
 }
 
 /// <summary>
@@ -220,4 +243,28 @@ public class MonitorStatsData
     /// </summary>
     [JsonPropertyName("stats")]
     public List<MonitorStatRecord> Stats { get; set; } = new();
+
+    /// <summary>下一页不透明游标；缺失表示结束。</summary>
+    [JsonPropertyName("next_cursor")]
+    public string? NextCursor { get; set; }
+}
+
+/// <summary>单页监控查询；续页保留相同服务器和时间范围。</summary>
+public class MonitorStatsQuery
+{
+    /// <summary>起始Unix时间戳；0表示当前时间减Duration。</summary>
+    [JsonPropertyName("since")]
+    public long? Since { get; set; }
+
+    /// <summary>持续秒数，最多86400；服务端默认3600。</summary>
+    [JsonPropertyName("duration")]
+    public long? Duration { get; set; }
+
+    /// <summary>每页1..10000条；服务端默认1000。</summary>
+    [JsonPropertyName("limit")]
+    public int? Limit { get; set; }
+
+    /// <summary>不透明游标，最多1024字符。</summary>
+    [JsonPropertyName("cursor")]
+    public string? Cursor { get; set; }
 }

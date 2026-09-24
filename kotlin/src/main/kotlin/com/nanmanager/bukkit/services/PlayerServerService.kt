@@ -1,39 +1,39 @@
 package com.nanmanager.bukkit.services
 
 import com.nanmanager.bukkit.http.HttpClient
+import com.nanmanager.bukkit.SessionContext
 import com.nanmanager.bukkit.models.*
 
-/**
- * 玩家服务器关系管理服务
- */
+/** 玩家服务器关系管理服务；传输和模型解析由 OpenAPI 生成客户端负责。 */
 class PlayerServerService(httpClient: HttpClient) : BaseService(httpClient) {
+    private val api get() = httpClient.generatedApis.playerServers
 
-    /**
-     * 获取玩家的服务器关系
-     */
     fun getPlayerServers(request: GetPlayerServersRequest): PlayerServersResponse {
-        val params = buildParams(mapOf("online_only" to request.onlineOnly)) // 转换为snake_case
-        return get("/api/v1/players/${request.playerId}/servers", params)
+        return generated<PlayerServersResponse, com.newnanmanager.generated.models.PlayerServersResponse> {
+            api.getPlayerServersWithHttpInfo(request.playerId, request.onlineOnly)
+        }
     }
 
-    /**
-     * 获取全局在线玩家
-     */
     fun getServerPlayers(request: GetServerPlayersRequest): ServerPlayersResponse {
-        val params = buildParams(mapOf(
-            "page" to request.page,
-            "page_size" to request.pageSize,   // 转换为snake_case
-            "search" to request.search,
-            "server_id" to request.serverId,   // 转换为snake_case
-            "online_only" to request.onlineOnly // 转换为snake_case
-        ))
-        return get("/api/v1/server-players", params)
+        return generated<ServerPlayersResponse, com.newnanmanager.generated.models.ServerPlayersResponse> {
+            api.getServerPlayersWithHttpInfo(
+                page = request.page,
+                pageSize = request.pageSize,
+                search = request.search,
+                serverId = request.serverId,
+                onlineOnly = request.onlineOnly
+            )
+        }
     }
 
-    /**
-     * 设置玩家离线状态
-     */
     fun setPlayersOffline(request: SetPlayersOfflineRequest) {
         post<Unit>("/api/v1/servers/players/offline", request)
+    }
+
+    fun setPlayersOffline(request: SetPlayersOfflineRequest, session: SessionContext) {
+        val body = toGenerated<com.newnanmanager.generated.models.SetPlayersOfflineRequest>(request)
+        generatedVoid {
+            api.setPlayersOfflineWithHttpInfo(session.id, session.epoch, body)
+        }
     }
 }

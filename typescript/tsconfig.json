@@ -20,6 +20,8 @@
   "exclude": [
     "node_modules",
     "dist",
-    "test.ts"
+    "test.ts",
+    "src/comprehensive-test.ts",
+    "src/integration-test.ts"
   ]
 }

@@ -27,7 +27,8 @@ export const initTokenService = (apiFactory: ReturnType<typeof apiBase>) => {
           name: request.name,
           role: request.role,
           description: request.description,
-          expire_days: request.expireDays
+          expire_days: request.expireDays,
+          server_id: request.serverId
         }
       }),
       ({ data }) => ({
@@ -35,6 +36,7 @@ export const initTokenService = (apiFactory: ReturnType<typeof apiBase>) => {
           id: data.token_info.id,
           name: data.token_info.name,
           role: data.token_info.role,
+          serverId: data.token_info.server_id,
           description: data.token_info.description,
           active: data.token_info.active,
           expireAt: data.token_info.expire_at,
@@ -55,8 +57,7 @@ export const initTokenService = (apiFactory: ReturnType<typeof apiBase>) => {
         url: '/api/v1/tokens',
         params: this.buildParams({
           page: request.page,
-          page_size: request.pageSize,
-          search: request.search
+          page_size: request.pageSize
         })
       }),
       ({ data }) => ({
@@ -64,6 +65,7 @@ export const initTokenService = (apiFactory: ReturnType<typeof apiBase>) => {
           id: token.id,
           name: token.name,
           role: token.role,
+          serverId: token.server_id,
           description: token.description,
           active: token.active,
           expireAt: token.expire_at,
@@ -89,6 +91,7 @@ export const initTokenService = (apiFactory: ReturnType<typeof apiBase>) => {
         id: data.id,
         name: data.name,
         role: data.role,
+        serverId: data.server_id,
         description: data.description,
         active: data.active,
         expireAt: data.expire_at,
@@ -109,13 +112,15 @@ export const initTokenService = (apiFactory: ReturnType<typeof apiBase>) => {
           name: request.name,
           role: request.role,
           description: request.description,
-          active: request.active
+          active: request.active,
+          server_id: request.serverId
         }
       }),
       ({ data }) => ({
         id: data.id,
         name: data.name,
         role: data.role,
+        serverId: data.server_id,
         description: data.description,
         active: data.active,
         expireAt: data.expire_at,

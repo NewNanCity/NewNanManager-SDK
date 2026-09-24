@@ -43,7 +43,9 @@ export const initMonitorService = (apiFactory: ReturnType<typeof apiBase>) => {
         url: `/api/v1/monitor/${request.serverId}/stats`,
         params: {
           since: request.since,
-          duration: request.duration
+          duration: request.duration,
+          limit: request.limit,
+          cursor: request.cursor
         }
       }),
       ({ data }) => ({
@@ -52,8 +54,11 @@ export const initMonitorService = (apiFactory: ReturnType<typeof apiBase>) => {
           timestamp: stat.timestamp,
           currentPlayers: stat.current_players,
           tps: stat.tps,
-          latencyMs: stat.latency_ms
-        }))
+          latencyMs: stat.latency_ms,
+          measurementType: stat.measurement_type,
+          latencyMetric: stat.latency_metric
+        })),
+        nextCursor: data.next_cursor
       }),
       commonErrorHandler
     );

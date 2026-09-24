@@ -313,6 +313,10 @@ public class UpdateTownRequest
 /// </summary>
 public class CreateApiTokenRequest
 {
+    /// <summary>role=server时必须指定正数服务器ID。</summary>
+    [JsonPropertyName("server_id")]
+    public int? ServerId { get; set; }
+
     /// <summary>
     /// Token名称
     /// </summary>
@@ -343,6 +347,10 @@ public class CreateApiTokenRequest
 /// </summary>
 public class UpdateApiTokenRequest
 {
+    /// <summary>server角色可重绑；省略保留旧绑定，改为其它角色时服务端清空。</summary>
+    [JsonPropertyName("server_id")]
+    public int? ServerId { get; set; }
+
     /// <summary>
     /// Token名称
     /// </summary>
@@ -434,7 +442,7 @@ public class SetPlayersOfflineRequest
 public class ValidateRequest
 {
     /// <summary>
-    /// 玩家列表（1-100个）
+    /// 最多1000人；Login=false为完整快照，允许空列表，不可分批。
     /// </summary>
     [JsonPropertyName("players")]
     public List<PlayerValidateInfo> Players { get; set; } = new();

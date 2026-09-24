@@ -28,10 +28,11 @@ import com.nanmanager.bukkit.services.*
 class NewNanManagerClient(
     private val token: String,
     private val baseUrl: String,
-    private val timeout: Long = 30L
+    private val timeout: Long = 30L,
+    authScheme: AuthScheme = AuthScheme.BEARER
 ) : AutoCloseable {
 
-    private val httpClient: HttpClient = HttpClient(baseUrl, token, timeout)
+    private val httpClient: HttpClient = HttpClient(baseUrl, token, timeout, authScheme)
 
     /**
      * 玩家管理服务

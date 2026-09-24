@@ -2,13 +2,31 @@
 
 C# SDK for NewNanManager API - Minecraft server management system.
 
+## HTTP 行为
+
+默认超时 30 秒，默认发送 `Authorization: Bearer ...`；需要 `X-API-Token` 时在 `NewNanManagerClientOptions.AuthScheme` 设置为 `AuthScheme.ApiToken`，每个请求只发送选中的一种凭证头。拒绝自动重定向。Debug 日志不记录响应体。`ApiErrorException` 与 `NewNanManagerHttpException` 提供 `StatusCode`、`RequestId`、`RetryAfter`，响应未提供的元数据为 null。
+
+服务器插件先调用 `await client.Monitor.CreateServerSessionAsync(serverId)`，再把返回的 `SessionContext` 传给 `Players.ValidateAsync`、`Monitor.HeartbeatAsync` 和 `PlayerServers.SetPlayersOfflineAsync`。会话 ID 遵循服务端 32–64 字符约束；省略会话参数时保留旧 HTTP 入口，不会伪造 fencing 头。
+
+传入自定义 `HttpClient` 时，其基础地址、认证、超时和 redirect handler 由调用者负责配置；推荐使用 `new HttpClientHandler { AllowAutoRedirect = false }`。现有 CancellationToken 参数保留。
+
 ## 安装
+
+本轮源码修复尚未发布；以下包名不表示公共源的版本已经包含这些修改。
 
 ```bash
 dotnet add package NewNanManager.Client
 ```
 
 ## 快速开始
+
+新增契约：Token 请求与响应提供 `ServerId`；状态和历史记录提供可选 `MeasurementType/LatencyMetric`。监控单页入口为 `GetMonitorStatsPageAsync(serverId, new MonitorStatsQuery { Limit = 1000, Cursor = cursor }, cancellationToken)`，响应含 `NextCursor`。旧 `GetMonitorStatsAsync` 签名和取消参数保持不变，也只返回一页。
+
+字段缺失时保留 `null`。名称、Token绑定、0..1000人完整快照和分页上限见 [契约与分页](../docs/contracts.md)；本地 fake 回归覆盖这些字段及快照传输。
+
+Token列表支持 `client.Tokens.ListApiTokensPageAsync(1, 20, cancellationToken)`，返回Tokens/Total/Page/PageSize；原 `ListApiTokensAsync(cancellationToken)` 保留默认分页行为。`ServerRegistry.Active`对应服务端字段，`ServerType`保留原类型并标记Obsolete/JsonIgnore，仅作为本地兼容属性，不能把它的默认值当成服务端事实。
+
+新增契约后15项本地测试通过。NuGet生产项目公开源检查未命中公告；测试项目有两个旧System包的图级公告，最终net8.0产物未选择其运行资产，详见[依赖验收](../docs/audits/2026-09-06-dependency-acceptance.md)。
 
 ```csharp
 using NewNanManager.Client;
@@ -51,6 +69,7 @@ var options = new NewNanManagerClientOptions
 {
     BaseUrl = "https://your-server.com",
     Token = "your-api-token",
+    AuthScheme = AuthScheme.ApiToken,
     Timeout = TimeSpan.FromSeconds(60),
     UserAgent = "MyApp/1.0.0"
 };
@@ -58,7 +77,7 @@ var options = new NewNanManagerClientOptions
 var client = new NewNanManagerClient(options, logger);
 
 // 或使用自定义HttpClient
-var httpClient = new HttpClient();
+var httpClient = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false });
 var client = new NewNanManagerClient(httpClient, disposeHttpClient: true, logger);
 ```
 
@@ -201,14 +220,13 @@ catch (NewNanManagerException ex)
 
 ## 测试
 
-运行集成测试：
+在 `csharp/` 中运行 fake/loopback 回归，排除真实服务集成测试：
 
 ```bash
-cd Tests
-dotnet test
+dotnet test Tests/NewNanManager.Client.Tests.csproj --no-restore --filter Category!=Integration
 ```
 
-注意：集成测试需要真实的API服务器运行。请在测试前修改 `IntegrationTests.cs` 中的配置。
+`ComprehensiveTests` 已标记 `Category=Integration`，需要单独配置真实测试环境，不属于上述离线验收。
 
 ## 开发
 

@@ -33,9 +33,7 @@ export const initPlayerServerService = (apiFactory: ReturnType<typeof apiBase>) 
           createdAt: server.created_at,
           updatedAt: server.updated_at
         })),
-        total: data.total,
-        page: data.page,
-        pageSize: data.page_size
+        total: data.total
       }),
       commonErrorHandler
     );

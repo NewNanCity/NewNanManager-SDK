@@ -1,204 +1,80 @@
-# NewNanManager Golang 客户端
+# NewNanManager Go SDK
 
-这是 NewNanManager API 的 Golang 客户端库，提供了完整的 API 接口封装。
+基于 Resty 的同步客户端。模块路径沿用 go.mod 的 `github.com/NewNanCity/NewNanManager-SDK/clients/golang`，本地目录是 golang/；本轮不调整模块发布路径。
 
-## 安装
-
-```bash
-go get github.com/NewNanCity/NewNanManager-SDK/clients/golang
-```
-
-## 快速开始
+## 使用
 
 ```go
 package main
 
 import (
-    "fmt"
+    "context"
+    "errors"
     "log"
+    "os"
+    "time"
 
     nanmanager "github.com/NewNanCity/NewNanManager-SDK/clients/golang"
+    "github.com/NewNanCity/NewNanManager-SDK/clients/golang/utils"
 )
 
 func main() {
-    // 创建客户端
-    client := nanmanager.NewNanCityManager("https://manager-api.newnan.city", "your-api-token")
-
-    // 获取玩家列表
-    players, err := client.ListPlayers(nil, nil, nil, nil, nil)
+    client := nanmanager.NewNanCityManager(os.Getenv("NANMANAGER_BASE_URL"), os.Getenv("NANMANAGER_TOKEN"))
+    client.SetTimeout(10 * time.Second)
+    ctx, cancel := context.WithTimeout(context.Background(), 3 * time.Second)
+    defer cancel()
+    player, err := client.Players.GetPlayerWithContext(ctx, 1)
     if err != nil {
-        log.Fatal(err)
+        var httpError *utils.HTTPError
+        if errors.As(err, &httpError) {
+            log.Printf("status=%d request_id=%s", httpError.StatusCode, httpError.RequestID)
+        }
+        return
     }
-
-    fmt.Printf("找到 %d 个玩家\n", players.Total)
-    for _, player := range players.Players {
-        fmt.Printf("- %s (ID: %d)\n", player.Name, player.ID)
-    }
+    log.Printf("player_id=%d", player.ID)
 }
 ```
 
-## 功能特性
+入口为 Players、Servers、Towns、Tokens、IPs、Monitor 和 PlayerServers，请求/响应类型位于 modules 包。
 
-- ✅ 玩家管理（创建、查询、更新、删除、封禁）
-- ✅ 服务器管理（注册、查询、更新、删除）
-- ✅ 城镇管理（创建、查询、更新、删除、成员管理）
-- ✅ 监控服务（心跳、延迟统计、状态查询）
-- ✅ Token管理（创建、查询、更新、删除）
-- ✅ 完整的类型支持
-- ✅ 简洁的错误处理
-- ✅ 新的响应格式：成功时直接返回数据，错误时返回 `{"detail": "错误信息"}`
+创建和更新玩家、批量验证、临时封禁与服务器详情见 [调用示例](../docs/examples/golang.md)。
 
-## API 功能
+## HTTP 约定
 
-### 玩家管理
-- `ListPlayers()` - 获取玩家列表
-- `CreatePlayer()` - 创建玩家
-- `GetPlayer()` - 获取玩家详情
-- `UpdatePlayer()` - 更新玩家信息
-- `DeletePlayer()` - 删除玩家
-- `BanPlayer()` - 封禁玩家
-- `UnbanPlayer()` - 解封玩家
-- `Validate()` - 批量验证玩家
+默认总请求超时 30 秒。兼容新增的 SetTimeout 应在并发使用之前配置；零值显式关闭截止时间。默认发送 Authorization；只提供 `X-API-Token` 的部署可使用 `NewNanCityManagerWithAuthScheme(..., AuthSchemeAPIToken)`，客户端只会发送选中的一种凭证头。拒绝自动重定向，默认不重试写入请求。
 
-### 服务器管理
-- `ListServers()` - 获取服务器列表
-- `CreateServer()` - 注册服务器
-- `GetServer()` - 获取服务器信息（可选详细状态）
-- `UpdateServer()` - 更新服务器信息
-- `DeleteServer()` - 删除服务器
+服务器插件应先调用 `client.Monitor.CreateServerSession(serverID)`，再把返回的 `modules.SessionContext` 传给 `ValidateWithSession`、`HeartbeatWithSession` 和 `SetPlayersOfflineWithSession`（或对应的 `WithContextAndSession` 入口）。会话 ID 遵循服务端 32–64 字符约束；旧方法保留兼容 HTTP 路径，不会伪造 fencing 头。
 
-### 城镇管理
-- `ListTowns()` - 获取城镇列表
-- `CreateTown()` - 创建城镇
-- `GetTown()` - 获取城镇详情
-- `UpdateTown()` - 更新城镇信息
-- `DeleteTown()` - 删除城镇
+utils.HTTPError 保留 StatusCode、Detail、RequestID 和原始 RetryAfter 值。网络错误保留错误链，可用 errors.Is 判断 deadline。
 
-### Token 管理
-- `ListApiTokens()` - 获取 API Token 列表
-- `CreateApiToken()` - 创建 API Token
-- `GetApiToken()` - 获取 API Token 详情
-- `UpdateApiToken()` - 更新 API Token
-- `DeleteApiToken()` - 删除 API Token
+每个服务操作都有 XxxWithContext(ctx, ...) 入口，ctx 只作用于本次请求，不修改共享客户端。原方法签名保留，使用 context.Background() 转调；取消一个请求不会取消其他并发请求。
 
-### 监控服务
-- `Heartbeat()` - 服务器心跳
-- `GetLatencyStats()` - 获取延迟统计
+六个旧统计计数已从 int32 改为 int64，全部真实计数对齐 IDL。SuspiciousIPs 仅作为弃用字段保留，服务端不提供该数量。旧 int32 变量需要迁移，见 [契约决策](../docs/audits/2026-09-06-contract-decisions.md)。
 
-## 使用示例
+## 新增契约
 
-### 创建和管理玩家
+Token 请求与响应增加 ServerID；ServerStatus/MonitorStatRecord 增加 MeasurementType/LatencyMetric。监控查询使用 GetMonitorStatsPageWithContext(ctx, serverID, modules.MonitorStatsQuery{...})，通过 NextCursor 续页；旧 GetMonitorStats 入口保留，也只返回一页。
 
-```go
-// 创建玩家
-inQQGroup := true
-createReq := nanmanager.CreatePlayerRequest{
-    Name:      "TestPlayer",
-    InQQGroup: &inQQGroup,
-}
-player, err := client.CreatePlayer(createReq)
-if err != nil {
-    log.Fatal(err)
-}
+完整字段限制、名称和0..1000人快照语义见 [契约与分页](../docs/contracts.md)。新增字段为指针，nil 保持未知或省略；本轮改动尚未发布。
 
-// 更新玩家信息
-newName := "UpdatedPlayer"
-updateReq := nanmanager.UpdatePlayerRequest{
-    Name: &newName,
-}
-updatedPlayer, err := client.UpdatePlayer(player.ID, updateReq)
-if err != nil {
-    log.Fatal(err)
-}
+Token单页入口为 `client.Tokens.ListApiTokensPageWithContext(ctx, modules.ListApiTokensRequest{Page: 1, PageSize: 20})`，也提供无context版本；原 `ListApiTokens[WithContext]()` 签名保留并使用服务端默认分页。响应的Total/Page/PageSize用于续页判断。
 
-// 封禁玩家
-banReq := nanmanager.BanPlayerRequest{
-    BanMode: nanmanager.BanModeTemporary,
-    Reason:  "违规行为",
-}
-duration := int64(3600) // 1小时
-banReq.DurationSeconds = &duration
-err = client.BanPlayer(player.ID, banReq)
-if err != nil {
-    log.Fatal(err)
-}
+## 依赖边界
+
+go.mod最低版本提高到Go1.25.0，x/net升级到0.56.0，Resty保持2.11.0。Go1.21至1.24不再受支持；下游需先升级工具链并更新依赖。实际验收使用Go1.25.14，部署或构建时应使用所在受支持系列的安全补丁版本。
+
+Go1.25.14的三包race、vet、模块校验和tidy检查通过；govulncheck模块公告由上一阶段的12条降为0。扫描针对本SDK的解析结果，不能替代下游整个应用或根后端的扫描。官方最低版本依据及验收记录见[依赖验收](../docs/audits/2026-09-06-dependency-acceptance.md)。
+
+## 验证
+
+```powershell
+$env:GOTOOLCHAIN = 'go1.25.14'
+$env:GOPROXY = 'https://proxy.golang.org'
+$env:GOSUMDB = 'sum.golang.org'
+go test -race ./... -count=1 -timeout=120s
+go vet ./...
+go mod verify
+go mod tidy -diff
 ```
 
-### 服务器管理
-
-```go
-// 创建服务器
-createReq := nanmanager.CreateServerRequest{
-    Name:       "我的服务器",
-    Address:    "mc.example.com:25565",
-}
-server, err := client.Servers.CreateServer(createReq)
-if err != nil {
-    log.Fatal(err)
-}
-
-// 获取服务器详细信息
-detail, err := client.Servers.GetServer(server.ID, true)
-if err != nil {
-    log.Fatal(err)
-}
-fmt.Printf("服务器: %s, 在线: %t\n", detail.Server.Name, detail.Status.Online)
-```
-
-### 城镇管理
-
-```go
-// 创建城镇
-level := int32(1)
-createReq := nanmanager.CreateTownRequest{
-    Name:  "新城镇",
-    Level: &level,
-}
-town, err := client.CreateTown(createReq)
-if err != nil {
-    log.Fatal(err)
-}
-
-// 获取城镇详情（包含成员）
-detail, err := client.Towns.GetTown(town.ID, true)
-if err != nil {
-    log.Fatal(err)
-}
-fmt.Printf("城镇 %s 有 %d 个成员\n", town.Name, len(detail.Members))
-```
-
-## 错误处理
-
-客户端会自动处理 HTTP 错误和 API 错误响应：
-
-```go
-player, err := client.GetPlayer(999999)
-if err != nil {
-    // 错误信息包含详细的错误描述
-    fmt.Printf("获取玩家失败: %v\n", err)
-    return
-}
-```
-
-## 测试
-
-运行测试程序：
-
-```bash
-go run test.go
-```
-
-测试程序会执行完整的 API 功能测试，包括：
-- 玩家管理的完整流程（创建、查询、更新、封禁、删除）
-- 服务器管理的完整流程
-- 城镇管理的完整流程
-- Token 管理功能
-- 监控功能
-
-## 依赖
-
-- `github.com/go-resty/resty/v2` - HTTP 客户端库
-
-## 许可证
-
-MIT License
+测试使用 fake/loopback，覆盖请求取消及并发隔离、默认/配置超时、认证头、重定向、错误元数据、int64计数、Token绑定、监控分页与完整快照。没有真实服务或性能验收。

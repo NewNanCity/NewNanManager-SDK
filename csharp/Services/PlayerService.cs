@@ -88,6 +88,22 @@ public class PlayerService : HttpClientBase
         );
     }
 
+    /// <summary>玩家验证并携带服务器会话 fencing 头。</summary>
+    public async Task<ValidateResponse> ValidateAsync(
+        ValidateRequest request,
+        SessionContext session,
+        CancellationToken cancellationToken = default
+    )
+    {
+        ArgumentNullException.ThrowIfNull(session);
+        return await PostAsync<ValidateResponse>(
+            "/api/v1/players/validate",
+            request,
+            cancellationToken,
+            session.Headers
+        );
+    }
+
     /// <summary>
     /// 获取玩家详情
     /// </summary>

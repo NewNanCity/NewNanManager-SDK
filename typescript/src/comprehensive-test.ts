@@ -18,11 +18,16 @@ import {
  * Tests all API interfaces in realistic business scenarios
  */
 async function runComprehensiveTest() {
+  const token = process.env.NANMANAGER_TOKEN;
+  const baseUrl = process.env.NANMANAGER_BASE_URL;
+  if (!token || !baseUrl) {
+    throw new Error('NANMANAGER_TOKEN and NANMANAGER_BASE_URL are required for integration tests');
+  }
   console.log('=== NewNanManager TypeScript SDK Comprehensive Test ===\n');
 
   const client = new NewNanManagerClient({
-    token: '7p9piy2NagtMAryeyBBY7vzUKK1qDJOq',
-    baseUrl: 'http://localhost:8000'
+    token: token,
+    baseUrl: baseUrl
   });
 
   let testPlayerId: number | null = null;
@@ -215,4 +220,7 @@ async function runComprehensiveTest() {
 }
 
 // Run the test
-runComprehensiveTest().catch(console.error);
+runComprehensiveTest().catch((error: unknown) => {
+  console.error(error instanceof Error ? error.message : 'Comprehensive test failed');
+  process.exitCode = 1;
+});

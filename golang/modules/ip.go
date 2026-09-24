@@ -1,6 +1,7 @@
 package modules
 
 import (
+	"context"
 	"strconv"
 
 	"github.com/NewNanCity/NewNanManager-SDK/clients/golang/utils"
@@ -19,7 +20,12 @@ func NewIPService(client *resty.Client) *IPService {
 
 // GetIPInfo 获取IP信息（包含风险信息）
 func (s *IPService) GetIPInfo(ip string) (*IPInfo, error) {
-	resp, err := s.client.R().
+	return s.GetIPInfoWithContext(context.Background(), ip)
+}
+
+// GetIPInfoWithContext executes GetIPInfo with cancellation scoped to this request.
+func (s *IPService) GetIPInfoWithContext(ctx context.Context, ip string) (*IPInfo, error) {
+	resp, err := s.client.R().SetContext(ctx).
 		Get("/api/v1/ips/" + ip)
 
 	var result IPInfo
@@ -33,7 +39,12 @@ func (s *IPService) GetIPInfo(ip string) (*IPInfo, error) {
 
 // BanIP 封禁IP（支持批量）
 func (s *IPService) BanIP(request BanIPRequest) error {
-	resp, err := s.client.R().
+	return s.BanIPWithContext(context.Background(), request)
+}
+
+// BanIPWithContext executes BanIP with cancellation scoped to this request.
+func (s *IPService) BanIPWithContext(ctx context.Context, request BanIPRequest) error {
+	resp, err := s.client.R().SetContext(ctx).
 		SetBody(request).
 		Post("/api/v1/ips/ban")
 
@@ -42,7 +53,12 @@ func (s *IPService) BanIP(request BanIPRequest) error {
 
 // UnbanIP 解封IP（支持批量）
 func (s *IPService) UnbanIP(request UnbanIPRequest) error {
-	resp, err := s.client.R().
+	return s.UnbanIPWithContext(context.Background(), request)
+}
+
+// UnbanIPWithContext executes UnbanIP with cancellation scoped to this request.
+func (s *IPService) UnbanIPWithContext(ctx context.Context, request UnbanIPRequest) error {
+	resp, err := s.client.R().SetContext(ctx).
 		SetBody(request).
 		Post("/api/v1/ips/unban")
 
@@ -51,7 +67,12 @@ func (s *IPService) UnbanIP(request UnbanIPRequest) error {
 
 // GetBannedIPs 获取被封禁的IP列表
 func (s *IPService) GetBannedIPs(page, pageSize *int32) (*BannedIPsData, error) {
-	req := s.client.R()
+	return s.GetBannedIPsWithContext(context.Background(), page, pageSize)
+}
+
+// GetBannedIPsWithContext executes GetBannedIPs with cancellation scoped to this request.
+func (s *IPService) GetBannedIPsWithContext(ctx context.Context, page, pageSize *int32) (*BannedIPsData, error) {
+	req := s.client.R().SetContext(ctx)
 
 	if page != nil {
 		req.SetQueryParam("page", strconv.Itoa(int(*page)))
@@ -73,7 +94,12 @@ func (s *IPService) GetBannedIPs(page, pageSize *int32) (*BannedIPsData, error) 
 
 // ListIPs 获取IP列表
 func (s *IPService) ListIPs(page, pageSize *int32, bannedOnly *bool, minThreatLevel *ThreatLevel, minRiskScore *int32) (*BannedIPsData, error) {
-	req := s.client.R()
+	return s.ListIPsWithContext(context.Background(), page, pageSize, bannedOnly, minThreatLevel, minRiskScore)
+}
+
+// ListIPsWithContext executes ListIPs with cancellation scoped to this request.
+func (s *IPService) ListIPsWithContext(ctx context.Context, page, pageSize *int32, bannedOnly *bool, minThreatLevel *ThreatLevel, minRiskScore *int32) (*BannedIPsData, error) {
+	req := s.client.R().SetContext(ctx)
 
 	if page != nil {
 		req.SetQueryParam("page", strconv.Itoa(int(*page)))
@@ -104,7 +130,12 @@ func (s *IPService) ListIPs(page, pageSize *int32, bannedOnly *bool, minThreatLe
 
 // GetSuspiciousIPs 获取可疑IP列表
 func (s *IPService) GetSuspiciousIPs(page, pageSize *int32) (*SuspiciousIPsData, error) {
-	req := s.client.R()
+	return s.GetSuspiciousIPsWithContext(context.Background(), page, pageSize)
+}
+
+// GetSuspiciousIPsWithContext executes GetSuspiciousIPs with cancellation scoped to this request.
+func (s *IPService) GetSuspiciousIPsWithContext(ctx context.Context, page, pageSize *int32) (*SuspiciousIPsData, error) {
+	req := s.client.R().SetContext(ctx)
 
 	if page != nil {
 		req.SetQueryParam("page", strconv.Itoa(int(*page)))
@@ -126,7 +157,12 @@ func (s *IPService) GetSuspiciousIPs(page, pageSize *int32) (*SuspiciousIPsData,
 
 // GetHighRiskIPs 获取高风险IP列表
 func (s *IPService) GetHighRiskIPs(page, pageSize *int32) (*HighRiskIPsData, error) {
-	req := s.client.R()
+	return s.GetHighRiskIPsWithContext(context.Background(), page, pageSize)
+}
+
+// GetHighRiskIPsWithContext executes GetHighRiskIPs with cancellation scoped to this request.
+func (s *IPService) GetHighRiskIPsWithContext(ctx context.Context, page, pageSize *int32) (*HighRiskIPsData, error) {
+	req := s.client.R().SetContext(ctx)
 
 	if page != nil {
 		req.SetQueryParam("page", strconv.Itoa(int(*page)))
@@ -148,7 +184,12 @@ func (s *IPService) GetHighRiskIPs(page, pageSize *int32) (*HighRiskIPsData, err
 
 // GetIPStatistics 获取IP统计信息
 func (s *IPService) GetIPStatistics() (*IPStatistics, error) {
-	resp, err := s.client.R().
+	return s.GetIPStatisticsWithContext(context.Background())
+}
+
+// GetIPStatisticsWithContext executes GetIPStatistics with cancellation scoped to this request.
+func (s *IPService) GetIPStatisticsWithContext(ctx context.Context) (*IPStatistics, error) {
+	resp, err := s.client.R().SetContext(ctx).
 		Get("/api/v1/ips/statistics")
 
 	var result IPStatistics

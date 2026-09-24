@@ -1,8 +1,17 @@
 """Configuration classes for NewNanManager SDK."""
 
+from enum import Enum
+
 from pydantic import BaseModel, ConfigDict, Field
 
 from ._version import USER_AGENT
+
+
+class AuthScheme(str, Enum):
+    """Credential header selected for API requests."""
+
+    BEARER = "bearer"
+    API_TOKEN = "api-token"
 
 
 class ClientConfig(BaseModel):
@@ -12,6 +21,10 @@ class ClientConfig(BaseModel):
 
     base_url: str = Field(description="API基础URL")
     token: str = Field(description="API Token")
+    auth_scheme: AuthScheme = Field(
+        default=AuthScheme.BEARER,
+        description="认证方案；每个请求只发送一种凭证头",
+    )
     timeout: float = Field(default=30.0, description="HTTP请求超时时间（秒）")
     user_agent: str = Field(default=USER_AGENT, description="用户代理字符串")
     max_retries: int = Field(default=3, description="最大重试次数")

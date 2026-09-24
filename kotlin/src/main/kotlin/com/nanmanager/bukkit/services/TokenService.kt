@@ -3,47 +3,37 @@ package com.nanmanager.bukkit.services
 import com.nanmanager.bukkit.http.HttpClient
 import com.nanmanager.bukkit.models.*
 
-/**
- * API Token管理服务
- */
+/** API Token 管理服务；传输和模型解析由 OpenAPI 生成客户端负责。 */
 class TokenService(httpClient: HttpClient) : BaseService(httpClient) {
+    private val api get() = httpClient.generatedApis.tokens
 
-    /**
-     * 创建API Token
-     */
     fun createApiToken(request: CreateApiTokenRequest): CreateApiTokenResponse {
-        return post("/api/v1/tokens", request)
+        val body = toGenerated<com.newnanmanager.generated.models.CreateApiTokenRequest>(request)
+        return generated<CreateApiTokenResponse, com.newnanmanager.generated.models.CreateApiTokenResponse> {
+            api.createApiTokenWithHttpInfo(body)
+        }
     }
 
-    /**
-     * 获取API Token详情
-     */
     fun getApiToken(request: GetApiTokenRequest): ApiToken {
-        return get("/api/v1/tokens/${request.id}")
+        return generated<ApiToken, com.newnanmanager.generated.models.ApiToken> {
+            api.getApiTokenWithHttpInfo(request.id)
+        }
     }
 
-    /**
-     * 更新API Token
-     */
     fun updateApiToken(request: UpdateApiTokenRequest): ApiToken {
-        return put("/api/v1/tokens/${request.id}", request)
+        val body = toGenerated<com.newnanmanager.generated.models.UpdateApiTokenRequest>(request)
+        return generated<ApiToken, com.newnanmanager.generated.models.ApiToken> {
+            api.updateApiTokenWithHttpInfo(request.id, body)
+        }
     }
 
-    /**
-     * 删除API Token
-     */
     fun deleteApiToken(request: DeleteApiTokenRequest) {
-        delete("/api/v1/tokens/${request.id}")
+        generatedVoid { api.deleteApiTokenWithHttpInfo(request.id) }
     }
 
-    /**
-     * 获取API Token列表
-     */
     fun listApiTokens(request: ListApiTokensRequest): ListApiTokensResponse {
-        val params = buildParams(mapOf(
-            "page" to request.page,
-            "page_size" to request.pageSize  // 转换为snake_case
-        ))
-        return get("/api/v1/tokens", params)
+        return generated<ListApiTokensResponse, com.newnanmanager.generated.models.ListApiTokensResponse> {
+            api.listApiTokensWithHttpInfo(request.page, request.pageSize)
+        }
     }
 }

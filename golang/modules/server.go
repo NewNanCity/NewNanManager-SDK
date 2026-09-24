@@ -1,6 +1,7 @@
 package modules
 
 import (
+	"context"
 	"strconv"
 
 	"github.com/NewNanCity/NewNanManager-SDK/clients/golang/utils"
@@ -19,7 +20,12 @@ func NewServerService(client *resty.Client) *ServerService {
 
 // ListServers 获取服务器列表
 func (s *ServerService) ListServers(page, pageSize *int32, search *string, onlineOnly *bool) (*ServersListData, error) {
-	req := s.client.R()
+	return s.ListServersWithContext(context.Background(), page, pageSize, search, onlineOnly)
+}
+
+// ListServersWithContext executes ListServers with cancellation scoped to this request.
+func (s *ServerService) ListServersWithContext(ctx context.Context, page, pageSize *int32, search *string, onlineOnly *bool) (*ServersListData, error) {
+	req := s.client.R().SetContext(ctx)
 
 	if page != nil {
 		req.SetQueryParam("page", strconv.Itoa(int(*page)))
@@ -47,7 +53,12 @@ func (s *ServerService) ListServers(page, pageSize *int32, search *string, onlin
 
 // CreateServer 创建服务器
 func (s *ServerService) CreateServer(request CreateServerRequest) (*ServerRegistry, error) {
-	resp, err := s.client.R().
+	return s.CreateServerWithContext(context.Background(), request)
+}
+
+// CreateServerWithContext executes CreateServer with cancellation scoped to this request.
+func (s *ServerService) CreateServerWithContext(ctx context.Context, request CreateServerRequest) (*ServerRegistry, error) {
+	resp, err := s.client.R().SetContext(ctx).
 		SetBody(request).
 		Post("/api/v1/servers")
 
@@ -62,7 +73,12 @@ func (s *ServerService) CreateServer(request CreateServerRequest) (*ServerRegist
 
 // GetServer 获取服务器信息
 func (s *ServerService) GetServer(id int32, detail bool) (*ServerDetailData, error) {
-	req := s.client.R()
+	return s.GetServerWithContext(context.Background(), id, detail)
+}
+
+// GetServerWithContext executes GetServer with cancellation scoped to this request.
+func (s *ServerService) GetServerWithContext(ctx context.Context, id int32, detail bool) (*ServerDetailData, error) {
+	req := s.client.R().SetContext(ctx)
 	if detail {
 		req.SetQueryParam("detail", "true")
 	}
@@ -79,7 +95,12 @@ func (s *ServerService) GetServer(id int32, detail bool) (*ServerDetailData, err
 
 // UpdateServer 更新服务器信息
 func (s *ServerService) UpdateServer(id int32, request UpdateServerRequest) (*ServerRegistry, error) {
-	resp, err := s.client.R().
+	return s.UpdateServerWithContext(context.Background(), id, request)
+}
+
+// UpdateServerWithContext executes UpdateServer with cancellation scoped to this request.
+func (s *ServerService) UpdateServerWithContext(ctx context.Context, id int32, request UpdateServerRequest) (*ServerRegistry, error) {
+	resp, err := s.client.R().SetContext(ctx).
 		SetBody(request).
 		Put("/api/v1/servers/" + strconv.Itoa(int(id)))
 
@@ -94,7 +115,12 @@ func (s *ServerService) UpdateServer(id int32, request UpdateServerRequest) (*Se
 
 // DeleteServer 删除服务器
 func (s *ServerService) DeleteServer(id int32) error {
-	resp, err := s.client.R().
+	return s.DeleteServerWithContext(context.Background(), id)
+}
+
+// DeleteServerWithContext executes DeleteServer with cancellation scoped to this request.
+func (s *ServerService) DeleteServerWithContext(ctx context.Context, id int32) error {
+	resp, err := s.client.R().SetContext(ctx).
 		Delete("/api/v1/servers/" + strconv.Itoa(int(id)))
 
 	return utils.HandleResponse(resp, err, nil)

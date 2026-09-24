@@ -3,92 +3,69 @@ package com.nanmanager.bukkit.services
 import com.nanmanager.bukkit.http.HttpClient
 import com.nanmanager.bukkit.models.*
 
-/**
- * IP管理服务
- */
+/** IP 管理服务；传输和模型解析由 OpenAPI 生成客户端负责。 */
 class IPService(httpClient: HttpClient) : BaseService(httpClient) {
+    private val api get() = httpClient.generatedApis.ips
 
-    /**
-     * 获取IP信息（包含风险信息）
-     */
     fun getIPInfo(request: GetIPInfoRequest): IPInfo {
-        return get("/api/v1/ips/${request.ip}")
+        return generated<IPInfo, com.newnanmanager.generated.models.IPInfo> {
+            api.getIPInfoWithHttpInfo(request.ip)
+        }
     }
 
-    /**
-     * 封禁IP
-     */
     fun banIP(request: BanIPRequest) {
-        post<Unit>("/api/v1/ips/ban", request)
+        val body = toGenerated<com.newnanmanager.generated.models.BanIPRequest>(request)
+        generatedVoid { api.banIPWithHttpInfo(body) }
     }
 
-    /**
-     * 解封IP
-     */
     fun unbanIP(request: UnbanIPRequest) {
-        post<Unit>("/api/v1/ips/unban", request)
+        val body = toGenerated<com.newnanmanager.generated.models.UnbanIPRequest>(request)
+        generatedVoid { api.unbanIPWithHttpInfo(body) }
     }
 
-    /**
-     * 获取IP列表
-     */
     fun listIPs(request: ListIPsRequest): ListIPsResponse {
-        val params = buildParams(mapOf(
-            "page" to request.page,
-            "page_size" to request.pageSize,           // 转换为snake_case
-            "banned_only" to request.bannedOnly,       // 转换为snake_case
-            "min_threat_level" to request.minThreatLevel?.value, // 转换为snake_case
-            "min_risk_score" to request.minRiskScore   // 转换为snake_case
-        ))
-        return get("/api/v1/ips", params)
+        val level = request.minThreatLevel?.let { value ->
+            com.newnanmanager.generated.apis.IPServiceApi.MinThreatLevelListIPs.values()
+                .first { it.value.toInt() == value.value }
+        }
+        return generated<ListIPsResponse, com.newnanmanager.generated.models.ListIPsResponse> {
+            api.listIPsWithHttpInfo(request.page, request.pageSize, request.bannedOnly, level, request.minRiskScore)
+        }
     }
 
-    /**
-     * 获取被封禁的IP列表
-     */
     fun getBannedIPs(request: ListIPsRequest): ListIPsResponse {
-        val params = buildParams(mapOf(
-            "page" to request.page,
-            "page_size" to request.pageSize,           // 转换为snake_case
-            "banned_only" to request.bannedOnly,       // 转换为snake_case
-            "min_threat_level" to request.minThreatLevel?.value, // 转换为snake_case
-            "min_risk_score" to request.minRiskScore   // 转换为snake_case
-        ))
-        return get("/api/v1/ips/banned", params)
+        val level = request.minThreatLevel?.let { value ->
+            com.newnanmanager.generated.apis.IPServiceApi.MinThreatLevelGetBannedIPs.values()
+                .first { it.value.toInt() == value.value }
+        }
+        return generated<ListIPsResponse, com.newnanmanager.generated.models.ListIPsResponse> {
+            api.getBannedIPsWithHttpInfo(request.page, request.pageSize, request.bannedOnly, level, request.minRiskScore)
+        }
     }
 
-    /**
-     * 获取可疑IP列表
-     */
     fun getSuspiciousIPs(request: ListIPsRequest): ListIPsResponse {
-        val params = buildParams(mapOf(
-            "page" to request.page,
-            "page_size" to request.pageSize,           // 转换为snake_case
-            "banned_only" to request.bannedOnly,       // 转换为snake_case
-            "min_threat_level" to request.minThreatLevel?.value, // 转换为snake_case
-            "min_risk_score" to request.minRiskScore   // 转换为snake_case
-        ))
-        return get("/api/v1/ips/suspicious", params)
+        val level = request.minThreatLevel?.let { value ->
+            com.newnanmanager.generated.apis.IPServiceApi.MinThreatLevelGetSuspiciousIPs.values()
+                .first { it.value.toInt() == value.value }
+        }
+        return generated<ListIPsResponse, com.newnanmanager.generated.models.ListIPsResponse> {
+            api.getSuspiciousIPsWithHttpInfo(request.page, request.pageSize, request.bannedOnly, level, request.minRiskScore)
+        }
     }
 
-    /**
-     * 获取高风险IP列表
-     */
     fun getHighRiskIPs(request: ListIPsRequest): ListIPsResponse {
-        val params = buildParams(mapOf(
-            "page" to request.page,
-            "page_size" to request.pageSize,           // 转换为snake_case
-            "banned_only" to request.bannedOnly,       // 转换为snake_case
-            "min_threat_level" to request.minThreatLevel?.value, // 转换为snake_case
-            "min_risk_score" to request.minRiskScore   // 转换为snake_case
-        ))
-        return get("/api/v1/ips/high-risk", params)
+        val level = request.minThreatLevel?.let { value ->
+            com.newnanmanager.generated.apis.IPServiceApi.MinThreatLevelGetHighRiskIPs.values()
+                .first { it.value.toInt() == value.value }
+        }
+        return generated<ListIPsResponse, com.newnanmanager.generated.models.ListIPsResponse> {
+            api.getHighRiskIPsWithHttpInfo(request.page, request.pageSize, request.bannedOnly, level, request.minRiskScore)
+        }
     }
 
-    /**
-     * 获取IP统计信息
-     */
     fun getIPStatistics(): IPStatistics {
-        return get("/api/v1/ips/statistics")
+        return generated<IPStatistics, com.newnanmanager.generated.models.IPStatistics> {
+            api.getIPStatisticsWithHttpInfo()
+        }
     }
 }

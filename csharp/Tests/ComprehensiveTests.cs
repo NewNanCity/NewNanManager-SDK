@@ -10,6 +10,7 @@ namespace NewNanManager.Client.Tests;
 /// <summary>
 /// 完整的API功能测试
 /// </summary>
+[Trait("Category", "Integration")]
 public class ComprehensiveTests : IDisposable
 {
     private readonly NewNanManagerClient _client;
@@ -149,7 +150,6 @@ public class ComprehensiveTests : IDisposable
             {
                 Name = testServerName,
                 Address = testServerAddress,
-                ServerType = ServerType.Minecraft,
             };
 
             var registeredServer = await _client.Servers.CreateServerAsync(registerRequest);
@@ -238,7 +238,7 @@ public class ComprehensiveTests : IDisposable
             // 3. 获取城镇详情
             var town = await _client.Towns.GetTownAsync(createdTown.Id);
             Assert.NotNull(town);
-            Assert.Equal(createdTown.Id, town.Id);
+            Assert.Equal(createdTown.Id, town.Town.Id);
 
             // 4. 更新城镇信息
             var newTownName = testTownName + "_Updated";

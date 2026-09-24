@@ -38,6 +38,23 @@ public class ApiResponse<T>
 /// </summary>
 public class ErrorResponse : ApiResponse<ErrorData>
 {
+    [JsonPropertyName("detail")]
+    public string? Detail { get; set; }
+
+    [JsonPropertyName("trace_id")]
+    public string? TraceId { get; set; }
+
+    [JsonPropertyName("error")]
+    public ErrorDetails? Error { get; set; }
+}
+
+public class ErrorDetails
+{
+    [JsonPropertyName("category")]
+    public string? Category { get; set; }
+
+    [JsonPropertyName("code")]
+    public string? Code { get; set; }
 }
 
 /// <summary>

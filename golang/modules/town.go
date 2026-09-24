@@ -1,6 +1,7 @@
 package modules
 
 import (
+	"context"
 	"strconv"
 
 	"github.com/NewNanCity/NewNanManager-SDK/clients/golang/utils"
@@ -19,7 +20,12 @@ func NewTownService(client *resty.Client) *TownService {
 
 // ListTowns 获取城镇列表
 func (s *TownService) ListTowns(page, pageSize *int32, name, search *string, minLevel, maxLevel *int32) (*TownsListData, error) {
-	req := s.client.R()
+	return s.ListTownsWithContext(context.Background(), page, pageSize, name, search, minLevel, maxLevel)
+}
+
+// ListTownsWithContext executes ListTowns with cancellation scoped to this request.
+func (s *TownService) ListTownsWithContext(ctx context.Context, page, pageSize *int32, name, search *string, minLevel, maxLevel *int32) (*TownsListData, error) {
+	req := s.client.R().SetContext(ctx)
 
 	if page != nil {
 		req.SetQueryParam("page", strconv.Itoa(int(*page)))
@@ -53,7 +59,12 @@ func (s *TownService) ListTowns(page, pageSize *int32, name, search *string, min
 
 // CreateTown 创建城镇
 func (s *TownService) CreateTown(request CreateTownRequest) (*Town, error) {
-	resp, err := s.client.R().
+	return s.CreateTownWithContext(context.Background(), request)
+}
+
+// CreateTownWithContext executes CreateTown with cancellation scoped to this request.
+func (s *TownService) CreateTownWithContext(ctx context.Context, request CreateTownRequest) (*Town, error) {
+	resp, err := s.client.R().SetContext(ctx).
 		SetBody(request).
 		Post("/api/v1/towns")
 
@@ -68,7 +79,12 @@ func (s *TownService) CreateTown(request CreateTownRequest) (*Town, error) {
 
 // GetTown 获取城镇详情
 func (s *TownService) GetTown(id int32, detail bool) (*TownDetailResponse, error) {
-	req := s.client.R()
+	return s.GetTownWithContext(context.Background(), id, detail)
+}
+
+// GetTownWithContext executes GetTown with cancellation scoped to this request.
+func (s *TownService) GetTownWithContext(ctx context.Context, id int32, detail bool) (*TownDetailResponse, error) {
+	req := s.client.R().SetContext(ctx)
 
 	if detail {
 		req.SetQueryParam("detail", "true")
@@ -87,7 +103,12 @@ func (s *TownService) GetTown(id int32, detail bool) (*TownDetailResponse, error
 
 // UpdateTown 更新城镇信息
 func (s *TownService) UpdateTown(id int32, request UpdateTownRequest) (*Town, error) {
-	resp, err := s.client.R().
+	return s.UpdateTownWithContext(context.Background(), id, request)
+}
+
+// UpdateTownWithContext executes UpdateTown with cancellation scoped to this request.
+func (s *TownService) UpdateTownWithContext(ctx context.Context, id int32, request UpdateTownRequest) (*Town, error) {
+	resp, err := s.client.R().SetContext(ctx).
 		SetBody(request).
 		Put("/api/v1/towns/" + strconv.Itoa(int(id)))
 
@@ -102,7 +123,12 @@ func (s *TownService) UpdateTown(id int32, request UpdateTownRequest) (*Town, er
 
 // DeleteTown 删除城镇
 func (s *TownService) DeleteTown(id int32) error {
-	resp, err := s.client.R().
+	return s.DeleteTownWithContext(context.Background(), id)
+}
+
+// DeleteTownWithContext executes DeleteTown with cancellation scoped to this request.
+func (s *TownService) DeleteTownWithContext(ctx context.Context, id int32) error {
+	resp, err := s.client.R().SetContext(ctx).
 		Delete("/api/v1/towns/" + strconv.Itoa(int(id)))
 
 	return utils.HandleResponse(resp, err, nil)

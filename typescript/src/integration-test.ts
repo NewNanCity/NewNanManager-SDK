@@ -51,9 +51,14 @@ class IntegrationTestRunner {
   private timestamp: string;
 
   constructor() {
+    const token = process.env.NANMANAGER_TOKEN;
+    const baseUrl = process.env.NANMANAGER_BASE_URL;
+    if (!token || !baseUrl) {
+      throw new Error('NANMANAGER_TOKEN and NANMANAGER_BASE_URL are required for integration tests');
+    }
     this.client = new NewNanManagerClient({
-      token: '7p9piy2NagtMAryeyBBY7vzUKK1qDJOq',
-      baseUrl: 'http://localhost:8000'
+      token: token,
+      baseUrl: baseUrl
     });
     this.timestamp = new Date().toISOString().replace(/[:.]/g, '').slice(0, 15);
   }
@@ -513,4 +518,7 @@ async function runIntegrationTest() {
 }
 
 // 执行测试
-runIntegrationTest().catch(console.error);
+runIntegrationTest().catch((error: unknown) => {
+  console.error(error instanceof Error ? error.message : 'Integration test failed');
+  process.exitCode = 1;
+});

@@ -12,7 +12,8 @@ from ._version import (
     __version__,
 )
 from .client import NewNanManagerClient
-from .config import ClientConfig
+from .config import AuthScheme, ClientConfig
+from .session import SessionContext
 from .exceptions import (
     ApiErrorException,
     ConnectionException,
@@ -33,6 +34,8 @@ __all__ = [
     # Main classes
     "NewNanManagerClient",
     "ClientConfig",
+    "AuthScheme",
+    "SessionContext",
     # Exceptions
     "NewNanManagerException",
     "ApiErrorException",

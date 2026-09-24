@@ -20,6 +20,11 @@ public class NewNanManagerClientOptions
     public string Token { get; set; } = string.Empty;
 
     /// <summary>
+    /// Credential header selected for requests. Defaults to Bearer.
+    /// </summary>
+    public AuthScheme AuthScheme { get; set; } = AuthScheme.Bearer;
+
+    /// <summary>
     /// HTTP客户端超时时间（默认30秒）
     /// </summary>
     public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(30);
@@ -112,7 +117,10 @@ public class NewNanManagerClient : IDisposable
     /// <summary>
     /// 创建配置好的HttpClient
     /// </summary>
-    private static HttpClient CreateHttpClient(NewNanManagerClientOptions options)
+    internal static HttpClient CreateHttpClient(
+        NewNanManagerClientOptions options,
+        HttpMessageHandler? handler = null
+    )
     {
         if (string.IsNullOrEmpty(options.BaseUrl))
             throw new ArgumentException("BaseUrl cannot be null or empty", nameof(options));
@@ -120,15 +128,24 @@ public class NewNanManagerClient : IDisposable
         if (string.IsNullOrEmpty(options.Token))
             throw new ArgumentException("Token cannot be null or empty", nameof(options));
 
-        var httpClient = new HttpClient
+        var httpClient = new HttpClient(
+            handler ?? new HttpClientHandler { AllowAutoRedirect = false }
+        )
         {
             BaseAddress = new Uri(options.BaseUrl.TrimEnd('/')),
             Timeout = options.Timeout,
         };
 
-        // 设置认证头
-        httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {options.Token}");
-        httpClient.DefaultRequestHeaders.Add("X-API-Token", options.Token);
+        // 设置认证头；每个请求只发送一种凭证。
+        if (options.AuthScheme == AuthScheme.ApiToken)
+        {
+            httpClient.DefaultRequestHeaders.TryAddWithoutValidation("X-API-Token", options.Token);
+        }
+        else
+        {
+            httpClient.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", options.Token);
+        }
         httpClient.DefaultRequestHeaders.Add("User-Agent", options.UserAgent);
         httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
 

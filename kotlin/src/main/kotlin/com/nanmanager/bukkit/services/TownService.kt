@@ -3,52 +3,44 @@ package com.nanmanager.bukkit.services
 import com.nanmanager.bukkit.http.HttpClient
 import com.nanmanager.bukkit.models.*
 
-/**
- * 城镇管理服务
- */
+/** 城镇管理服务；传输和模型解析由 OpenAPI 生成客户端负责。 */
 class TownService(httpClient: HttpClient) : BaseService(httpClient) {
+    private val api get() = httpClient.generatedApis.towns
 
-    /**
-     * 创建城镇
-     */
     fun createTown(request: CreateTownRequest): Town {
-        return post("/api/v1/towns", request)
+        val body = toGenerated<com.newnanmanager.generated.models.CreateTownRequest>(request)
+        return generated<Town, com.newnanmanager.generated.models.Town> {
+            api.createTownWithHttpInfo(body)
+        }
     }
 
-    /**
-     * 获取城镇详情
-     */
     fun getTown(request: GetTownRequest): TownDetailResponse {
-        val params = buildParams(mapOf("detail" to request.detail))
-        return get("/api/v1/towns/${request.id}", params)
+        return generated<TownDetailResponse, com.newnanmanager.generated.models.TownDetailResponse> {
+            api.getTownWithHttpInfo(request.id, request.detail)
+        }
     }
 
-    /**
-     * 更新城镇信息
-     */
     fun updateTown(request: UpdateTownRequest): Town {
-        return put("/api/v1/towns/${request.id}", request)
+        val body = toGenerated<com.newnanmanager.generated.models.UpdateTownRequest>(request)
+        return generated<Town, com.newnanmanager.generated.models.Town> {
+            api.updateTownWithHttpInfo(request.id, body)
+        }
     }
 
-    /**
-     * 删除城镇
-     */
     fun deleteTown(request: DeleteTownRequest) {
-        delete("/api/v1/towns/${request.id}")
+        generatedVoid { api.deleteTownWithHttpInfo(request.id) }
     }
 
-    /**
-     * 获取城镇列表
-     */
     fun listTowns(request: ListTownsRequest): ListTownsResponse {
-        val params = buildParams(mapOf(
-            "page" to request.page,
-            "page_size" to request.pageSize,  // 转换为snake_case
-            "name" to request.name,
-            "search" to request.search,
-            "min_level" to request.minLevel,  // 转换为snake_case
-            "max_level" to request.maxLevel   // 转换为snake_case
-        ))
-        return get("/api/v1/towns", params)
+        return generated<ListTownsResponse, com.newnanmanager.generated.models.ListTownsResponse> {
+            api.listTownsWithHttpInfo(
+                page = request.page,
+                pageSize = request.pageSize,
+                name = request.name,
+                search = request.search,
+                minLevel = request.minLevel,
+                maxLevel = request.maxLevel
+            )
+        }
     }
 }

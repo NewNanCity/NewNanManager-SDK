@@ -85,16 +85,18 @@ type ServerRegistry struct {
 }
 
 type ServerStatus struct {
-	ServerID       int32     `json:"server_id"`
-	Online         bool      `json:"online"`
-	CurrentPlayers int32     `json:"current_players"`
-	MaxPlayers     int32     `json:"max_players"`
-	LatencyMs      *int32    `json:"latency_ms,omitempty"`
-	TPS            *float64  `json:"tps,omitempty"`
-	Version        *string   `json:"version,omitempty"`
-	Motd           *string   `json:"motd,omitempty"`
-	ExpireAt       string    `json:"expire_at"`
-	LastHeartbeat  time.Time `json:"last_heartbeat"`
+	ServerID        int32     `json:"server_id"`
+	Online          bool      `json:"online"`
+	CurrentPlayers  int32     `json:"current_players"`
+	MaxPlayers      int32     `json:"max_players"`
+	LatencyMs       *int32    `json:"latency_ms,omitempty"`
+	TPS             *float64  `json:"tps,omitempty"`
+	Version         *string   `json:"version,omitempty"`
+	Motd            *string   `json:"motd,omitempty"`
+	ExpireAt        string    `json:"expire_at"`
+	LastHeartbeat   time.Time `json:"last_heartbeat"`
+	MeasurementType *string   `json:"measurement_type,omitempty"`
+	LatencyMetric   *string   `json:"latency_metric,omitempty"`
 }
 
 type ApiToken struct {
@@ -108,6 +110,7 @@ type ApiToken struct {
 	LastUsedIP  *string    `json:"last_used_ip,omitempty"`
 	CreatedAt   time.Time  `json:"created_at"`
 	UpdatedAt   time.Time  `json:"updated_at"`
+	ServerID    *int32     `json:"server_id,omitempty"`
 }
 
 // IP相关类型
@@ -185,7 +188,7 @@ type PlayerValidateInfo struct {
 
 // 玩家验证请求（支持批处理）
 type ValidateRequest struct {
-	Players  []PlayerValidateInfo `json:"players"`   // 玩家列表（1-100个）
+	Players  []PlayerValidateInfo `json:"players"`   // 最多1000人；login=false为完整快照，允许空列表，不可分批
 	ServerID int32                `json:"server_id"` // 服务器ID：1-999999
 	Login    bool                 `json:"login"`     // 是否为登录验证（true=登录需记录日志，false=定期检查不记录日志）
 }
@@ -252,6 +255,7 @@ type CreateApiTokenRequest struct {
 	Role        string  `json:"role"`                  // 角色：1-50字符
 	Description *string `json:"description,omitempty"` // Token描述：nil、空或1-500字符
 	ExpireDays  *int64  `json:"expire_days,omitempty"` // 过期天数：0表示永不过期，或1-3650天
+	ServerID    *int32  `json:"server_id,omitempty"`   // role=server时必须指定正数服务器ID
 }
 
 type UpdateApiTokenRequest struct {
@@ -259,6 +263,7 @@ type UpdateApiTokenRequest struct {
 	Role        *string `json:"role,omitempty"`        // 角色：nil、空或1-50字符
 	Description *string `json:"description,omitempty"` // Token描述：nil、空或1-500字符
 	Active      *bool   `json:"active,omitempty"`      // 是否激活
+	ServerID    *int32  `json:"server_id,omitempty"`   // server角色可重绑；省略保留旧绑定，改为其它角色时服务端清空
 }
 
 type ListApiTokensRequest struct {
@@ -311,16 +316,33 @@ type HeartbeatData struct {
 	ExpireDurationMs int64 `json:"expire_duration_ms"` // 状态过期时间(毫秒)
 }
 
+// ServerSessionResponse is the fencing tuple issued for a server instance.
+type ServerSessionResponse struct {
+	SessionID    string `json:"session_id"`
+	SessionEpoch int64  `json:"session_epoch"`
+}
+
 type MonitorStatRecord struct {
-	Timestamp      int64    `json:"timestamp"`            // 统计时间戳
-	CurrentPlayers int32    `json:"current_players"`      // 当前在线人数
-	TPS            *float64 `json:"tps,omitempty"`        // 服务器TPS
-	LatencyMs      *int64   `json:"latency_ms,omitempty"` // 延迟毫秒
+	Timestamp       int64    `json:"timestamp"`            // 统计时间戳
+	CurrentPlayers  int32    `json:"current_players"`      // 当前在线人数
+	TPS             *float64 `json:"tps,omitempty"`        // 服务器TPS
+	LatencyMs       *int64   `json:"latency_ms,omitempty"` // 延迟毫秒
+	MeasurementType *string  `json:"measurement_type,omitempty"`
+	LatencyMetric   *string  `json:"latency_metric,omitempty"`
 }
 
 type MonitorStatsData struct {
-	ServerID int32               `json:"server_id"` // 服务器ID
-	Stats    []MonitorStatRecord `json:"stats"`     // 监控统计信息列表
+	ServerID   int32               `json:"server_id"` // 服务器ID
+	Stats      []MonitorStatRecord `json:"stats"`     // 监控统计信息列表
+	NextCursor *string             `json:"next_cursor,omitempty"`
+}
+
+// MonitorStatsQuery selects one bounded page. Reuse the same time range with a cursor.
+type MonitorStatsQuery struct {
+	Since    *int64  `json:"since,omitempty"`
+	Duration *int64  `json:"duration,omitempty"` // Seconds, at most 86400; server default 3600.
+	Limit    *int32  `json:"limit,omitempty"`    // 1..10000; server default 1000.
+	Cursor   *string `json:"cursor,omitempty"`   // Opaque server cursor, at most 1024 characters.
 }
 
 type TownsListData struct {
@@ -370,13 +392,18 @@ type HighRiskIPsData struct {
 }
 
 type IPStatistics struct {
-	TotalIPs      int32 `json:"total_ips"`
-	BannedIPs     int32 `json:"banned_ips"`
+	CompletedIPs  int64 `json:"completed_ips"`
+	PendingIPs    int64 `json:"pending_ips"`
+	FailedIPs     int64 `json:"failed_ips"`
+	DatacenterIPs int64 `json:"datacenter_ips"`
+	TotalIPs      int64 `json:"total_ips"`
+	BannedIPs     int64 `json:"banned_ips"`
+	// Deprecated: the API does not provide a suspicious_ips count.
 	SuspiciousIPs int32 `json:"suspicious_ips"`
-	HighRiskIPs   int32 `json:"high_risk_ips"`
-	ProxyIPs      int32 `json:"proxy_ips"`
-	VPNIPs        int32 `json:"vpn_ips"`
-	TorIPs        int32 `json:"tor_ips"`
+	HighRiskIPs   int64 `json:"high_risk_ips"`
+	ProxyIPs      int64 `json:"proxy_ips"`
+	VPNIPs        int64 `json:"vpn_ips"`
+	TorIPs        int64 `json:"tor_ips"`
 }
 
 // 玩家服务器关系信息

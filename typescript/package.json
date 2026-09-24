@@ -5,13 +5,17 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
+    "sync-generated": "node scripts/sync-generated.mjs",
+    "prebuild": "npm run clean && npm run sync-generated",
     "build": "tsc",
     "dev": "ts-node src/index.ts",
-    "test": "ts-node test.ts",
+    "pretest": "npm run sync-generated",
+    "test": "node --test -r ts-node/register tests/client.test.ts",
     "test:comprehensive": "ts-node src/comprehensive-test.ts",
     "test:integration": "ts-node src/integration-test.ts",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist src/generated"
   },
+  "files": ["dist", "README.md"],
   "keywords": [
     "newnanmanager",
     "minecraft",
@@ -24,7 +28,8 @@
   "license": "MIT",
   "dependencies": {
     "@sttot/axios-api": "^0.2.5",
-    "axios": "^1.6.0"
+    "axios": "^1.20.0",
+    "lodash": "^4.18.1"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

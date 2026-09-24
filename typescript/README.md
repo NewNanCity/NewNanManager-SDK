@@ -1,248 +1,86 @@
-# NewNanManager TypeScript SDK (重新设计版)
+# NewNanManager TypeScript SDK
 
-NewNanManager API 的 TypeScript SDK，重新设计，简洁高效。
+基于 Axios 与 canonical OpenAPI 生成 transport 的 Promise 客户端。`NewNanManagerClient` 的服务调用通过构建前同步的 `src/generated/` 进入生成 API；该目录由 `scripts/sync-generated.mjs` 从 `../generated/typescript/` 重建，不能手工编辑。
 
-## 🚀 特性
-
-- ✅ **批量玩家验证** - 支持1-100个玩家同时验证
-- ✅ **IP管理** - IP信息查询、封禁、解封
-- ✅ **玩家服务器关系管理** - 在线状态、服务器列表
-- ✅ **玩家管理** - 创建、查询、更新、删除、封禁
-- ✅ **服务器管理** - 注册、查询、更新、删除
-- ✅ **城镇管理** - 创建、查询、更新、删除、成员管理
-- ✅ **完整的 TypeScript 类型支持**
-- ✅ **基于 Promise 的异步 API**
-- ✅ **模块化架构** - 按服务划分的清晰模块结构
-- ✅ **逻辑分离** - 每个服务模块职责单一，易于维护
-- ✅ **类型安全** - 完整的 TypeScript 类型推断和验证
-- ✅ **向后兼容** - 保持原有API调用方式的兼容性
-- ✅ **简洁的错误处理** - 统一的错误处理机制
-- ✅ **新的响应格式** - 成功时直接返回数据，错误时返回 `{"detail": "错误信息"}`
-
-## 📦 安装
-
-```bash
-npm install @newnanmanager/typescript-sdk
-```
-
-**注意**: 此版本基于 `@sttot/axios-api` 实现了全新的模块化架构，提供更好的逻辑分离、标准化API定义和类型安全。
-
-## 🔧 快速开始
-
-### 基本用法
+## 使用
 
 ```typescript
-import { NewNanManagerClient, BanMode } from '@newnanmanager/typescript-sdk';
+import { AuthScheme, NewNanManagerClient, NewNanManagerHttpError } from '@newnanmanager/typescript-sdk';
 
-// 初始化客户端
 const client = new NewNanManagerClient({
-  baseUrl: 'http://your-api-server.com',
-  token: 'your-api-token'
+  baseUrl: 'https://your-api.example',
+  token: process.env.NANMANAGER_TOKEN!,
+  timeout: 30000,
+  authScheme: AuthScheme.BEARER
 });
 
-// 方式1: 使用模块化API（推荐）
-const players = await client.players.listPlayers({
-  page: 1,
-  pageSize: 20,
-  banMode: BanMode.NORMAL
-});
-
-// 方式2: 使用向后兼容的方法
-const playersCompat = await client.listPlayers({
-  page: 1,
-  pageSize: 20,
-  banMode: BanMode.NORMAL
-});
-
-// 批量玩家验证
-const validateResult = await client.players.validate({
-  players: [
-    {
-      playerName: 'Player1',
-      ip: '192.168.1.100',
-      clientVersion: '1.20.1'
-    }
-  ],
-  serverId: 1,
-  login: true
-});
+try {
+  const players = await client.players.listPlayers({ page: 1, pageSize: 20 });
+  console.log(players.total);
+} catch (error: unknown) {
+  if (error instanceof NewNanManagerHttpError) {
+    console.error(error.statusCode, error.requestId, error.retryAfter);
+  } else {
+    throw error;
+  }
+}
 ```
 
-### 🏗️ 模块化架构
-
-新版SDK采用模块化架构，每个服务都有独立的模块：
+入口为 players、servers、towns、monitor、tokens、ips、playerServers。所有调用使用请求对象：
 
 ```typescript
-// 玩家管理模块
-await client.players.createPlayer({ name: 'TestPlayer' });
-await client.players.listPlayers();
-await client.players.banPlayer({ playerId: 1, reason: 'Test' });
+await client.players.getPlayer({ id: 1 });
+await client.players.updatePlayer({ id: 1, qq: '', inDiscord: false });
+await client.servers.getServer({ id: 1, detail: true });
+await client.towns.getTown({ id: 1, detail: true });
+await client.monitor.heartbeat({ serverId: 1, currentPlayers: 10, maxPlayers: 50 });
+await client.playerServers.getServerPlayers({ serverId: 1, onlineOnly: true });
 
-// 服务器管理模块
-await client.servers.createServer({ name: 'TestServer', address: '127.0.0.1:25565' });
-await client.servers.listServers();
-await client.servers.getServer({ id: 1, detail: true }); // 获取服务器详情
-
-// 城镇管理模块
-await client.towns.createTown({ name: 'TestTown', serverId: 1 });
-await client.towns.listTowns();
-
-// 监控服务模块
-await client.monitor.heartbeat({ serverId: 1, playerCount: 10 });
-await client.monitor.getServerStatus({ serverId: 1 });
-
-// Token管理模块
-await client.tokens.createApiToken({ name: 'TestToken' });
-await client.tokens.listApiTokens();
-
-// IP管理模块
-await client.ips.getIPInfo({ ip: '192.168.1.1' });
-await client.ips.banIP({ ip: '192.168.1.1', reason: 'Test' });
-
-// 玩家服务器关系模块
-await client.playerServers.setPlayerOnline({ playerId: 1, serverId: 1, isOnline: true });
-await client.playerServers.getOnlinePlayers({ serverId: 1 });
+const session = await client.monitor.createServerSession(1);
+await client.monitor.heartbeat({ serverId: 1, currentPlayers: 10, maxPlayers: 50 }, session);
+await client.players.validate({ serverId: 1, login: false, players: [] }, session);
 ```
 
-### 📚 示例用法
+创建玩家、批量验证、服务器注册和 IP 查询的完整函数见 [调用示例](../docs/examples/typescript.md)。
 
-```typescript
-// IP管理（新功能）
-const ipInfo = await client.ips.getIPInfo({ ip: '8.8.8.8' });
-await client.banIP({
-  ip: '192.168.1.100',
-  reason: '恶意行为'
-});
+## HTTP 与兼容
 
-// 玩家服务器关系管理（新功能）
-await client.setPlayerOnline({
-  playerId: 1,
-  serverId: 1,
-  online: true
-});
+默认超时 30 秒，默认使用 Authorization；传入 `authScheme: AuthScheme.API_TOKEN` 时只发送 `X-API-Token`。在 Node HTTP 适配器中拒绝自动重定向。NewNanManagerHttpError 兼容普通 Error 捕获，提供 statusCode、code、requestId、retryAfter；不保存原始 Axios config、请求头、完整响应体或带凭证的 cause。
 
-const onlinePlayers = await client.getOnlinePlayers({
-  page: 1,
-  pageSize: 20
-});
-```
+浏览器自身处理重定向，Axios 的 maxRedirects 仅适用于 Node。本轮仅完成 Node fake/loopback 验证，未验证浏览器跨源重定向；浏览器场景必须使用最终 API URL 和服务端重定向控制。
 
-## 📚 API 文档
+`monitor.heartbeat`、`players.validate` 和 `playerServers.setPlayersOffline` 的第二个参数是 `SessionContext`，会生成 `X-NNM-Session-ID` 与 `X-NNM-Session-Epoch`；省略时保留旧 HTTP 兼容入口，不伪造 fencing 头。会话 ID 为空、长度不在 32–64 之间或代次非正整数会在网络请求前拒绝。
 
-### 玩家管理
+未提供的更新字段不发送，显式 false 和空字符串保留。以下契约纠正需要调用方检查源码：
 
-```typescript
-// 创建玩家
-const player = await client.createPlayer({
-  name: 'NewPlayer',
-  qq: '123456789',
-  inQqGroup: true
-});
+- PlayerServersResponse 只包含 servers/total，移除服务端没有的 page/pageSize。
+- IPBan.bannedAt 改为可选弃用字段，不再把 IP 创建时间当成封禁时间；返回值保持未知。activeOnly/search 标记弃用，被忽略且不发出，封禁列表仅支持分页。
 
-// 获取玩家列表
-const players = await client.listPlayers({
-  page: 1,
-  pageSize: 20,
-  search: 'player_name',
-  townId: 1,
-  banMode: BanMode.NORMAL
-});
-```
+日期格式化和分页组件需按 [契约决策](../docs/audits/2026-09-06-contract-decisions.md) 调整。
 
-### 批量验证（新功能）
+## 新增契约
 
-```typescript
-const validateResult = await client.validate({
-  players: [
-    {
-      playerName: 'Player1',
-      ip: '192.168.1.100',
-      clientVersion: '1.20.1',
-      protocolVersion: '763'
-    },
-    {
-      playerName: 'Player2',
-      ip: '192.168.1.101'
-    }
-  ],
-  serverId: 1,
-  login: true,
-  timestamp: Date.now()
-});
+Token 请求与响应增加 serverId；ServerStatus/MonitorStatRecord 增加 measurementType/latencyMetric。getMonitorStats({ serverId, since, duration, limit, cursor }) 返回 nextCursor，保留范围并传回游标可继续查询。缺失元数据保持 undefined，不补造来源或时间。
 
-console.log(`验证了${validateResult.results.length}个玩家`);
-validateResult.results.forEach(result => {
-  console.log(`${result.playerName}: ${result.allowed ? '允许' : '拒绝'}`);
-});
-```
+名称、0..1000人完整快照、绑定约束和监控上限见 [契约与分页](../docs/contracts.md)。本轮改动尚未发布。
 
-### IP管理（新功能）
+Token列表使用 `client.tokens.listApiTokens({ page: 1, pageSize: 20 })` 并返回真实分页元数据；`search` 仅保留弃用类型，不再发送后端不支持的筛选参数。
 
-```typescript
-// 获取IP信息
-const ipInfo = await client.getIPInfo('8.8.8.8');
-console.log(`IP: ${ipInfo.ip}, 国家: ${ipInfo.country}`);
+## 依赖验收
 
-// 封禁IP
-await client.banIP({
-  ip: '192.168.1.100',
-  reason: '恶意行为'
-});
+Axios最低版本提高到1.20.0，Lodash显式声明为4.18.1及同主版本兼容更新，以约束既有运行时peer依赖。npm/pnpm锁文件的86组包名与版本一致，包含follow-redirects1.16.0和form-data4.0.6；官方源audit由8个命中包降至0，11项本地回归与构建通过。
 
-// 解封IP
-await client.unbanIP({
-  ip: '192.168.1.100',
-  reason: '误封'
-});
+复现安装可用 `npm ci --ignore-scripts --registry=https://registry.npmjs.org --replace-registry-host=always`，随后执行下列测试。部分未变更锁条目保留旧镜像URL；显式registry与replace-registry-host确保安装使用指定公开源。glob10.5.0仍被上游标记deprecated，当前audit未命中；本轮没有跨主版本升级开发工具。完整范围见[依赖验收](../docs/audits/2026-09-06-dependency-acceptance.md)。
 
-// 获取封禁IP列表
-const bannedIPs = await client.listBannedIPs({
-  page: 1,
-  pageSize: 20,
-  activeOnly: true
-});
-```
-
-### 玩家服务器关系管理（新功能）
-
-```typescript
-// 设置玩家在线状态
-await client.setPlayerOnline({
-  playerId: 1,
-  serverId: 1,
-  online: true
-});
-
-// 获取玩家的服务器列表
-const playerServers = await client.getPlayerServers(1, 1, 10);
-
-// 获取服务器的玩家列表
-const serverPlayers = await client.getServerPlayers(1, 1, 10);
-
-// 获取在线玩家列表
-const onlinePlayers = await client.getOnlinePlayers({
-  page: 1,
-  pageSize: 20,
-  serverId: 1  // 可选：过滤特定服务器
-});
-```
-
-## 🧪 测试
+## 本地检查
 
 ```bash
-# 安装依赖
-npm install
-
-# 运行测试
 npm test
-```
-
-## 🏗️ 构建
-
-```bash
 npm run build
 ```
 
-## 📄 许可证
+npm test 使用 Node test runner 和 fake/loopback，覆盖生成客户端路径、错误元数据及脱敏、两种认证、session headers、可选更新、重定向、实际响应字段、Token绑定、分页、完整快照和集成配置缺失分支。构建清理旧 dist，并在构建前同步生成源码；不编译/打包集成 runner。
 
-MIT
+生成层同步也可单独执行：`npm run sync-generated`。这一步只复制带 `.nnm-generated.json` 标记的五个生成源文件，生成器漂移检查仍由 SDK 根目录的 `python codegen/generate.py --all --check` 负责。
+
+test:integration 与 test:comprehensive 必须同时配置 NANMANAGER_TOKEN 和 NANMANAGER_BASE_URL；缺失时非零退出。它们会操作指定服务的测试数据，不属于本地验收。历史凭证未轮换或改写历史；本地源码不再提供凭证默认值。

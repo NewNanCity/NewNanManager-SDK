@@ -9,7 +9,7 @@ from urllib.parse import urlencode, urljoin
 import aiohttp
 from pydantic import BaseModel
 
-from .config import ClientConfig
+from .config import AuthScheme, ClientConfig
 from .exceptions import (
     ApiErrorException,
     ConnectionException,
@@ -17,6 +17,7 @@ from .exceptions import (
     NewNanManagerException,
     TimeoutException,
 )
+
 # 移除不再使用的统一响应格式导入
 # from .models.common import ApiResponse, ErrorResponse
 
@@ -38,9 +39,13 @@ class HttpClient:
         self._session: Optional[aiohttp.ClientSession] = None
 
         # 设置默认请求头
+        credential_header = (
+            {"X-API-Token": config.token}
+            if config.auth_scheme is AuthScheme.API_TOKEN
+            else {"Authorization": f"Bearer {config.token}"}
+        )
         self._headers = {
-            "Authorization": f"Bearer {config.token}",
-            "X-API-Token": config.token,
+            **credential_header,
             "User-Agent": config.user_agent,
             "Accept": "application/json",
             "Content-Type": "application/json",
@@ -113,6 +118,7 @@ class HttpClient:
         params: Optional[Dict[str, Any]] = None,
         json_data: Optional[Union[Dict[str, Any], BaseModel]] = None,
         response_model: Optional[Type[T]] = None,
+        headers: Optional[Dict[str, str]] = None,
     ) -> Union[T, Dict[str, Any]]:
         """发送HTTP请求.
 
@@ -143,34 +149,40 @@ class HttpClient:
             else:
                 request_json = json_data  # type: ignore
 
-        logger.debug(f"Making {method} request to {full_url}")
-        if request_json:
-            logger.debug(f"Request data: {request_json}")
+        logger.debug("Making %s request", method)
 
         # 重试逻辑
-        last_exception = None
-        for attempt in range(self.config.max_retries + 1):
+        last_exception: Optional[Exception] = None
+        attempts = self.config.max_retries + 1 if method in {"GET", "HEAD", "OPTIONS"} else 1
+        for attempt in range(attempts):
             try:
                 if self._session is None:
                     raise ConnectionException("HTTP session is not initialized")
 
+                request_kwargs: dict[str, Any] = {
+                    "json": request_json,
+                    "allow_redirects": False,
+                }
+                if headers:
+                    request_kwargs["headers"] = headers
                 async with self._session.request(
                     method,
                     full_url,
-                    json=request_json,
+                    **request_kwargs,
                 ) as response:
                     result = await self._handle_response(response, response_model)
                     logger.debug(
-                        f"Request completed successfully in {attempt + 1} attempt(s)"
+                        "Request completed successfully in %d attempt(s)", attempt + 1
                     )
                     return result
 
             except (aiohttp.ClientError, asyncio.TimeoutError) as e:
                 last_exception = e
-                if attempt < self.config.max_retries:
+                if attempt + 1 < attempts:
                     delay = self.config.retry_delay * (2**attempt)  # 指数退避
                     logger.warning(
-                        f"Request failed (attempt {attempt + 1}), retrying in {delay}s: {e}"
+                        "Request failed (attempt %d), retrying in %ss: %s",
+                        attempt + 1, delay, type(e).__name__,
                     )
                     await asyncio.sleep(delay)
                     continue
@@ -179,7 +191,7 @@ class HttpClient:
         # 处理最终失败
         if isinstance(last_exception, asyncio.TimeoutError):
             raise TimeoutException(
-                f"Request timeout after {self.config.max_retries + 1} attempts"
+                f"Request timeout after {attempts} attempts"
             )
         elif isinstance(last_exception, aiohttp.ClientError):
             raise ConnectionException(f"Connection error: {last_exception}")
@@ -204,14 +216,11 @@ class HttpClient:
             HttpException: HTTP错误
             ApiErrorException: API错误
         """
-        try:
-            response_text = await response.text()
-            logger.debug(f"Response status: {response.status}, body: {response_text}")
-        except Exception as e:
-            raise NewNanManagerException(f"Failed to read response: {e}")
+        response_text = await response.text()
+        logger.debug("Response status: %d", response.status)
 
         # 处理HTTP错误状态码
-        if not response.ok:
+        if response.status >= 300:
             await self._handle_http_error(response, response_text)
 
         # 解析JSON响应
@@ -242,17 +251,38 @@ class HttpClient:
             ApiErrorException: API错误
         """
         status_code = response.status
+        request_id = response.headers.get("X-Request-ID")
+        retry_after = response.headers.get("Retry-After")
 
-        # 尝试解析新的错误响应格式 {"detail": "..."}
+        # 模板错误体优先使用 message/error；detail 仅作迁移期回退。
         try:
             error_data = json.loads(response_text) if response_text else {}
-            if isinstance(error_data, dict) and "detail" in error_data:
-                # 新的错误响应格式
-                raise ApiErrorException(
-                    message=error_data["detail"],
-                    error_code=status_code,
-                    request_id=None,
-                )
+            if isinstance(error_data, dict):
+                message = error_data.get("message") or error_data.get("detail")
+                if not isinstance(message, str) or not message:
+                    message = None
+                nested = error_data.get("error")
+                nested = nested if isinstance(nested, dict) else {}
+                body_request_id = error_data.get("request_id")
+                body_trace_id = error_data.get("trace_id")
+                if request_id is None and isinstance(body_request_id, str):
+                    request_id = body_request_id
+                if message is not None:
+                    api_code = error_data.get("code")
+                    api_code = api_code if isinstance(api_code, int) and not isinstance(api_code, bool) else None
+                    category = nested.get("category")
+                    machine_code = nested.get("code")
+                    raise ApiErrorException(
+                        message=message,
+                        error_code=status_code,
+                        request_id=request_id,
+                        details=error_data.get("detail") if isinstance(error_data.get("detail"), str) else None,
+                        retry_after=retry_after,
+                        api_code=api_code,
+                        error_category=category if isinstance(category, str) else None,
+                        machine_code=machine_code if isinstance(machine_code, str) else None,
+                        trace_id=body_trace_id if isinstance(body_trace_id, str) else None,
+                    )
         except (json.JSONDecodeError, ValueError):
             # 无法解析为JSON错误响应，继续处理为HTTP错误
             pass
@@ -272,7 +302,10 @@ class HttpClient:
         message = error_messages.get(
             status_code, f"HTTP {status_code}: {response.reason}"
         )
-        raise HttpException(message=message, status_code=status_code)
+        raise HttpException(
+            message=message, status_code=status_code,
+            request_id=request_id, retry_after=retry_after,
+        )
 
     # HTTP方法的便捷函数
     @overload
@@ -281,6 +314,8 @@ class HttpClient:
         endpoint: str,
         params: Optional[Dict[str, Any]],
         response_model: Type[T],
+        *,
+        headers: Optional[Dict[str, str]] = None,
     ) -> T: ...
 
     @overload
@@ -289,6 +324,8 @@ class HttpClient:
         endpoint: str,
         params: Optional[Dict[str, Any]] = None,
         response_model: None = None,
+        *,
+        headers: Optional[Dict[str, str]] = None,
     ) -> Dict[str, Any]: ...
 
     async def get(
@@ -296,10 +333,12 @@ class HttpClient:
         endpoint: str,
         params: Optional[Dict[str, Any]] = None,
         response_model: Optional[Type[T]] = None,
+        *,
+        headers: Optional[Dict[str, str]] = None,
     ) -> Union[T, Dict[str, Any]]:
         """发送GET请求."""
         return await self._make_request(
-            "GET", endpoint, params=params, response_model=response_model
+            "GET", endpoint, params=params, response_model=response_model, headers=headers
         )
 
     @overload
@@ -308,6 +347,8 @@ class HttpClient:
         endpoint: str,
         json_data: Optional[Union[Dict[str, Any], BaseModel]],
         response_model: Type[T],
+        *,
+        headers: Optional[Dict[str, str]] = None,
     ) -> T: ...
 
     @overload
@@ -316,6 +357,8 @@ class HttpClient:
         endpoint: str,
         json_data: Optional[Union[Dict[str, Any], BaseModel]] = None,
         response_model: None = None,
+        *,
+        headers: Optional[Dict[str, str]] = None,
     ) -> Dict[str, Any]: ...
 
     async def post(
@@ -323,10 +366,12 @@ class HttpClient:
         endpoint: str,
         json_data: Optional[Union[Dict[str, Any], BaseModel]] = None,
         response_model: Optional[Type[T]] = None,
+        *,
+        headers: Optional[Dict[str, str]] = None,
     ) -> Union[T, Dict[str, Any]]:
         """发送POST请求."""
         return await self._make_request(
-            "POST", endpoint, json_data=json_data, response_model=response_model
+            "POST", endpoint, json_data=json_data, response_model=response_model, headers=headers
         )
 
     @overload
@@ -335,6 +380,8 @@ class HttpClient:
         endpoint: str,
         json_data: Optional[Union[Dict[str, Any], BaseModel]],
         response_model: Type[T],
+        *,
+        headers: Optional[Dict[str, str]] = None,
     ) -> T: ...
 
     @overload
@@ -343,6 +390,8 @@ class HttpClient:
         endpoint: str,
         json_data: Optional[Union[Dict[str, Any], BaseModel]] = None,
         response_model: None = None,
+        *,
+        headers: Optional[Dict[str, str]] = None,
     ) -> Dict[str, Any]: ...
 
     async def put(
@@ -350,16 +399,20 @@ class HttpClient:
         endpoint: str,
         json_data: Optional[Union[Dict[str, Any], BaseModel]] = None,
         response_model: Optional[Type[T]] = None,
+        *,
+        headers: Optional[Dict[str, str]] = None,
     ) -> Union[T, Dict[str, Any]]:
         """发送PUT请求."""
         return await self._make_request(
-            "PUT", endpoint, json_data=json_data, response_model=response_model
+            "PUT", endpoint, json_data=json_data, response_model=response_model, headers=headers
         )
 
     async def delete(
         self,
         endpoint: str,
         params: Optional[Dict[str, Any]] = None,
+        *,
+        headers: Optional[Dict[str, str]] = None,
     ) -> Dict[str, Any]:
         """发送DELETE请求."""
-        return await self._make_request("DELETE", endpoint, params=params)
+        return await self._make_request("DELETE", endpoint, params=params, headers=headers)

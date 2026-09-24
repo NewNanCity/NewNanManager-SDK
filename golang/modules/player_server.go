@@ -1,6 +1,7 @@
 package modules
 
 import (
+	"context"
 	"strconv"
 
 	"github.com/NewNanCity/NewNanManager-SDK/clients/golang/utils"
@@ -19,7 +20,12 @@ func NewPlayerServerService(client *resty.Client) *PlayerServerService {
 
 // GetPlayerServers 获取玩家的服务器关系
 func (s *PlayerServerService) GetPlayerServers(playerID int32, onlineOnly *bool) (*PlayerServersData, error) {
-	req := s.client.R()
+	return s.GetPlayerServersWithContext(context.Background(), playerID, onlineOnly)
+}
+
+// GetPlayerServersWithContext executes GetPlayerServers with cancellation scoped to this request.
+func (s *PlayerServerService) GetPlayerServersWithContext(ctx context.Context, playerID int32, onlineOnly *bool) (*PlayerServersData, error) {
+	req := s.client.R().SetContext(ctx)
 
 	if onlineOnly != nil {
 		req.SetQueryParam("online_only", strconv.FormatBool(*onlineOnly))
@@ -38,7 +44,12 @@ func (s *PlayerServerService) GetPlayerServers(playerID int32, onlineOnly *bool)
 
 // GetServerPlayers 获取全局在线玩家
 func (s *PlayerServerService) GetServerPlayers(page, pageSize *int32, search *string, serverID *int32, onlineOnly *bool) (*ServerPlayersData, error) {
-	req := s.client.R()
+	return s.GetServerPlayersWithContext(context.Background(), page, pageSize, search, serverID, onlineOnly)
+}
+
+// GetServerPlayersWithContext executes GetServerPlayers with cancellation scoped to this request.
+func (s *PlayerServerService) GetServerPlayersWithContext(ctx context.Context, page, pageSize *int32, search *string, serverID *int32, onlineOnly *bool) (*ServerPlayersData, error) {
+	req := s.client.R().SetContext(ctx)
 
 	if page != nil {
 		req.SetQueryParam("page", strconv.Itoa(int(*page)))
@@ -69,11 +80,35 @@ func (s *PlayerServerService) GetServerPlayers(page, pageSize *int32, search *st
 
 // SetPlayersOffline 设置玩家离线状态 - 在玩家退出时调用
 func (s *PlayerServerService) SetPlayersOffline(serverID int32, playerIDs []int32) error {
-	req := s.client.R().
-		SetBody(map[string]interface{}{
-			"server_id":  serverID,
-			"player_ids": playerIDs,
-		})
+	return s.SetPlayersOfflineWithContext(context.Background(), serverID, playerIDs)
+}
+
+// SetPlayersOfflineWithContext executes SetPlayersOffline with cancellation scoped to this request.
+func (s *PlayerServerService) SetPlayersOfflineWithContext(ctx context.Context, serverID int32, playerIDs []int32) error {
+	return s.setPlayersOfflineWithContext(ctx, serverID, playerIDs, nil)
+}
+
+// SetPlayersOfflineWithSession sends the server session fencing headers.
+func (s *PlayerServerService) SetPlayersOfflineWithSession(serverID int32, playerIDs []int32, session SessionContext) error {
+	return s.SetPlayersOfflineWithContextAndSession(context.Background(), serverID, playerIDs, session)
+}
+
+// SetPlayersOfflineWithContextAndSession scopes cancellation and sends fencing headers.
+func (s *PlayerServerService) SetPlayersOfflineWithContextAndSession(ctx context.Context, serverID int32, playerIDs []int32, session SessionContext) error {
+	return s.setPlayersOfflineWithContext(ctx, serverID, playerIDs, &session)
+}
+
+func (s *PlayerServerService) setPlayersOfflineWithContext(ctx context.Context, serverID int32, playerIDs []int32, session *SessionContext) error {
+	req := s.client.R().SetContext(ctx)
+	if session != nil {
+		if err := applySessionHeaders(req, *session); err != nil {
+			return err
+		}
+	}
+	req.SetBody(map[string]interface{}{
+		"server_id":  serverID,
+		"player_ids": playerIDs,
+	})
 
 	resp, err := req.Post("/api/v1/servers/players/offline")
 

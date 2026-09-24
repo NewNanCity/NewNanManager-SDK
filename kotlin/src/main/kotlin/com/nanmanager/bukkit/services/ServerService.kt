@@ -3,50 +3,42 @@ package com.nanmanager.bukkit.services
 import com.nanmanager.bukkit.http.HttpClient
 import com.nanmanager.bukkit.models.*
 
-/**
- * 服务器管理服务
- */
+/** 服务器管理服务；传输和模型解析由 OpenAPI 生成客户端负责。 */
 class ServerService(httpClient: HttpClient) : BaseService(httpClient) {
+    private val api get() = httpClient.generatedApis.servers
 
-    /**
-     * 注册服务器
-     */
     fun createServer(request: CreateServerRequest): ServerRegistry {
-        return post("/api/v1/servers", request)
+        val body = toGenerated<com.newnanmanager.generated.models.CreateServerRequest>(request)
+        return generated<ServerRegistry, com.newnanmanager.generated.models.ServerRegistry> {
+            api.createServerWithHttpInfo(body)
+        }
     }
 
-    /**
-     * 获取服务器信息
-     */
     fun getServer(request: GetServerRequest): ServerDetailResponse {
-        val params = buildParams(mapOf("detail" to request.detail))
-        return get("/api/v1/servers/${request.id}", params)
+        return generated<ServerDetailResponse, com.newnanmanager.generated.models.ServerDetailResponse> {
+            api.getServerWithHttpInfo(request.id, request.detail)
+        }
     }
 
-    /**
-     * 更新服务器信息
-     */
     fun updateServer(request: UpdateServerRequest): ServerRegistry {
-        return put("/api/v1/servers/${request.id}", request)
+        val body = toGenerated<com.newnanmanager.generated.models.UpdateServerRequest>(request)
+        return generated<ServerRegistry, com.newnanmanager.generated.models.ServerRegistry> {
+            api.updateServerWithHttpInfo(request.id, body)
+        }
     }
 
-    /**
-     * 删除服务器
-     */
     fun deleteServer(request: DeleteServerRequest) {
-        delete("/api/v1/servers/${request.id}")
+        generatedVoid { api.deleteServerWithHttpInfo(request.id) }
     }
 
-    /**
-     * 获取服务器列表
-     */
     fun listServers(request: ListServersRequest): ListServersResponse {
-        val params = buildParams(mapOf(
-            "page" to request.page,
-            "page_size" to request.pageSize,   // 转换为snake_case
-            "search" to request.search,
-            "online_only" to request.onlineOnly // 转换为snake_case
-        ))
-        return get("/api/v1/servers", params)
+        return generated<ListServersResponse, com.newnanmanager.generated.models.ListServersResponse> {
+            api.listServersWithHttpInfo(
+                page = request.page,
+                pageSize = request.pageSize,
+                search = request.search,
+                onlineOnly = request.onlineOnly
+            )
+        }
     }
 }

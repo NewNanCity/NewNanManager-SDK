@@ -24,6 +24,23 @@ public class TokenService : HttpClientBase
     }
 
     /// <summary>
+    /// 获取指定页的API Token列表
+    /// </summary>
+    /// <param name="page">页码，从1开始</param>
+    /// <param name="pageSize">每页数量，范围1-100</param>
+    /// <param name="cancellationToken">取消令牌</param>
+    /// <returns>Token列表及分页信息</returns>
+    public async Task<ListApiTokensData> ListApiTokensPageAsync(int page, int pageSize, CancellationToken cancellationToken = default)
+    {
+        var queryString = BuildQueryString(new Dictionary<string, object?>
+        {
+            ["page"] = page,
+            ["page_size"] = pageSize,
+        });
+        return await GetAsync<ListApiTokensData>($"/api/v1/tokens{queryString}", cancellationToken);
+    }
+
+    /// <summary>
     /// 创建API Token
     /// </summary>
     /// <param name="request">创建Token请求</param>

@@ -16,14 +16,22 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:5.1.0")
 
     // JSON序列化 - 使用Jackson，性能优异
-    implementation("com.fasterxml.jackson.core:jackson-core:2.18.3")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.18.3")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.18.3")
+    implementation("com.fasterxml.jackson.core:jackson-core:2.18.10")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.18.10")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.18.10")
 
     // 测试依赖
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
     testImplementation("com.squareup.okhttp3:mockwebserver:5.1.0")
+}
+
+// Compile the generated transport in the same artifact as the business facade.
+// The generated directory remains owned by codegen/generate.py and is never edited here.
+sourceSets {
+    main {
+        kotlin.srcDir("../generated/kotlin/src/main/kotlin")
+    }
 }
 
 tasks.test {

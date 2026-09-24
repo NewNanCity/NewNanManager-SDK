@@ -9,6 +9,28 @@ abstract class BaseService(
     protected val httpClient: HttpClient
 ) {
 
+    /** Convert a facade model into the corresponding generated OpenAPI model. */
+    protected inline fun <reified T : Any> toGenerated(value: Any): T {
+        return httpClient.toGenerated(value)
+    }
+
+    /** Execute a generated request and convert its response back to the facade model. */
+    protected inline fun <reified T : Any, reified G : Any> generated(
+        noinline request: () -> com.newnanmanager.generated.infrastructure.ApiResponse<G?>
+    ): T {
+        return httpClient.convertGenerated(httpClient.executeGenerated(request)
+            ?: throw com.nanmanager.bukkit.exceptions.JsonParseException(
+                "Generated API returned an empty response"
+            ))
+    }
+
+    /** Execute a generated request whose successful response has no public body. */
+    protected fun generatedVoid(
+        request: () -> com.newnanmanager.generated.infrastructure.ApiResponse<Any?>
+    ) {
+        httpClient.generatedVoid(request)
+    }
+
     /**
      * 执行GET请求
      */

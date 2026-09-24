@@ -100,7 +100,9 @@ export const initServerService = (apiFactory: ReturnType<typeof apiBase>) => {
           version: data.status.version,
           motd: data.status.motd,
           expireAt: data.status.expire_at,
-          lastHeartbeat: data.status.last_heartbeat
+          lastHeartbeat: data.status.last_heartbeat,
+          measurementType: data.status.measurement_type,
+          latencyMetric: data.status.latency_metric
         } : undefined
       }),
       commonErrorHandler

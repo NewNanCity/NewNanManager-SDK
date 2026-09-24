@@ -32,6 +32,8 @@ class ServerStatus(BaseModel):
     motd: Optional[str] = Field(default=None, description="服务器MOTD")
     expire_at: str = Field(description="状态失效时间(ISO8601格式)")
     last_heartbeat: str = Field(description="最后心跳时间(ISO8601格式)")
+    measurement_type: Optional[str] = Field(default=None, description="采样来源：push/pull/unknown；缺失时未知")
+    latency_metric: Optional[str] = Field(default=None, description="延迟口径：rtt/legacy；缺失时未知")
 
 
 class ServersListData(PagedData[ServerRegistry]):
@@ -64,6 +66,8 @@ class MonitorStatRecord(BaseModel):
     current_players: int = Field(description="当前在线人数")
     tps: Optional[float] = Field(default=None, description="服务器TPS")
     latency_ms: Optional[int] = Field(default=None, description="延迟毫秒")
+    measurement_type: Optional[str] = Field(default=None, description="采样来源：push/pull/unknown；缺失时未知")
+    latency_metric: Optional[str] = Field(default=None, description="延迟口径：rtt/legacy；缺失时未知")
 
 
 class MonitorStatsData(BaseModel):
@@ -73,3 +77,4 @@ class MonitorStatsData(BaseModel):
     stats: list[MonitorStatRecord] = Field(
         default_factory=list, description="监控统计信息列表"
     )
+    next_cursor: Optional[str] = Field(default=None, description="下一页不透明游标；缺失表示结束")

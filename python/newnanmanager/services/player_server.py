@@ -3,6 +3,7 @@
 from typing import Any, Optional
 
 from ..http_client import HttpClient
+from ..session import SessionContext
 from ..models import (
     PlayerServersData,
     ServerPlayersData,
@@ -74,7 +75,10 @@ class PlayerServerService:
         return result  # type: ignore
 
     async def set_players_offline(
-        self, server_id: int, player_ids: list[int]
+        self,
+        server_id: int,
+        player_ids: list[int],
+        session: Optional[SessionContext] = None,
     ) -> dict[str, Any]:
         """设置玩家离线状态 - 在玩家退出时调用.
 
@@ -88,4 +92,5 @@ class PlayerServerService:
         return await self._http_client.post(
             "/api/v1/servers/players/offline",
             json_data={"server_id": server_id, "player_ids": player_ids},
+            headers=session.headers() if session is not None else None,
         )

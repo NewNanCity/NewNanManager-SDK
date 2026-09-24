@@ -1,284 +1,73 @@
 # NewNanManager Kotlin SDK
 
-这个目录包含两个版本的Kotlin SDK：
+当前实现是 com.nanmanager.bukkit 下的 OpenAPI generated transport + OkHttp/Jackson 业务 facade。网络调用应放在 Bukkit 异步线程；没有可用的 Ktor 协程版本。生成源码来自 `../generated/kotlin/`，由 `codegen/generate.py` 管理，不手工编辑。
 
-## 🔄 协程版本 (推荐用于现代Kotlin应用)
-- 位置：`src/main/kotlin/com/nanmanager/client/`
-- 基于Ktor + Kotlinx Serialization
-- 支持协程和异步操作
-- 适用于现代Kotlin应用开发
-
-## 🔒 同步版本 (专为Minecraft插件设计)
-- 位置：`src/main/kotlin/com/nanmanager/bukkit/`
-- 基于OkHttp + Jackson
-- 所有API调用都是同步的
-- 不依赖协程，适合Minecraft插件开发
-
----
-
-# NewNanManager Kotlin SDK - 同步版本
-
-基于OkHttp+Jackson的同步Kotlin SDK，专为Minecraft插件开发设计。不依赖协程，所有API调用都是同步的，开发者可以自行决定在哪个线程调用。
-
-## 🚀 特性
-
-- **同步API调用**：所有方法都是同步的，不使用协程
-- **线程安全**：可以在任何线程中调用，包括Bukkit的主线程和异步线程
-- **轻量级依赖**：只依赖OkHttp和Jackson，避免复杂的依赖冲突
-- **完整API覆盖**：支持所有NewNanManager API功能
-- **类型安全**：完整的Kotlin类型定义，编译时错误检查
-- **易于集成**：简单的初始化和使用方式
-
-## 📦 依赖
-
-```kotlin
-dependencies {
-    implementation("com.nanmanager:kotlin-sdk:1.0.0")
-}
-```
-
-## 🛠️ 快速开始
-
-### 基本使用
+## 使用
 
 ```kotlin
 import com.nanmanager.bukkit.NewNanManagerClient
 import com.nanmanager.bukkit.models.*
+import com.nanmanager.bukkit.exceptions.ApiException
 
-// 创建客户端
-val client = NewNanManagerClient(
-    token = "your-api-token",
-    baseUrl = "https://your-server.com"
-)
-
-try {
-    // 获取玩家列表
-    val players = client.players.listPlayers(page = 1, pageSize = 20)
-    println("玩家数量: ${players.total}")
-
-    // 创建玩家
-    val newPlayer = client.players.createPlayer(CreatePlayerRequest(
-        name = "TestPlayer",
-        inQqGroup = true
-    ))
-    println("创建玩家: ${newPlayer.name}")
-
-    // 获取服务器列表
-    val servers = client.servers.listServers()
-    println("服务器数量: ${servers.total}")
-
-} finally {
-    // 记得关闭客户端
-    client.close()
-}
-```
-
-### 在Minecraft插件中使用
-
-```kotlin
-import org.bukkit.plugin.java.JavaPlugin
-import org.bukkit.scheduler.BukkitRunnable
-import com.nanmanager.bukkit.NewNanManagerClient
-import com.nanmanager.bukkit.models.*
-
-class MyPlugin : JavaPlugin() {
-    private lateinit var nanClient: NewNanManagerClient
-
-    override fun onEnable() {
-        nanClient = NewNanManagerClient(
-            token = config.getString("nanmanager.token")!!,
-            baseUrl = config.getString("nanmanager.baseUrl")!!
-        )
-
-        // 在异步线程中调用API
-        object : BukkitRunnable() {
-            override fun run() {
-                try {
-                    val players = nanClient.players.listPlayers()
-                    logger.info("当前有 ${players.total} 个玩家")
-                } catch (e: Exception) {
-                    logger.warning("获取玩家列表失败: ${e.message}")
-                }
-            }
-        }.runTaskAsynchronously(this)
-    }
-
-    override fun onDisable() {
-        nanClient.close()
-    }
-}
-```
-
-## 📚 API文档
-
-### 玩家管理 (PlayerService)
-
-```kotlin
-// 创建玩家
-val player = client.players.createPlayer(CreatePlayerRequest(
-    name = "PlayerName",
-    qq = "123456789",
-    inQqGroup = true
-))
-
-// 获取玩家详情
-val player = client.players.getPlayer(playerId)
-
-// 更新玩家信息
-val updatedPlayer = client.players.updatePlayer(playerId, UpdatePlayerRequest(
-    qq = "987654321"
-))
-
-// 封禁玩家
-client.players.banPlayer(playerId, BanPlayerRequest(
-    banMode = BanMode.TEMPORARY,
-    durationSeconds = 3600,
-    reason = "违规行为"
-))
-
-// 解封玩家
-client.players.unbanPlayer(playerId)
-
-// 批量玩家验证
-val result = client.players.validate(ValidateRequest(
-    players = listOf(
-        PlayerValidateInfo(
-            playerName = "Player1",
-            ip = "192.168.1.100"
-        )
-    ),
-    serverId = 1,
-    login = true
-))
-```
-
-### 服务器管理 (ServerService)
-
-```kotlin
-// 注册服务器
-val server = client.servers.createServer(CreateServerRequest(
-    name = "我的服务器",
-    address = "mc.example.com:25565",
-    description = "服务器描述"
-))
-
-// 获取服务器列表
-val servers = client.servers.listServers(
-    page = 1,
-    pageSize = 20,
-    onlineOnly = true
-)
-
-// 更新服务器信息
-val updatedServer = client.servers.updateServer(serverId, UpdateServerRequest(
-    name = "新服务器名称"
-))
-```
-
-### 监控服务 (MonitorService)
-
-```kotlin
-// 发送心跳
-val heartbeatResponse = client.monitor.heartbeat(serverId, HeartbeatRequest(
-    currentPlayers = 10,
-    maxPlayers = 50,
-    tps = 19.8
-))
-
-// 获取服务器状态
-val status = client.monitor.getServerStatus(serverId)
-println("服务器在线: ${status.online}, 玩家数: ${status.currentPlayers}")
-
-// 获取监控统计
-val stats = client.monitor.getMonitorStats(serverId, duration = 3600)
-```
-
-### 城镇管理 (TownService)
-
-```kotlin
-// 创建城镇
-val town = client.towns.createTown(CreateTownRequest(
-    name = "新城镇",
-    level = 1,
-    leaderId = playerId
-))
-
-// 获取城镇详情
-val townDetail = client.towns.getTown(townId, detail = true)
-
-// 更新城镇信息
-val updatedTown = client.towns.updateTown(townId, UpdateTownRequest(
-    name = "更新后的城镇名",
-    addPlayers = listOf(playerId1, playerId2)
-))
-```
-
-## 🔧 配置选项
-
-```kotlin
-val client = NewNanManagerClient(
-    token = "your-api-token",        // API Token
-    baseUrl = "https://api.com",     // API基础URL
-    timeout = 30L                    // 请求超时时间(秒)，默认30秒
-)
-```
-
-## 🚨 错误处理
-
-```kotlin
-import com.nanmanager.bukkit.exceptions.*
-
-try {
-    val player = client.players.getPlayer(999)
-} catch (e: ApiException) {
-    // API返回的业务错误
-    println("API错误: ${e.errorDetail}")
-} catch (e: HttpException) {
-    // HTTP状态码错误
-    println("HTTP错误: ${e.statusCode}")
-} catch (e: NetworkException) {
-    // 网络连接错误
-    println("网络错误: ${e.message}")
-} catch (e: JsonParseException) {
-    // JSON解析错误
-    println("解析错误: ${e.message}")
-}
-```
-
-## 🔄 线程使用建议
-
-### Bukkit主线程
-```kotlin
-// 避免在主线程中进行网络请求，会阻塞服务器
-// 如果必须在主线程获取结果，使用缓存或预加载
-```
-
-### Bukkit异步线程
-```kotlin
-// 推荐在异步线程中调用API
-Bukkit.getScheduler().runTaskAsynchronously(plugin) {
-    try {
-        val players = client.players.listPlayers()
-        // 如果需要操作Bukkit API，切回主线程
-        Bukkit.getScheduler().runTask(plugin) {
-            // 在主线程中更新UI或执行Bukkit操作
+fun queryPlayers(baseUrl: String, token: String) {
+    NewNanManagerClient(token = token, baseUrl = baseUrl, timeout = 30L).use { client ->
+        try {
+            val result = client.players.listPlayers(ListPlayersRequest(page = 1, pageSize = 20))
+            println(result.total)
+            val server = client.servers.getServer(GetServerRequest(id = 1, detail = true))
+            println(server.status?.currentPlayers)
+        } catch (error: ApiException) {
+            println("status=${error.statusCode}, requestId=${error.requestId}")
         }
-    } catch (e: Exception) {
-        plugin.logger.warning("API调用失败: ${e.message}")
     }
 }
 ```
 
-## 📋 完整功能列表
+默认使用 Bearer；接入只提供 `X-API-Token` 的服务端时传入 `authScheme = AuthScheme.API_TOKEN`。服务器插件先创建会话，再把返回的 `SessionContext` 传给心跳、玩家验证和批量离线方法：
 
-- ✅ **玩家管理**: 创建、查询、更新、删除、封禁、解封、批量验证
-- ✅ **城镇管理**: 创建、查询、更新、删除、成员管理
-- ✅ **服务器管理**: 注册、查询、更新、删除、详细信息
-- ✅ **监控功能**: 心跳、状态查询、统计数据
-- ✅ **Token管理**: 创建、查询、更新、删除、列表
-- ✅ **IP管理**: 查询、封禁、解封、统计
-- ✅ **玩家服务器关系**: 在线状态、服务器列表
+```kotlin
+import com.nanmanager.bukkit.AuthScheme
+import com.nanmanager.bukkit.SessionContext
 
-## 🤝 技术支持
+NewNanManagerClient(token = token, baseUrl = baseUrl).use { client ->
+    val session = client.monitor.createServerSession(serverId = 7)
+    client.monitor.heartbeat(7, HeartbeatRequest(currentPlayers = 1, maxPlayers = 20), session)
+    client.players.validate(validateRequest, session)
+}
+```
 
-如有问题或建议，请联系开发团队或查看项目文档。
+玩家、城镇、服务器、Token、IP 和玩家服务器关系方法接收 models 中的请求类型。心跳用 client.monitor.heartbeat(serverId, HeartbeatRequest(...))；统计用 client.monitor.getMonitorStats(GetMonitorStatsRequest(serverId = 1))。
+
+创建玩家、批量验证、服务器注册与 Bukkit 线程切换见 [调用示例](../docs/examples/kotlin.md)。
+
+## HTTP 约定
+
+只使用选定的一种认证头（Authorization 或 X-API-Token），拒绝自动重定向和隐式连接重试。连接、读、写及整个调用均有 timeout，默认 30 秒。查询参数通过生成客户端和 OkHttp URL builder 编码。
+
+JSON detail 错误保持 ApiException 类型，包含 statusCode/requestId/retryAfter；非 JSON 错误为 HttpException。JSON 解析异常只报告异常类别，不保存可能含响应体片段的原始解析异常链。
+
+`validate(request)`、`heartbeat(serverId, request)` 和 `setPlayersOffline(request)` 保留旧签名以兼容旧调用，但不会伪造 fencing 头；连接服务器时应使用带 `SessionContext` 的重载。会话 ID 遵循服务端 32–64 字符约束。生成客户端的错误响应统一映射回 facade 异常，保留状态码、request ID、trace ID 和 Retry-After。
+
+构造器和原异常构造签名保留；错误元数据为兼容新增属性。服务端未提供的头为 null。
+
+## 新增契约
+
+Token 请求与响应增加 serverId；ServerStatus/MonitorStatRecord 增加 measurementType/latencyMetric。GetMonitorStatsRequest 增加可选 limit/cursor，响应提供 nextCursor；缺失元数据保持 null。名称、0..1000人完整快照和分页约束见 [契约与分页](../docs/contracts.md)。
+
+新数据类字段追加在构造参数尾部且有默认值，现有 Kotlin 源码调用可重新编译；JVM 构造器及 copy 二进制签名变化，下游必须重新构建。原 HTTP/异常构造器未变，本轮改动尚未发布。
+
+## 依赖验收
+
+Jackson直接依赖从2.18.3兼容升到2.18.10；解析出的annotations/BOM同步升级，其余7个非Jackson运行组件不变。Kotlin2.2.0、Java21、OkHttp5.1.0保持不变。对实际runtimeClasspath的12个精确组件坐标查询公开OSV，匹配由9条降到0。
+
+新增回归先用64字节分块数字复现旧Jackson约束绕过，再验证修复版；另经实际SDK请求验证int64分页、false和可选空字段。依赖级复现不是SDK可利用证明，扫描不包含构建插件或测试依赖。证据和官方修复线见[依赖验收](../docs/audits/2026-09-06-dependency-acceptance.md)。
+
+## 验证
+
+使用已缓存的 Java 21、Gradle 与依赖，在 kotlin/ 中执行：
+
+```powershell
+.\gradlew.bat --offline test
+```
+
+当前回归覆盖构造、编码、两种认证、生成客户端路径/查询、结构化错误、session headers、空响应、Token绑定、分页、未知监控字段、完整快照和Jackson兼容性。不连接真实 API，不代表 Minecraft 或生产验收。

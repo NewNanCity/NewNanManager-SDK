@@ -2,7 +2,19 @@
 
 Python SDK for NewNanManager API - Minecraft server management system.
 
+## HTTP 行为
+
+默认超时 30 秒，发送 `Authorization: Bearer ...`。需要 `X-API-Token` 时在 `ClientConfig` 或 `NewNanManagerClient` 传入 `AuthScheme.API_TOKEN`；每个请求只发送选中的一种凭证头。不会自动跟随 3xx 重定向。Debug 日志只记录方法、状态和重试次数，不记录请求或响应体。
+
+服务器插件先调用 `await client.monitor.create_server_session(server_id)`，再把返回的 `SessionContext` 传给 `players.validate`、`monitor.heartbeat` 和 `player_servers.set_players_offline`。会话 ID 遵循服务端 32–64 字符约束；省略会话参数时保留旧 HTTP 入口，不会伪造 fencing 头。
+
+只有 GET/HEAD/OPTIONS 的传输错误会按 `max_retries` 重试；POST/PUT/DELETE 不自动重发，避免重复创建 Token 或改变封禁时限。`ApiErrorException` 和 `HttpException` 保留 `status_code`、`request_id`、`retry_after`；后者两项在响应头缺失时为 `None`。
+
 ## 安装
+
+需要 Python >=3.10，运行依赖要求 `aiohttp>=3.14.3`。Python 3.9 不再受支持；升级 SDK 前先升级解释器，再重新解析下游依赖锁。Black、Mypy 和 Ruff 的最低检查目标同步为 Python 3.10。
+
+本轮源码修复尚未发布；以下包名不表示公共源的版本已经包含这些修改。
 
 ```bash
 pip install newnanmanager-client
@@ -10,9 +22,28 @@ pip install newnanmanager-client
 
 ## 快速开始
 
+新增契约：Token 请求与响应提供 `server_id`；状态和历史记录提供可选 `measurement_type/latency_metric`。统计通过 `get_monitor_stats(server_id, since, duration, limit=1000, cursor=cursor)` 逐页读取，返回 `next_cursor`。旧位置参数保持不变，新分页参数仅接受关键字。
+
+字段缺失时保留 `None`。名称、Token绑定、0..1000人完整快照和分页上限见 [契约与分页](../docs/contracts.md)；本地回归覆盖这些字段及快照传输，不代表真实服务验收。
+
+`await client.tokens.list_api_tokens(page=1, page_size=20)` 返回 `tokens/total/page/page_size`。手工构造 `ListApiTokensData` 或编写响应fixture时，必须提供服务端真实的三个分页字段；只传tokens的旧构造会触发Pydantic校验错误。
+
+## 受控测试环境
+
+`requirements-test-py310.txt`和`requirements-test-py312.txt`分别锁定Windows/CPython3.10、3.12的运行依赖并包含分发文件哈希。两个锁均使用aiohttp3.14.3，3.10额外需要async-timeout。测试使用标准库unittest，不安装开发、文档或示例extras。
+
+```powershell
+uv --no-config venv --python 3.10.19 .venv-py310
+uv --no-config pip install --python .venv-py310/Scripts/python.exe --require-hashes --only-binary=:all: --default-index https://pypi.org/simple --keyring-provider disabled -r requirements-test-py310.txt
+.\.venv-py310\Scripts\python.exe -B -m unittest discover -s tests -v
+```
+
+验证3.12时，将解释器改为3.12.12，并使用独立`.venv-py312`与`requirements-test-py312.txt`。本轮两个隔离环境各11项测试、依赖一致性检查通过，逐版本PyPI公告核查分别15、14包均无匹配。wheel的最低版本及aiohttp约束检查通过，并在3.10中实际安装后导入成功；详细依据和锁生成命令见[依赖验收](../docs/audits/2026-09-06-dependency-acceptance.md)。这些锁不覆盖其他操作系统、解释器版本、extras或下游项目自己的依赖锁。
+
 ```python
 import asyncio
 from newnanmanager import NewNanManagerClient
+from newnanmanager.models import CreatePlayerRequest
 
 async def main():
     # 创建客户端
@@ -25,8 +56,7 @@ async def main():
 
         # 创建玩家
         new_player = await client.players.create_player(
-            name="PlayerName",
-            qq="123456789"
+            CreatePlayerRequest(name="PlayerName", qq="123456789")
         )
 
 if __name__ == "__main__":
@@ -144,10 +174,10 @@ heartbeat = await client.monitor.heartbeat(
 )
 
 # 获取服务器状态
-status = await client.monitor.get_server_status(server_id)
+status = (await client.servers.get_server(server_id, detail=True)).status
 
 # 获取延迟统计
-latency_stats = await client.monitor.get_latency_stats(server_id)
+latency_stats = await client.monitor.get_monitor_stats(server_id)
 ```
 
 ### 城镇管理
@@ -212,7 +242,13 @@ except NewNanManagerException as e:
 
 ## 测试
 
-运行测试：
+在 `python/` 中运行本地回归，无需真实服务：
+
+```bash
+python -B -m unittest discover -s tests -v
+```
+
+该命令验证导入、日志、重试及 loopback 重定向；不代表真实服务器集成验收或全代码覆盖。已安装开发依赖时也可使用 pytest：
 
 ```bash
 # 安装开发依赖
@@ -232,7 +268,7 @@ pytest --cov=newnanmanager --cov-report=html
 ```bash
 # 克隆项目
 git clone https://github.com/NewNanCity/NewNanManager-SDK.git
-cd NewNanManager-SDK/clients/python
+cd NewNanManager-SDK/python
 
 # 创建虚拟环境
 python -m venv venv

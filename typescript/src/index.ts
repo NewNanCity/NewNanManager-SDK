@@ -4,6 +4,8 @@
 
 // 导出新的模块化客户端
 export { NewNanManagerClient } from './client';
+export { NewNanManagerHttpError } from './utils/errorHandler';
+export { AuthScheme } from './types';
 
 // 导出所有服务模块工厂函数
 export type { initPlayerService } from './modules/player';

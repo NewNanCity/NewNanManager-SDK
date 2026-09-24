@@ -3,6 +3,7 @@
 from typing import Optional
 
 from ..http_client import HttpClient
+from ..session import SessionContext
 from ..models import (
     BanMode,
     BanPlayerRequest,
@@ -93,6 +94,7 @@ class PlayerService:
     async def validate(
         self,
         request: ValidateRequest,
+        session: Optional[SessionContext] = None,
     ) -> ValidateData:
         """玩家验证（支持批处理）.
 
@@ -103,7 +105,10 @@ class PlayerService:
             验证结果
         """
         return await self._http.post(
-            "/api/v1/players/validate", json_data=request, response_model=ValidateData
+            "/api/v1/players/validate",
+            json_data=request,
+            response_model=ValidateData,
+            headers=session.headers() if session is not None else None,
         )
 
     async def get_player(self, player_id: int) -> Player:
