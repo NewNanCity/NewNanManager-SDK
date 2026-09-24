@@ -5,6 +5,7 @@ api_ip_service.go
 api_monitor_service.go
 api_player_server_service.go
 api_player_service.go
+api_player_usage_service.go
 api_server_service.go
 api_token_service.go
 api_town_service.go
@@ -26,6 +27,8 @@ model_get_monitor_stats_response.go
 model_heartbeat_request.go
 model_heartbeat_response.go
 model_ip_info.go
+model_ip_player_usage_record.go
+model_ip_player_usage_response.go
 model_ip_statistics.go
 model_list_api_tokens_response.go
 model_list_ips_response.go
@@ -36,6 +39,8 @@ model_monitor_stat_record.go
 model_online_player.go
 model_ping_200_response.go
 model_player.go
+model_player_ip_usage_record.go
+model_player_ip_usage_response.go
 model_player_login_info.go
 model_player_server.go
 model_player_servers_response.go

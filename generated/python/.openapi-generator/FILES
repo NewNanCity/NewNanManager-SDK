@@ -7,6 +7,7 @@ newnanmanager_client/api/ip_service_api.py
 newnanmanager_client/api/monitor_service_api.py
 newnanmanager_client/api/player_server_service_api.py
 newnanmanager_client/api/player_service_api.py
+newnanmanager_client/api/player_usage_service_api.py
 newnanmanager_client/api/server_service_api.py
 newnanmanager_client/api/token_service_api.py
 newnanmanager_client/api/town_service_api.py
@@ -29,6 +30,8 @@ newnanmanager_client/models/get_monitor_stats_response.py
 newnanmanager_client/models/heartbeat_request.py
 newnanmanager_client/models/heartbeat_response.py
 newnanmanager_client/models/ip_info.py
+newnanmanager_client/models/ip_player_usage_record.py
+newnanmanager_client/models/ip_player_usage_response.py
 newnanmanager_client/models/ip_statistics.py
 newnanmanager_client/models/list_api_tokens_response.py
 newnanmanager_client/models/list_ips_response.py
@@ -39,6 +42,8 @@ newnanmanager_client/models/monitor_stat_record.py
 newnanmanager_client/models/online_player.py
 newnanmanager_client/models/ping200_response.py
 newnanmanager_client/models/player.py
+newnanmanager_client/models/player_ip_usage_record.py
+newnanmanager_client/models/player_ip_usage_response.py
 newnanmanager_client/models/player_login_info.py
 newnanmanager_client/models/player_server.py
 newnanmanager_client/models/player_servers_response.py

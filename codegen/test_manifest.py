@@ -14,7 +14,8 @@ MANIFEST_PATH = CODEGEN_ROOT / "manifest.json"
 class CodegenManifestTests(unittest.TestCase):
     def setUp(self) -> None:
         self.manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
-        self.manifest_sha = hashlib.sha256(MANIFEST_PATH.read_bytes()).hexdigest()
+        manifest_bytes = MANIFEST_PATH.read_bytes().replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+        self.manifest_sha = hashlib.sha256(manifest_bytes).hexdigest()
 
     def test_manifest_declares_all_supported_languages(self) -> None:
         self.assertEqual(

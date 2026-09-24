@@ -7,6 +7,7 @@ src/NewNanManager.Generated/Api/IPServiceApi.cs
 src/NewNanManager.Generated/Api/MonitorServiceApi.cs
 src/NewNanManager.Generated/Api/PlayerServerServiceApi.cs
 src/NewNanManager.Generated/Api/PlayerServiceApi.cs
+src/NewNanManager.Generated/Api/PlayerUsageServiceApi.cs
 src/NewNanManager.Generated/Api/ServerServiceApi.cs
 src/NewNanManager.Generated/Api/TokenServiceApi.cs
 src/NewNanManager.Generated/Api/TownServiceApi.cs
@@ -49,6 +50,8 @@ src/NewNanManager.Generated/Model/GetMonitorStatsResponse.cs
 src/NewNanManager.Generated/Model/HeartbeatRequest.cs
 src/NewNanManager.Generated/Model/HeartbeatResponse.cs
 src/NewNanManager.Generated/Model/IPInfo.cs
+src/NewNanManager.Generated/Model/IPPlayerUsageRecord.cs
+src/NewNanManager.Generated/Model/IPPlayerUsageResponse.cs
 src/NewNanManager.Generated/Model/IPStatistics.cs
 src/NewNanManager.Generated/Model/ListApiTokensResponse.cs
 src/NewNanManager.Generated/Model/ListIPsResponse.cs
@@ -59,6 +62,8 @@ src/NewNanManager.Generated/Model/MonitorStatRecord.cs
 src/NewNanManager.Generated/Model/OnlinePlayer.cs
 src/NewNanManager.Generated/Model/Ping200Response.cs
 src/NewNanManager.Generated/Model/Player.cs
+src/NewNanManager.Generated/Model/PlayerIPUsageRecord.cs
+src/NewNanManager.Generated/Model/PlayerIPUsageResponse.cs
 src/NewNanManager.Generated/Model/PlayerLoginInfo.cs
 src/NewNanManager.Generated/Model/PlayerServer.cs
 src/NewNanManager.Generated/Model/PlayerServersResponse.cs

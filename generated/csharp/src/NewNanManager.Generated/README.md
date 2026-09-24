@@ -6,7 +6,7 @@ Create a config.yaml file similar to what is below, then run the following power
 
 ```yaml
 generatorName: csharp
-inputSpec: D:\Developer\Minecraft\NewNanManager\contracts\newnanmanager.openapi.json
+inputSpec: C:\Users\nmg_w\.codex\worktrees\player-ip-usage-query-20260924\NewNanManager\contracts\newnanmanager.openapi.json
 outputDir: out
 
 # https://openapi-generator.tech/docs/generators/csharp
@@ -108,7 +108,7 @@ namespace YourProject
 
 ## Api Information
 - appName: NewNanManager
-- appVersion: 2.0.0-rebuild-draft.2
+- appVersion: 2.0.0-rebuild-draft.3
 - appDescription: 标准模板重建契约草案，尚未替换运行服务。当前成功状态统一为 200，成功 JSON 不增加外层包装。错误响应采用标准模板结构；完整快照清空必须传 players&#x3D;[]，players&#x3D;null 拒绝。x-nnm-legacy-validation 是旧绑定规则的比较证据，不会自动执行；业务不变量见各操作 description。
 
 ## Build

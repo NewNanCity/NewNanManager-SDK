@@ -19,6 +19,7 @@ src/main/java/com/newnancity/newnanmanager/generated/api/IpServiceApi.java
 src/main/java/com/newnancity/newnanmanager/generated/api/MonitorServiceApi.java
 src/main/java/com/newnancity/newnanmanager/generated/api/PlayerServerServiceApi.java
 src/main/java/com/newnancity/newnanmanager/generated/api/PlayerServiceApi.java
+src/main/java/com/newnancity/newnanmanager/generated/api/PlayerUsageServiceApi.java
 src/main/java/com/newnancity/newnanmanager/generated/api/ServerServiceApi.java
 src/main/java/com/newnancity/newnanmanager/generated/api/TokenServiceApi.java
 src/main/java/com/newnancity/newnanmanager/generated/api/TownServiceApi.java
@@ -41,6 +42,8 @@ src/main/java/com/newnancity/newnanmanager/generated/model/GetMonitorStatsRespon
 src/main/java/com/newnancity/newnanmanager/generated/model/HeartbeatRequest.java
 src/main/java/com/newnancity/newnanmanager/generated/model/HeartbeatResponse.java
 src/main/java/com/newnancity/newnanmanager/generated/model/IPInfo.java
+src/main/java/com/newnancity/newnanmanager/generated/model/IPPlayerUsageRecord.java
+src/main/java/com/newnancity/newnanmanager/generated/model/IPPlayerUsageResponse.java
 src/main/java/com/newnancity/newnanmanager/generated/model/IPStatistics.java
 src/main/java/com/newnancity/newnanmanager/generated/model/ListApiTokensResponse.java
 src/main/java/com/newnancity/newnanmanager/generated/model/ListIPsResponse.java
@@ -51,6 +54,8 @@ src/main/java/com/newnancity/newnanmanager/generated/model/MonitorStatRecord.jav
 src/main/java/com/newnancity/newnanmanager/generated/model/OnlinePlayer.java
 src/main/java/com/newnancity/newnanmanager/generated/model/Ping200Response.java
 src/main/java/com/newnancity/newnanmanager/generated/model/Player.java
+src/main/java/com/newnancity/newnanmanager/generated/model/PlayerIPUsageRecord.java
+src/main/java/com/newnancity/newnanmanager/generated/model/PlayerIPUsageResponse.java
 src/main/java/com/newnancity/newnanmanager/generated/model/PlayerLoginInfo.java
 src/main/java/com/newnancity/newnanmanager/generated/model/PlayerServer.java
 src/main/java/com/newnancity/newnanmanager/generated/model/PlayerServersResponse.java

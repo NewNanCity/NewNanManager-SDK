@@ -10,6 +10,7 @@ src/main/kotlin/com/newnanmanager/generated/apis/IPServiceApi.kt
 src/main/kotlin/com/newnanmanager/generated/apis/MonitorServiceApi.kt
 src/main/kotlin/com/newnanmanager/generated/apis/PlayerServerServiceApi.kt
 src/main/kotlin/com/newnanmanager/generated/apis/PlayerServiceApi.kt
+src/main/kotlin/com/newnanmanager/generated/apis/PlayerUsageServiceApi.kt
 src/main/kotlin/com/newnanmanager/generated/apis/ServerServiceApi.kt
 src/main/kotlin/com/newnanmanager/generated/apis/TokenServiceApi.kt
 src/main/kotlin/com/newnanmanager/generated/apis/TownServiceApi.kt
@@ -36,6 +37,8 @@ src/main/kotlin/com/newnanmanager/generated/models/GetMonitorStatsResponse.kt
 src/main/kotlin/com/newnanmanager/generated/models/HeartbeatRequest.kt
 src/main/kotlin/com/newnanmanager/generated/models/HeartbeatResponse.kt
 src/main/kotlin/com/newnanmanager/generated/models/IPInfo.kt
+src/main/kotlin/com/newnanmanager/generated/models/IPPlayerUsageRecord.kt
+src/main/kotlin/com/newnanmanager/generated/models/IPPlayerUsageResponse.kt
 src/main/kotlin/com/newnanmanager/generated/models/IPStatistics.kt
 src/main/kotlin/com/newnanmanager/generated/models/ListApiTokensResponse.kt
 src/main/kotlin/com/newnanmanager/generated/models/ListIPsResponse.kt
@@ -46,6 +49,8 @@ src/main/kotlin/com/newnanmanager/generated/models/MonitorStatRecord.kt
 src/main/kotlin/com/newnanmanager/generated/models/OnlinePlayer.kt
 src/main/kotlin/com/newnanmanager/generated/models/Ping200Response.kt
 src/main/kotlin/com/newnanmanager/generated/models/Player.kt
+src/main/kotlin/com/newnanmanager/generated/models/PlayerIPUsageRecord.kt
+src/main/kotlin/com/newnanmanager/generated/models/PlayerIPUsageResponse.kt
 src/main/kotlin/com/newnanmanager/generated/models/PlayerLoginInfo.kt
 src/main/kotlin/com/newnanmanager/generated/models/PlayerServer.kt
 src/main/kotlin/com/newnanmanager/generated/models/PlayerServersResponse.kt

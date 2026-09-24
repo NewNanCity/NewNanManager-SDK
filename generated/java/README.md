@@ -1,7 +1,7 @@
 # newnanmanager-generated-java
 
 NewNanManager
-- API version: 2.0.0-rebuild-draft.2
+- API version: 2.0.0-rebuild-draft.3
   - Generator version: 7.25.0
 
 标准模板重建契约草案，尚未替换运行服务。当前成功状态统一为 200，成功 JSON 不增加外层包装。错误响应采用标准模板结构；完整快照清空必须传 players=[]，players=null 拒绝。x-nnm-legacy-validation 是旧绑定规则的比较证据，不会自动执行；业务不变量见各操作 description。
@@ -137,6 +137,8 @@ Class | Method | HTTP request | Description
 *PlayerServiceApi* | [**unbanPlayer**](docs/PlayerServiceApi.md#unbanPlayer) | **POST** /api/v1/players/{player_id}/unban | 解封玩家
 *PlayerServiceApi* | [**updatePlayer**](docs/PlayerServiceApi.md#updatePlayer) | **PUT** /api/v1/players/{id} | 更新玩家信息
 *PlayerServiceApi* | [**validate**](docs/PlayerServiceApi.md#validate) | **POST** /api/v1/players/validate | 玩家验证（支持批处理） - 在玩家登录或定期检查时调用
+*PlayerUsageServiceApi* | [**getIPPlayerUsage**](docs/PlayerUsageServiceApi.md#getIPPlayerUsage) | **GET** /api/v1/player-usage/ips/{ip} | 按IP查询关联玩家使用情况
+*PlayerUsageServiceApi* | [**getPlayerIPUsage**](docs/PlayerUsageServiceApi.md#getPlayerIPUsage) | **GET** /api/v1/player-usage/players/{player_id} | 查询玩家登录与IP使用情况
 *ServerServiceApi* | [**createServer**](docs/ServerServiceApi.md#createServer) | **POST** /api/v1/servers | 注册服务器
 *ServerServiceApi* | [**deleteServer**](docs/ServerServiceApi.md#deleteServer) | **DELETE** /api/v1/servers/{id} | 删除服务器
 *ServerServiceApi* | [**getServer**](docs/ServerServiceApi.md#getServer) | **GET** /api/v1/servers/{id} | 获取服务器信息
@@ -170,6 +172,8 @@ Class | Method | HTTP request | Description
  - [HeartbeatRequest](docs/HeartbeatRequest.md)
  - [HeartbeatResponse](docs/HeartbeatResponse.md)
  - [IPInfo](docs/IPInfo.md)
+ - [IPPlayerUsageRecord](docs/IPPlayerUsageRecord.md)
+ - [IPPlayerUsageResponse](docs/IPPlayerUsageResponse.md)
  - [IPStatistics](docs/IPStatistics.md)
  - [ListApiTokensResponse](docs/ListApiTokensResponse.md)
  - [ListIPsResponse](docs/ListIPsResponse.md)
@@ -180,6 +184,8 @@ Class | Method | HTTP request | Description
  - [OnlinePlayer](docs/OnlinePlayer.md)
  - [Ping200Response](docs/Ping200Response.md)
  - [Player](docs/Player.md)
+ - [PlayerIPUsageRecord](docs/PlayerIPUsageRecord.md)
+ - [PlayerIPUsageResponse](docs/PlayerIPUsageResponse.md)
  - [PlayerLoginInfo](docs/PlayerLoginInfo.md)
  - [PlayerServer](docs/PlayerServer.md)
  - [PlayerServersResponse](docs/PlayerServersResponse.md)
