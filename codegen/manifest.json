@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 1,
+  "contract": "../../contracts/newnanmanager.openapi.json",
+  "generator": {
+    "cliPackage": "@openapitools/openapi-generator-cli",
+    "cliVersion": "2.41.0",
+    "engineVersion": "7.25.0",
+    "gitUserId": "NewNanCity",
+    "gitRepoId": "NewNanManager-SDK",
+    "ignoreFile": "openapi-generator-ignore",
+    "ignoreList": [
+      "git_push.sh",
+      "git_push.ps1",
+      "appveyor.yml",
+      ".travis.yml",
+      ".github/**",
+      ".gitlab-ci.yml",
+      "docs/**",
+      "api/openapi.yaml",
+      "test-requirements.txt",
+      "src/NewNanManager.Generated.Test/**",
+      "src/**/Test/**"
+    ],
+    "globalProperty": [
+      "models",
+      "apis",
+      "supportingFiles",
+      "apiTests=false",
+      "modelTests=false",
+      "apiDocs=false",
+      "modelDocs=false"
+    ]
+  },
+  "languages": {
+    "typescript": {
+      "generator": "typescript-axios",
+      "properties": {
+        "supportsES6": "true",
+        "npmName": "@newnanmanager/generated-typescript-sdk",
+        "npmVersion": "2.0.0",
+        "licenseName": "MIT",
+        "licenseId": "MIT",
+        "hideGenerationTimestamp": "true"
+      }
+    },
+    "golang": {
+      "generator": "go",
+      "modulePath": "github.com/NewNanCity/NewNanManager-SDK/generated/golang",
+      "goVersion": "1.25.0",
+      "properties": {
+        "packageName": "newnanmanagerclient",
+        "packageVersion": "2.0.0",
+        "enumClassPrefix": "true",
+        "moduleName": "github.com/NewNanCity/NewNanManager-SDK/generated/golang",
+        "licenseName": "MIT",
+        "licenseId": "MIT",
+        "hideGenerationTimestamp": "true"
+      }
+    },
+    "python": {
+      "generator": "python",
+      "properties": {
+        "packageName": "newnanmanager_client",
+        "projectName": "newnanmanager-client",
+        "packageVersion": "2.0.0",
+        "licenseName": "MIT",
+        "licenseId": "MIT",
+        "hideGenerationTimestamp": "true"
+      }
+    },
+    "csharp": {
+      "generator": "csharp",
+      "properties": {
+        "packageName": "NewNanManager.Generated",
+        "packageVersion": "2.0.0",
+        "packageGuid": "CF6B31FE-4027-479F-8BCF-1F075733AB3D",
+        "targetFramework": "net8.0",
+        "licenseName": "MIT",
+        "licenseId": "MIT",
+        "hideGenerationTimestamp": "true"
+      }
+    },
+    "kotlin": {
+      "generator": "kotlin",
+      "build": {
+        "kotlinVersion": "2.2.0",
+        "jacksonVersion": "2.18.10",
+        "okhttpVersion": "5.1.0",
+        "gradleVersion": "8.14"
+      },
+      "properties": {
+        "packageName": "com.newnanmanager.generated",
+        "library": "jvm-okhttp4",
+        "serializationLibrary": "jackson",
+        "artifactVersion": "2.0.0",
+        "groupId": "com.newnanmanager",
+        "artifactId": "newnanmanager-generated-kotlin",
+        "licenseName": "MIT",
+        "licenseId": "MIT",
+        "hideGenerationTimestamp": "true"
+      }
+    },
+    "java": {
+      "generator": "java",
+      "ignoreList": [
+        "build.gradle",
+        "build.sbt",
+        "gradle.properties",
+        "settings.gradle",
+        "gradlew",
+        "gradlew.bat",
+        "gradle/**",
+        "src/main/AndroidManifest.xml"
+      ],
+      "properties": {
+        "apiPackage": "com.newnancity.newnanmanager.generated.api",
+        "modelPackage": "com.newnancity.newnanmanager.generated.model",
+        "invokerPackage": "com.newnancity.newnanmanager.generated",
+        "library": "okhttp-gson",
+        "serializationLibrary": "gson",
+        "dateLibrary": "java8",
+        "useSingleRequestParameter": "true",
+        "sourceFolder": "src/main/java",
+        "groupId": "com.newnancity",
+        "artifactId": "newnanmanager-generated-java",
+        "artifactVersion": "2.0.0",
+        "artifactDescription": "NewNanManager-OpenAPI-generated-Java-client",
+        "artifactUrl": "https://github.com/Gk0Wk/NewNanManager-SDK",
+        "licenseName": "MIT",
+        "licenseId": "MIT",
+        "licenseUrl": "https://opensource.org/license/mit/",
+        "scmConnection": "scm:git:git@github.com:Gk0Wk/NewNanManager-SDK.git",
+        "scmDeveloperConnection": "scm:git:ssh://git@github.com:Gk0Wk/NewNanManager-SDK.git",
+        "scmUrl": "https://github.com/Gk0Wk/NewNanManager-SDK",
+        "hideGenerationTimestamp": "true"
+      }
+    }
+  }
+}

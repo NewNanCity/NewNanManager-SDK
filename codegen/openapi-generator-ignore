@@ -1,0 +1,11 @@
+git_push.sh
+git_push.ps1
+appveyor.yml
+.travis.yml
+.github/**
+.gitlab-ci.yml
+docs/**
+api/openapi.yaml
+test-requirements.txt
+src/NewNanManager.Generated.Test/**
+src/**/Test/**

@@ -1,0 +1,10 @@
+{
+  "tool": "newnanmanager-openapi-codegen",
+  "language": "typescript",
+  "generator": "typescript-axios",
+  "cliPackage": "@openapitools/openapi-generator-cli",
+  "cliVersion": "2.41.0",
+  "engineVersion": "7.25.0",
+  "manifestSha256": "b2984900ea3f7c5dd3e7a5bf57284f5a5d39ce71aa7b8b8ba767922660c47db8",
+  "contract": "../../contracts/newnanmanager.openapi.json"
+}

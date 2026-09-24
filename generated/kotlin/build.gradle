@@ -1,0 +1,43 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '2.2.0'
+    id 'maven-publish'
+}
+
+group 'com.newnanmanager'
+version '2.0.0'
+
+wrapper {
+    gradleVersion = '8.14'
+    distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-bin.zip"
+}
+
+
+repositories {
+    mavenCentral()
+}
+
+
+test {
+    useJUnitPlatform()
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:2.2.0"
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.18.10"
+    implementation "com.squareup.okhttp3:okhttp:5.1.0"
+}
+
+java {
+    withSourcesJar()
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'com.newnanmanager'
+            artifactId = 'newnanmanager-generated-kotlin'
+            version = '2.0.0'
+            from components.java
+        }
+    }
+}

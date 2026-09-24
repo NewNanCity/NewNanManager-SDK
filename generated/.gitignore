@@ -1,0 +1,10 @@
+**/node_modules/
+**/dist/
+**/__pycache__/
+**/*.pyc
+**/bin/
+**/obj/
+**/.gradle/
+**/build/
+**/target/
+**/gradle/wrapper/gradle-wrapper.jar
