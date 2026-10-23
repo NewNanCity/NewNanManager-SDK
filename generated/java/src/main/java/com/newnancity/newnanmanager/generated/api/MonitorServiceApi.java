@@ -650,6 +650,7 @@ public class MonitorServiceApi {
             <tr><td> 500 </td><td> 服务器内部错误 </td><td>  -  </td></tr>
             <tr><td> 200 </td><td> 成功；保持现有未包裹的 JSON 结构。 </td><td>  -  </td></tr>
             <tr><td> 403 </td><td> 角色或服务器对象范围不足 </td><td>  -  </td></tr>
+            <tr><td> 409 </td><td> 服务器会话已被新代次接管 </td><td>  -  </td></tr>
             <tr><td> 429 </td><td> 请求过于频繁；按 Retry-After 重试 </td><td>  * Retry-After - 等待秒数 <br>  </td></tr>
          </table>
          */
@@ -671,6 +672,7 @@ public class MonitorServiceApi {
             <tr><td> 500 </td><td> 服务器内部错误 </td><td>  -  </td></tr>
             <tr><td> 200 </td><td> 成功；保持现有未包裹的 JSON 结构。 </td><td>  -  </td></tr>
             <tr><td> 403 </td><td> 角色或服务器对象范围不足 </td><td>  -  </td></tr>
+            <tr><td> 409 </td><td> 服务器会话已被新代次接管 </td><td>  -  </td></tr>
             <tr><td> 429 </td><td> 请求过于频繁；按 Retry-After 重试 </td><td>  * Retry-After - 等待秒数 <br>  </td></tr>
          </table>
          */
@@ -693,6 +695,7 @@ public class MonitorServiceApi {
             <tr><td> 500 </td><td> 服务器内部错误 </td><td>  -  </td></tr>
             <tr><td> 200 </td><td> 成功；保持现有未包裹的 JSON 结构。 </td><td>  -  </td></tr>
             <tr><td> 403 </td><td> 角色或服务器对象范围不足 </td><td>  -  </td></tr>
+            <tr><td> 409 </td><td> 服务器会话已被新代次接管 </td><td>  -  </td></tr>
             <tr><td> 429 </td><td> 请求过于频繁；按 Retry-After 重试 </td><td>  * Retry-After - 等待秒数 <br>  </td></tr>
          </table>
          */
@@ -715,6 +718,7 @@ public class MonitorServiceApi {
             <tr><td> 500 </td><td> 服务器内部错误 </td><td>  -  </td></tr>
             <tr><td> 200 </td><td> 成功；保持现有未包裹的 JSON 结构。 </td><td>  -  </td></tr>
             <tr><td> 403 </td><td> 角色或服务器对象范围不足 </td><td>  -  </td></tr>
+            <tr><td> 409 </td><td> 服务器会话已被新代次接管 </td><td>  -  </td></tr>
             <tr><td> 429 </td><td> 请求过于频繁；按 Retry-After 重试 </td><td>  * Retry-After - 等待秒数 <br>  </td></tr>
          </table>
          */
@@ -741,6 +745,7 @@ public class MonitorServiceApi {
         <tr><td> 500 </td><td> 服务器内部错误 </td><td>  -  </td></tr>
         <tr><td> 200 </td><td> 成功；保持现有未包裹的 JSON 结构。 </td><td>  -  </td></tr>
         <tr><td> 403 </td><td> 角色或服务器对象范围不足 </td><td>  -  </td></tr>
+        <tr><td> 409 </td><td> 服务器会话已被新代次接管 </td><td>  -  </td></tr>
         <tr><td> 429 </td><td> 请求过于频繁；按 Retry-After 重试 </td><td>  * Retry-After - 等待秒数 <br>  </td></tr>
      </table>
      */

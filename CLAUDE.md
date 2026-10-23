@@ -4,7 +4,7 @@
 
 - `python/`：aiohttp/Pydantic；`typescript/`：Axios；`golang/`：Resty；`csharp/`：.NET HttpClient；`kotlin/`：OkHttp/Jackson；`java/`：Java 8 facade，依赖 `generated/java/` 的 Maven 模块。
 - `codegen/`：生成器清单、版本锁定和漂移检查；`generated/` 只存自动生成的低级客户端，不手工修改。
-- 回归与兼容限制见 `docs/audits/2026-09-06-contract-decisions.md`，Guardian 消费边界与待决契约缺口见 `docs/audits/2026-10-23-guardian-integration.md`，变更事实见 `docs/releases/unreleased/`。
+- 回归与兼容限制见 `docs/audits/2026-09-06-contract-decisions.md`，Guardian 消费边界与已补齐的 409 契约见 `docs/audits/2026-10-23-guardian-integration.md`，变更事实见 `docs/releases/unreleased/`。
 - 详细调用示例见 `docs/examples/`；请求类型以各语言模块源码为准。
 - 名称、完整快照、Token绑定和监控分页见 `docs/contracts.md`。Go每个服务操作支持WithContext；旧入口保留，计数i64与TypeScript假字段纠正需按契约决策迁移。
 - Go最低1.25.0，Python最低3.10；Token分页及模型构造迁移见契约决策，依赖版本、Python3.10/3.12哈希锁和扫描边界见 `docs/audits/2026-09-06-dependency-acceptance.md`。

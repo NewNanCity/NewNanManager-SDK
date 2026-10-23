@@ -24,3 +24,7 @@ Guardian 通过独立 Maven 坐标消费 SDK。本轮证明当前提交的完整
 Demo posture / limitations
 
 发现 canonical OpenAPI 未声明运行时已有的 409 会话冲突响应；这是待批准的公共契约覆盖缺口，本轮没有修改 schema。没有连接真实 Manager/MySQL、没有执行双服顶号演练、没有远端发布或部署。
+
+后续状态
+
+该 schema 缺口已获批准并修复，生成差异与验证见 [会话冲突响应同步](2026-10-23-sdk-session-conflict-responses.md)。

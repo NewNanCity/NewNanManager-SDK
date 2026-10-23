@@ -580,7 +580,7 @@ namespace NewNanManager.Generated.Api
     /// <summary>
     /// The <see cref="IValidateApiResponse"/>
     /// </summary>
-    public interface IValidateApiResponse : NewNanManager.Generated.Client.IApiResponse, IBadRequest<NewNanManager.Generated.Model.ErrorResponse?>, IUnauthorized<NewNanManager.Generated.Model.ErrorResponse?>, IInternalServerError<NewNanManager.Generated.Model.ErrorResponse?>, IOk<NewNanManager.Generated.Model.ValidateResponse?>, IForbidden<NewNanManager.Generated.Model.ErrorResponse?>, ITooManyRequests<NewNanManager.Generated.Model.ErrorResponse?>
+    public interface IValidateApiResponse : NewNanManager.Generated.Client.IApiResponse, IBadRequest<NewNanManager.Generated.Model.ErrorResponse?>, IUnauthorized<NewNanManager.Generated.Model.ErrorResponse?>, IInternalServerError<NewNanManager.Generated.Model.ErrorResponse?>, IOk<NewNanManager.Generated.Model.ValidateResponse?>, IForbidden<NewNanManager.Generated.Model.ErrorResponse?>, IConflict<NewNanManager.Generated.Model.ErrorResponse?>, ITooManyRequests<NewNanManager.Generated.Model.ErrorResponse?>
     {
         /// <summary>
         /// Returns true if the response is 400 BadRequest
@@ -611,6 +611,12 @@ namespace NewNanManager.Generated.Api
         /// </summary>
         /// <returns></returns>
         bool IsForbidden { get; }
+
+        /// <summary>
+        /// Returns true if the response is 409 Conflict
+        /// </summary>
+        /// <returns></returns>
+        bool IsConflict { get; }
 
         /// <summary>
         /// Returns true if the response is 429 TooManyRequests
@@ -5364,6 +5370,56 @@ namespace NewNanManager.Generated.Api
                 } catch (Exception e)
                 {
                     OnDeserializationErrorDefaultImplementation(e, (HttpStatusCode)403);
+                }
+
+                return result != null;
+            }
+
+            /// <summary>
+            /// Returns true if the response is 409 Conflict
+            /// </summary>
+            /// <returns></returns>
+            public bool IsConflict => 409 == (int)StatusCode;
+
+            /// <summary>
+            /// Deserializes the response if the response is 409 Conflict
+            /// </summary>
+            /// <returns></returns>
+            public NewNanManager.Generated.Model.ErrorResponse? Conflict()
+            {
+                bool suppressDefault = false;
+                NewNanManager.Generated.Model.ErrorResponse? result = null;
+                OnConflict(ref suppressDefault, ref result);
+                if (!suppressDefault)
+                    result = DefaultConflict();
+                return result;
+            }
+
+            private NewNanManager.Generated.Model.ErrorResponse? DefaultConflict()
+            {
+                // NOTICE: Consider this AsModel template deprecated. Implement the appropriate partial method instead
+                return IsConflict
+                    ? System.Text.Json.JsonSerializer.Deserialize<NewNanManager.Generated.Model.ErrorResponse>(RawContent, _jsonSerializerOptions)
+                    : null;
+            }
+
+            partial void OnConflict(ref bool suppressDefault, ref NewNanManager.Generated.Model.ErrorResponse? result);
+
+            /// <summary>
+            /// Returns true if the response is 409 Conflict and the deserialized response is not null
+            /// </summary>
+            /// <param name="result"></param>
+            /// <returns></returns>
+            public bool TryConflict([NotNullWhen(true)]out NewNanManager.Generated.Model.ErrorResponse? result)
+            {
+                result = null;
+
+                try
+                {
+                    result = Conflict();
+                } catch (Exception e)
+                {
+                    OnDeserializationErrorDefaultImplementation(e, (HttpStatusCode)409);
                 }
 
                 return result != null;

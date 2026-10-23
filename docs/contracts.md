@@ -8,6 +8,10 @@
 
 完整快照的 `players` 必须是数组；`login=false` 清空在线集合时显式传 `[]`，`null` 会被服务端拒绝。SDK 不把 `null` 或缺失值改写为空数组。
 
+## 服务器会话冲突
+
+`validate`、`heartbeat` 和 `setPlayersOffline` 必须携带 `X-NNM-Session-ID` 与 `X-NNM-Session-Epoch`。服务器为新实例签发新会话后，旧会话会收到 HTTP 409，响应体复用 `ErrorResponse`。SDK 不会自动创建替代会话；调用方应停止准入，并由本服务生命周期决定何时重新调用 `createServerSession`。
+
 ## 玩家名称与完整快照
 
 玩家名称继续作为跨平台唯一标识。服务端只对 ASCII 字母做不区分大小写的比较；SDK 不修改输入拼写，也不要求新增 UUID。验证响应的 `player_name` 回显该请求中的原拼写，不能通过大小写转换推断另一个身份。

@@ -13,8 +13,6 @@
 - [x] 已为 `x-nnm-session-headers` 和必需空对象请求补 facade 适配，并为六种 facade 增加 session ID/epoch 的本地校验；生成器输出本身仍不代表 Casbin、业务不变量或 Guardian 重连策略已验收。
 - [ ] 评估是否把 `x-nnm-legacy-validation` 注册为可执行模板 validator；在此之前继续由领域层和 facade 适配承接该扩展。
 - [ ] 等后端模板服务切换完成后，移除五语言错误解析中的 legacy `detail` 回退，并补做真实部署的错误关联字段验收；Java facade 已采用标准字段并保留迁移期 `detail` 回退。
-- [ ] 待父仓公共契约 owner 批准后，为 `validate`、`heartbeat`、`setPlayersOffline` 补充 HTTP 409 `ErrorResponse` 声明并重新生成六语言客户端。当前运行时会返回 409，但 canonical OpenAPI 未声明；Java facade 仍能保留状态和结构化错误，因此这是契约覆盖缺口，不是当前编译或调用阻断项。
-
 - [ ] Python 既有 Ruff 诊断：本轮修改文件共 34 条，主要是旧 Dict/Type 注解、导入格式和异常链；相同 HTTP 文件的 HEAD 基线为 35 条。本轮新增测试、异常元数据和模型导入检查通过，未扩大到全包格式迁移。
 - [ ] Python 基线升级时的全包 `ruff check --select F,E9 newnanmanager tests` 返回56条星号导入相关诊断；对应两个 `__init__.py` 未修改，作为既有导出方式的维护项保留。Ruff 顶层 lint 配置也有弃用提示。
 - [ ] TypeScript 浏览器适配器的重定向策略需要单独验证；当前明确验收范围为 Node HTTP 适配器。

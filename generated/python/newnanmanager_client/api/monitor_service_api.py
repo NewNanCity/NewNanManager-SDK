@@ -766,6 +766,7 @@ class MonitorServiceApi:
             '500': "ErrorResponse",
             '200': "HeartbeatResponse",
             '403': "ErrorResponse",
+            '409': "ErrorResponse",
             '429': "ErrorResponse",
         }
         response_data = self.api_client.call_api(
@@ -851,6 +852,7 @@ class MonitorServiceApi:
             '500': "ErrorResponse",
             '200': "HeartbeatResponse",
             '403': "ErrorResponse",
+            '409': "ErrorResponse",
             '429': "ErrorResponse",
         }
         response_data = self.api_client.call_api(
@@ -936,6 +938,7 @@ class MonitorServiceApi:
             '500': "ErrorResponse",
             '200': "HeartbeatResponse",
             '403': "ErrorResponse",
+            '409': "ErrorResponse",
             '429': "ErrorResponse",
         }
         response_data = self.api_client.call_api(

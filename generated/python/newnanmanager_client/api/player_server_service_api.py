@@ -751,6 +751,7 @@ class PlayerServerServiceApi:
             '500': "ErrorResponse",
             '200': "object",
             '403': "ErrorResponse",
+            '409': "ErrorResponse",
             '429': "ErrorResponse",
         }
         response_data = self.api_client.call_api(
@@ -831,6 +832,7 @@ class PlayerServerServiceApi:
             '500': "ErrorResponse",
             '200': "object",
             '403': "ErrorResponse",
+            '409': "ErrorResponse",
             '429': "ErrorResponse",
         }
         response_data = self.api_client.call_api(
@@ -911,6 +913,7 @@ class PlayerServerServiceApi:
             '500': "ErrorResponse",
             '200': "object",
             '403': "ErrorResponse",
+            '409': "ErrorResponse",
             '429': "ErrorResponse",
         }
         response_data = self.api_client.call_api(
