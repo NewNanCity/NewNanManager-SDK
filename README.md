@@ -51,4 +51,4 @@ dotnet test Tests/NewNanManager.Client.Tests.csproj --no-restore --filter Catego
 
 TypeScript 集成 runner 必须显式配置 NANMANAGER_TOKEN 和 NANMANAGER_BASE_URL，可能操作测试数据；npm test 不执行真实服务请求。C# 真实服务测试标记 Category=Integration。TypeScript 构建会把 `generated/typescript/` 同步进最终 dist，旧模块工厂仍保留给兼容调用；浏览器重定向和生产 session 仍未验收。
 
-本轮尚未提交、发布或部署；变更见 [unreleased](docs/releases/unreleased/)。
+409 契约修复已形成本地提交；本仓当前未执行 Maven 2.0.0 发布或部署，公开目标未发现其已发布证据，私有仓库状态仍需在目标仓库核验。发布方案、版本和凭据边界见 [Maven release readiness](docs/releases/unreleased/2026-10-23-sdk-maven-release-readiness.md)，其余变更见 [unreleased](docs/releases/unreleased/)。
