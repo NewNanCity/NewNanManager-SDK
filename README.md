@@ -25,6 +25,8 @@ Go 所有服务方法增加请求级 WithContext 入口；六个统计计数已�
 
 模板重建错误响应使用 `code/message/error/request_id/trace_id`；六语言异常对象保留机器错误类别和 code，并兼容迁移期的旧 `detail`。Java facade 另外保留原始 HTTP 状态、响应头和响应体。完整快照清空使用显式 `players=[]`，`players=null` 不再作为清空语义。
 
+服务器会话被新代次接管后，`validate`、`heartbeat` 和 `setPlayersOffline` 会返回 HTTP 409。Java facade 不自动重建会话；调用方应停止使用旧 `SessionContext`，由自身生命周期决定何时调用 `createServerSession`。2026-10-23 的生成链、打包产物和 Guardian 消费审计见 [Guardian integration audit](docs/audits/2026-10-23-guardian-integration.md)。
+
 Token列表补齐分页元数据，Go/C#提供兼容新增的单页入口；TypeScript的Token搜索字段保留弃用声明但不发送。C#服务器模型提供Active，不再把缺失的ServerType解释为真实类型。Python手工构造Token列表模型时必须补齐total/page/page_size，见[契约迁移](docs/audits/2026-09-06-contract-decisions.md)。
 
 Go SDK最低版本为1.25.0，x/net升级到0.56.0；Python SDK最低版本为3.10，aiohttp要求>=3.14.3，并提供3.10/3.12受控环境哈希锁。旧Go1.21至1.24与Python3.9用户需先升级工具链及下游依赖锁。Go1.25.14和Python3.10.19/3.12.12的回归通过，基线变更见[unreleased](docs/releases/unreleased/2026-09-06-runtime-sdk-go-python-baselines.md)。

@@ -33,7 +33,7 @@ try (NewNanManagerClient client = NewNanManagerClient.builder()
 }
 ```
 
-默认超时为 30 秒，自动重定向和 OkHttp 传输层自动重试均关闭。`429` 的 `Retry-After` 会通过 `HttpException#getRetryAfter()` 保留，由业务决定是否重试；facade 不会自动重发写请求或读取请求。
+默认超时为 30 秒，自动重定向和 OkHttp 传输层自动重试均关闭。`429` 的 `Retry-After` 会通过 `HttpException#getRetryAfter()` 保留，由业务决定是否重试；facade 不会自动重发写请求或读取请求。服务器会话被新代次接管后返回的 HTTP 409 也保留在异常状态中；调用方不得用旧 `SessionContext` 自动重试，应停止准入并在自身生命周期中重新调用 `createServerSession`。
 
 服务器插件先调用 `client.monitor().createServerSession(serverId)`，再把返回的 `SessionContext` 传给 `players().validate(request, session)`、`monitor().heartbeat(serverId, request, session)` 和 `playerServers().setPlayersOffline(request, session)`。原始 `String sessionId, long sessionEpoch` 重载保留兼容并复用相同校验；typed context 会在网络请求前拒绝空 ID、长度不在 32–64 之间的 ID 和非正 epoch。
 
