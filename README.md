@@ -27,6 +27,48 @@ Go 所有服务方法增加请求级 WithContext 入口；六个统计计数已�
 
 服务器会话被新代次接管后，`validate`、`heartbeat` 和 `setPlayersOffline` 会返回 HTTP 409。canonical OpenAPI 已把该状态声明为 `ErrorResponse`，Go/Python/C#/Java 生成客户端也已反映该响应；Java facade 不自动重建会话，调用方应停止使用旧 `SessionContext`，由自身生命周期决定何时调用 `createServerSession`。2026-10-23 的生成链、打包产物和 Guardian 消费审计见 [Guardian integration audit](docs/audits/2026-10-23-guardian-integration.md)。
 
+## JitPack 分发
+
+Java SDK 通过仓库根目录的 `jitpack.yml` 固定 OpenJDK 21，并执行未跳过测试的 `mvn -B -ntp -f pom.xml clean install`。配置不单独固定 Maven 版本，构建使用 JitPack OpenJDK 21 镜像提供的 `mvn`，远端成功后应以构建日志记录实际版本。JitPack 对 Maven 多模块仓库保留模块 artifactId、自动改写公开 groupId；消费者应把它作为分发层，不要修改 POM 中的本地 `com.newnancity` 坐标或生成代码。
+
+待 JitPack 首次远端构建确认的固定 commit 候选模块坐标为：
+
+```text
+com.github.NewNanCity.NewNanManager-SDK:newnanmanager-sdk:<commit>
+com.github.NewNanCity.NewNanManager-SDK:newnanmanager-generated-java:<commit>
+com.github.NewNanCity.NewNanManager-SDK:newnanmanager-java:<commit>
+```
+
+通常只需在 `https://jitpack.io` 中声明 facade 模块；其 POM 预计会继续传递解析 generated 模块。JitPack 按多模块规则生成候选聚合坐标 `com.github.NewNanCity:NewNanManager-SDK:<commit>`，用于一次引入仓库全部模块。启用本地 reactor 时仍使用 `com.newnancity:newnanmanager-java:2.0.0`。远端构建状态和候选 commit 见 [JitPack distribution](docs/releases/unreleased/2026-10-24-sdk-jitpack-distribution.md)。
+
+Gradle Kotlin DSL：
+
+```kotlin
+repositories {
+    maven("https://jitpack.io")
+}
+
+dependencies {
+    implementation("com.github.NewNanCity.NewNanManager-SDK:newnanmanager-java:<commit>")
+}
+```
+
+Maven：
+
+```xml
+<repositories>
+  <repository>
+    <id>jitpack.io</id>
+    <url>https://jitpack.io</url>
+  </repository>
+</repositories>
+<dependency>
+  <groupId>com.github.NewNanCity.NewNanManager-SDK</groupId>
+  <artifactId>newnanmanager-java</artifactId>
+  <version>&lt;commit&gt;</version>
+</dependency>
+```
+
 Token列表补齐分页元数据，Go/C#提供兼容新增的单页入口；TypeScript的Token搜索字段保留弃用声明但不发送。C#服务器模型提供Active，不再把缺失的ServerType解释为真实类型。Python手工构造Token列表模型时必须补齐total/page/page_size，见[契约迁移](docs/audits/2026-09-06-contract-decisions.md)。
 
 Go SDK最低版本为1.25.0，x/net升级到0.56.0；Python SDK最低版本为3.10，aiohttp要求>=3.14.3，并提供3.10/3.12受控环境哈希锁。旧Go1.21至1.24与Python3.9用户需先升级工具链及下游依赖锁。Go1.25.14和Python3.10.19/3.12.12的回归通过，基线变更见[unreleased](docs/releases/unreleased/2026-09-06-runtime-sdk-go-python-baselines.md)。

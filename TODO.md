@@ -9,7 +9,7 @@
 
 ## 后续检查
 
-- [ ] 确定 Java SDK Maven 发布目标、版本策略、源码推送/标签权限和外部管理的发布凭据；当前仓库没有自动发布工作流或默认 `distributionManagement`，公开检查未发现可验证的 `com.newnancity:newnanmanager-java:2.0.0` 发布证据，详情见 `docs/releases/unreleased/2026-10-23-sdk-maven-release-readiness.md`。
+- [ ] 由协调者审查并通过固定 commit 触发 JitPack 远端构建，验证三个模块坐标、facade→generated 传递依赖和聚合坐标；当前只完成 `jitpack.yml` 与原始坐标的本地 Maven reactor 验证，尚未 push、tag、触发 JitPack 或验证真实坐标改写。见 `docs/releases/unreleased/2026-10-24-sdk-jitpack-distribution.md`。
 - [ ] 将已生成并通过漂移检查的 `generated/<language>/` 低级客户端逐语言接入现有 facade；TypeScript 主客户端、Java facade 已接入生成层并通过本地回归，Kotlin 普通业务服务已接入生成 transport 并通过 MockWebServer 回归。Go/Python/C# 暂保留既有手写 transport 以维持行为边界；六种 facade 都支持 Bearer/API Token 二选一和显式 session fencing，剩余工作是其余 transport 接入与全字段行为对照。
 - [x] 已为 `x-nnm-session-headers` 和必需空对象请求补 facade 适配，并为六种 facade 增加 session ID/epoch 的本地校验；生成器输出本身仍不代表 Casbin、业务不变量或 Guardian 重连策略已验收。
 - [ ] 评估是否把 `x-nnm-legacy-validation` 注册为可执行模板 validator；在此之前继续由领域层和 facade 适配承接该扩展。

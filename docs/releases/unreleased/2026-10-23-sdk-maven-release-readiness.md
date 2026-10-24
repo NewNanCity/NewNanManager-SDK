@@ -16,7 +16,9 @@ What changed
 
 记录 Java SDK 的当前 Maven 产物、源码与版本关系、公开仓库查询结果、发布前门禁、回退边界，以及正式发布前必须由用户提供的配置。仅做只读侦察和文档准备，没有修改版本、POM、公共契约或全局配置，也没有发布、推送或部署。
 
-## 当前事实
+> 2026-10-24 决策更新：用户已批准采用 JitPack；本页保留为本地 Maven 构建与制品边界参考，公开分发配置与候选验证见 [JitPack distribution](2026-10-24-sdk-jitpack-distribution.md)。
+
+## 当时事实（2026-10-23）
 
 - 父仓本地 HEAD 为 `1e1009d0c089c53ef263a50baf12f2bfa052ed50`，`origin/main` 为 `b73ac4bcc1f1811c705095ec5694a05f31942757`，本地领先 2 个提交。
 - SDK 本地 HEAD 为 `9c0e401e537e51cae46a2fe3a8f756cd6ae88b76`，`origin/main` 为 `fe45110863b2a51999bb767a5610f0f8e69ac4bf`，本地领先 2 个提交。

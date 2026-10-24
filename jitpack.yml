@@ -1,0 +1,5 @@
+jdk:
+  - openjdk21
+
+install:
+  - mvn -B -ntp -f pom.xml clean install
