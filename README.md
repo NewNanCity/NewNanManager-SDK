@@ -39,7 +39,7 @@ com.github.NewNanCity.NewNanManager-SDK:newnanmanager-generated-java:8020eb3a300
 com.github.NewNanCity.NewNanManager-SDK:newnanmanager-java:8020eb3a3008bafeb0edc3ead543dd139b8a4368
 ```
 
-通常只需在 `https://jitpack.io` 中声明 facade 模块；其远端 POM 已确认通过 parent 和 dependency 指向改写后的 generated 模块。聚合坐标为 `com.github.NewNanCity:NewNanManager-SDK:8020eb3a3008bafeb0edc3ead543dd139b8a4368`。启用本地 reactor 时仍使用 `com.newnancity:newnanmanager-java:2.0.0`。JitPack 构建不等同于 Maven Central 发布，`com.newnancity` 的 2.0.0 制品仍未发布到 Central。完整发布证据见 [JitPack distribution](docs/releases/unreleased/2026-10-24-sdk-jitpack-distribution.md)。
+通常只需在 `https://jitpack.io` 中声明 facade 模块；其远端 POM 已确认通过 parent 指向 SDK 父 POM，并通过 dependency 指向 generated 模块，两者均已改写为 JitPack 坐标。聚合坐标为 `com.github.NewNanCity:NewNanManager-SDK:8020eb3a3008bafeb0edc3ead543dd139b8a4368`。启用本地 reactor 时仍使用 `com.newnancity:newnanmanager-java:2.0.0`。JitPack 构建不等同于 Maven Central 发布，`com.newnancity` 的 2.0.0 制品仍未发布到 Central。完整发布证据见 [JitPack distribution](docs/releases/unreleased/2026-10-24-sdk-jitpack-distribution.md)。
 
 Gradle Kotlin DSL：
 

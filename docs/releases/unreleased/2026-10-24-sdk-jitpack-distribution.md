@@ -50,4 +50,4 @@ JitPack 真实坐标改写、三模块制品、聚合 POM 和独立消费者解�
 
 ## 发布状态
 
-`d0bd657253e6ea67ceef795e10c98642407fb224` 和 `8020eb3a3008bafeb0edc3ead543dd139b8a4368` 均已推送到 `NewNanCity/NewNanManager-SDK` 的 `main`；本轮没有创建 `2.0.0` tag。JitPack 使用完整 commit 作为不可变版本。原始 `com.newnancity` 坐标只用于本地 reactor，`com.newnancity` 的 2.0.0 未发布到 Maven Central。
+`d0bd657253e6ea67ceef795e10c98642407fb224` 和 `8020eb3a3008bafeb0edc3ead543dd139b8a4368` 均已推送到 `NewNanCity/NewNanManager-SDK` 的 `main`；本轮没有创建 `2.0.0` tag。JitPack 使用完整 commit 固定源码版本；这不等于制品立即不可变或按字节可重现，下载制品应保存校验值。原始 `com.newnancity` 坐标只用于本地 reactor，`com.newnancity` 的 2.0.0 未发布到 Maven Central。
