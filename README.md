@@ -29,9 +29,9 @@ Go 所有服务方法增加请求级 WithContext 入口；六个统计计数已�
 
 ## JitPack 分发
 
-Java SDK 通过仓库根目录的 `jitpack.yml` 固定 OpenJDK 21，并执行未跳过测试的 `mvn -B -ntp -f pom.xml clean install`。配置不单独固定 Maven 版本，构建使用 JitPack OpenJDK 21 镜像提供的 `mvn`，远端成功后应以构建日志记录实际版本。JitPack 对 Maven 多模块仓库保留模块 artifactId、自动改写公开 groupId；消费者应把它作为分发层，不要修改 POM 中的本地 `com.newnancity` 坐标或生成代码。
+Java SDK 通过仓库根目录的 `jitpack.yml` 固定 OpenJDK 21 和 Maven 3.9.9，并执行未跳过测试的 `mvn -B -ntp -f pom.xml clean install`。Maven 由 SDKMAN 在 `before_install` 阶段安装和选择，构建前输出 `mvn -version` 供远端日志复核。JitPack 对 Maven 多模块仓库保留模块 artifactId、自动改写公开 groupId；消费者应把它作为分发层，不要修改 POM 中的本地 `com.newnancity` 坐标或生成代码。
 
-待 JitPack 首次远端构建确认的固定 commit 候选模块坐标为：
+待 JitPack 首次成功远端构建确认的固定 commit 候选模块坐标为：
 
 ```text
 com.github.NewNanCity.NewNanManager-SDK:newnanmanager-sdk:<commit>

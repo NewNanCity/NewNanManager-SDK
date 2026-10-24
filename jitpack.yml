@@ -1,5 +1,10 @@
 jdk:
   - openjdk21
 
+before_install:
+  - sdk install maven 3.9.9
+  - sdk use maven 3.9.9
+  - mvn -version
+
 install:
   - mvn -B -ntp -f pom.xml clean install
