@@ -9,7 +9,6 @@
 
 ## 后续检查
 
-- [ ] 用 Maven 3.9.9 修复后的新 commit 触发 JitPack 远端构建，验证三个模块坐标、facade→generated 传递依赖和聚合坐标；`d0bd657` 的首次远端构建已因 JitPack 默认 Maven 过旧而失败，修复后的真实坐标改写仍待协调者复测。见 `docs/releases/unreleased/2026-10-24-sdk-jitpack-distribution.md`。
 - [ ] 将已生成并通过漂移检查的 `generated/<language>/` 低级客户端逐语言接入现有 facade；TypeScript 主客户端、Java facade 已接入生成层并通过本地回归，Kotlin 普通业务服务已接入生成 transport 并通过 MockWebServer 回归。Go/Python/C# 暂保留既有手写 transport 以维持行为边界；六种 facade 都支持 Bearer/API Token 二选一和显式 session fencing，剩余工作是其余 transport 接入与全字段行为对照。
 - [x] 已为 `x-nnm-session-headers` 和必需空对象请求补 facade 适配，并为六种 facade 增加 session ID/epoch 的本地校验；生成器输出本身仍不代表 Casbin、业务不变量或 Guardian 重连策略已验收。
 - [ ] 评估是否把 `x-nnm-legacy-validation` 注册为可执行模板 validator；在此之前继续由领域层和 facade 适配承接该扩展。

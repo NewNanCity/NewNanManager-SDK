@@ -31,15 +31,15 @@ Go 所有服务方法增加请求级 WithContext 入口；六个统计计数已�
 
 Java SDK 通过仓库根目录的 `jitpack.yml` 固定 OpenJDK 21 和 Maven 3.9.9，并执行未跳过测试的 `mvn -B -ntp -f pom.xml clean install`。Maven 由 SDKMAN 在 `before_install` 阶段安装和选择，构建前输出 `mvn -version` 供远端日志复核。JitPack 对 Maven 多模块仓库保留模块 artifactId、自动改写公开 groupId；消费者应把它作为分发层，不要修改 POM 中的本地 `com.newnancity` 坐标或生成代码。
 
-待 JitPack 首次成功远端构建确认的固定 commit 候选模块坐标为：
+已由 JitPack 成功构建的固定 commit 模块坐标为：
 
 ```text
-com.github.NewNanCity.NewNanManager-SDK:newnanmanager-sdk:<commit>
-com.github.NewNanCity.NewNanManager-SDK:newnanmanager-generated-java:<commit>
-com.github.NewNanCity.NewNanManager-SDK:newnanmanager-java:<commit>
+com.github.NewNanCity.NewNanManager-SDK:newnanmanager-sdk:8020eb3a3008bafeb0edc3ead543dd139b8a4368
+com.github.NewNanCity.NewNanManager-SDK:newnanmanager-generated-java:8020eb3a3008bafeb0edc3ead543dd139b8a4368
+com.github.NewNanCity.NewNanManager-SDK:newnanmanager-java:8020eb3a3008bafeb0edc3ead543dd139b8a4368
 ```
 
-通常只需在 `https://jitpack.io` 中声明 facade 模块；其 POM 预计会继续传递解析 generated 模块。JitPack 按多模块规则生成候选聚合坐标 `com.github.NewNanCity:NewNanManager-SDK:<commit>`，用于一次引入仓库全部模块。启用本地 reactor 时仍使用 `com.newnancity:newnanmanager-java:2.0.0`。远端构建状态和候选 commit 见 [JitPack distribution](docs/releases/unreleased/2026-10-24-sdk-jitpack-distribution.md)。
+通常只需在 `https://jitpack.io` 中声明 facade 模块；其远端 POM 已确认通过 parent 和 dependency 指向改写后的 generated 模块。聚合坐标为 `com.github.NewNanCity:NewNanManager-SDK:8020eb3a3008bafeb0edc3ead543dd139b8a4368`。启用本地 reactor 时仍使用 `com.newnancity:newnanmanager-java:2.0.0`。JitPack 构建不等同于 Maven Central 发布，`com.newnancity` 的 2.0.0 制品仍未发布到 Central。完整发布证据见 [JitPack distribution](docs/releases/unreleased/2026-10-24-sdk-jitpack-distribution.md)。
 
 Gradle Kotlin DSL：
 
@@ -49,7 +49,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.NewNanCity.NewNanManager-SDK:newnanmanager-java:<commit>")
+    implementation("com.github.NewNanCity.NewNanManager-SDK:newnanmanager-java:8020eb3a3008bafeb0edc3ead543dd139b8a4368")
 }
 ```
 
@@ -65,7 +65,7 @@ Maven：
 <dependency>
   <groupId>com.github.NewNanCity.NewNanManager-SDK</groupId>
   <artifactId>newnanmanager-java</artifactId>
-  <version>&lt;commit&gt;</version>
+  <version>8020eb3a3008bafeb0edc3ead543dd139b8a4368</version>
 </dependency>
 ```
 

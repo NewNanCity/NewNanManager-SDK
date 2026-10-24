@@ -5,7 +5,7 @@
 - `python/`：aiohttp/Pydantic；`typescript/`：Axios；`golang/`：Resty；`csharp/`：.NET HttpClient；`kotlin/`：OkHttp/Jackson；`java/`：Java 8 facade，依赖 `generated/java/` 的 Maven 模块。
 - `codegen/`：生成器清单、版本锁定和漂移检查；`generated/` 只存自动生成的低级客户端，不手工修改。
 - 回归与兼容限制见 `docs/audits/2026-09-06-contract-decisions.md`，Guardian 消费边界与已补齐的 409 契约见 `docs/audits/2026-10-23-guardian-integration.md`，变更事实见 `docs/releases/unreleased/`。
-- JitPack 分发：根 `jitpack.yml` 固定 OpenJDK 21 和 Maven 3.9.9，并以不跳过测试的 Maven reactor 安装；公开模块坐标使用自动改写的 `com.github.NewNanCity.NewNanManager-SDK:<artifactId>:<commit>`，本地构建仍用 `com.newnancity`，详见 `docs/releases/unreleased/2026-10-24-sdk-jitpack-distribution.md`。
+- JitPack 分发：`8020eb3a3008bafeb0edc3ead543dd139b8a4368` 已由 OpenJDK 21、Maven 3.9.9 成功构建，facade 坐标 `com.github.NewNanCity.NewNanManager-SDK:newnanmanager-java:8020eb3a3008bafeb0edc3ead543dd139b8a4368`；本地构建仍用 `com.newnancity`，详见 `docs/releases/unreleased/2026-10-24-sdk-jitpack-distribution.md`。
 - 详细调用示例见 `docs/examples/`；请求类型以各语言模块源码为准。
 - 名称、完整快照、Token绑定和监控分页见 `docs/contracts.md`。Go每个服务操作支持WithContext；旧入口保留，计数i64与TypeScript假字段纠正需按契约决策迁移。
 - Go最低1.25.0，Python最低3.10；Token分页及模型构造迁移见契约决策，依赖版本、Python3.10/3.12哈希锁和扫描边界见 `docs/audits/2026-09-06-dependency-acceptance.md`。
